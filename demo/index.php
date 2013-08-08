@@ -66,7 +66,6 @@ Ext.onReady(function() {
 	//var layerSezioni = aggiungiLayerSezioni(mapset);
 	
 	var options={
-		
 		title: "",
 		plugins: [{ptype:"gc_loading"},{ptype:"gc_navigation"},{ptype:"gc_measure"},{ptype:"gc_coordinates",coordPrecision: 6},{ptype:"gc_mapquery"},{ptype: 'gc_featurepopup'}],
 		controls: [new OpenLayers.Control.ScaleLine({bottomInUnits:false})]
