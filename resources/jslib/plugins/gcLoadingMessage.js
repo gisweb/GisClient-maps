@@ -1,7 +1,7 @@
 Ext.namespace("GisClient.plugins");
 GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
 
-	errorTitle: 'Errore durante la generazione del livello: verificare le impostazioni.',
+	errorTitle: 'Errore durante la generazione del livello: ',
 	loadingTitle: 'Aggiornamento mappa ...',
 	loadingIcon: 'loading-panel',
 	loadingWidth: 250,
@@ -10,7 +10,6 @@ GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
 	maximized: false,
 	visible: true,
 	
-	
     constructor: function(config) {
         Ext.apply(this.initialConfig, Ext.apply({}, config));
         Ext.apply(this, config);
@@ -18,48 +17,22 @@ GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
     },
 
     init: function(mapPanel){
-
 		mapPanel.map.events.register('preaddlayer', this, this.addLayer);
 		mapPanel.map.events.register('removelayer', this, this.removeLayer);
 		for (var i = 0; i < mapPanel.map.layers.length; i++) {
 			var layer = mapPanel.map.layers[i];
 			layer.events.register('loadstart', this, this.increaseCounter);
 			layer.events.register('loadend', this, this.decreaseCounter);
+			if(layer instanceof OpenLayers.Layer.WMS)layer.events.register('loadend', {layer:layer,self:this}, this.checkErrors);
 		}
 
 		mapPanel.loadingPanel = this;
-		OpenLayers.Util.onImageLoadError = function(){mapPanel.loadingPanel.loadingError(this)};
 		mapPanel.addListener("loading",function(options){
 			if(options.start) this.showLoading(options);
 			if(options.end) this.hideLoading();
 		},this);
 		
     },
-	
-	loadingError: function(imgDiv){
-		imgDiv.style.display="none";
-		Ext.Ajax.request({
-			url : imgDiv.src, 
-			method: 'GET',
-			success: function ( result, request )
-			{ 
-				this.decreaseCounter();
-				Ext.MessageBox.show({
-					title: this.errorTitle,
-					maxWidth: 900,
-					msg: result.responseText,
-					buttons: Ext.MessageBox.OK,
-					icon: Ext.MessageBox.WARNING
-				});
-			},
-			failure: function ( result, request )
-			{
-				this.decreaseCounter();
-			},
-			scope:this
-		});
-	
-	},
 	
 	addLayer: function(evt) {
 		if (evt.layer) {
@@ -106,6 +79,36 @@ GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
 		
 	},
 
+	checkErrors: function() {
+
+        var imgDiv = Ext.fly(this.layer.div);
+		if(!imgDiv.child('img').hasClass('olImageLoadError')) return;
+		imgDiv.hide();
+		var layerName = this.layer.name;
+		console.log(this.layer)
+		Ext.Ajax.request({
+			url : imgDiv.child('img').dom.src, 
+			method: 'GET',
+			success: function ( result, request )
+			{ 
+				this.decreaseCounter();
+				Ext.MessageBox.show({
+					title: this.errorTitle + layerName,
+					maxWidth: 900,
+					msg: result.responseText,
+					buttons: Ext.MessageBox.OK,
+					icon: Ext.MessageBox.WARNING
+				});
+			},
+			failure: function ( result, request )
+			{
+				this.decreaseCounter();
+			},
+			scope:this.self
+		});
+
+	},
+	
 	decreaseCounter: function() {
 		this.counter--;
 		if (this.counter > 0) {		

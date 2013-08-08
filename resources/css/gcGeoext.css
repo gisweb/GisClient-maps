@@ -179,6 +179,10 @@
 			-webkit-box-shadow: 2px 2px 2px #000;
 		}
 		
+		.olImageLoadError {
+			background-image: url(theme/img/missing-tile.png);
+			background-repeat: no-repeat;
+		}	
 		
 		.x-form-file-wrap {
 			position: relative;
