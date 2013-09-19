@@ -522,8 +522,6 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 			
 		}
 		if(this.activeControl) this.activeControl.layers = this.queryLayers; 
-		console.log(this.queryLayers)
-
 	},
 		
 	updateQueryLayers: function(e){
