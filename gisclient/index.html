@@ -68,7 +68,7 @@ GisClient.initMapset = function() {
 	for (var i = 0; i < mapset.layers.length; i++) {
 		var layer =  mapset.layers[i];
 		if(layer instanceof(OpenLayers.Layer.TMS)){
-			layer.options.tileOrigin = new OpenLayers.LonLat(layer.options.tileOrigin[0],layer.options.tileOrigin[1]);
+			layer.options.tileOrigin = new OpenLayers.LonLat(layer.options.tileOrigin[0],layer.options.tileOrigin[0]);
 		}
 		if(layer instanceof(OpenLayers.Layer.OSM) || layer instanceof(OpenLayers.Layer.Bing)){
 			layer.options.resolutions = mapset.map.resolutions;

@@ -34,7 +34,7 @@ GisClient.MapPanel = Ext.extend(
 			this.map.controls = [];
 			this.map.layers = [emptyBaseLayer];
 			for (var i = 0; i < this.layers.length; i++) {
-				this.map.layers.push(this.layers[i])
+				if(this.layers[i])	this.map.layers.push(this.layers[i])
 			};
 
 			GisClient.MapPanel.superclass.initComponent.call(this);
