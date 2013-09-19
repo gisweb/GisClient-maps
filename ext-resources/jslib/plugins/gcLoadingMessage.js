@@ -23,7 +23,8 @@ GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
 			var layer = mapPanel.map.layers[i];
 			layer.events.register('loadstart', this, this.increaseCounter);
 			layer.events.register('loadend', this, this.decreaseCounter);
-			if(layer instanceof OpenLayers.Layer.WMS)layer.events.register('loadend', {layer:layer,self:this}, this.checkErrors);
+			//if(layer instanceof OpenLayers.Layer.WMS)
+				layer.events.register('loadend', {layer:layer,self:this}, this.checkErrors);
 		}
 
 		mapPanel.loadingPanel = this;
@@ -83,9 +84,11 @@ GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
 
         var imgDiv = Ext.fly(this.layer.div);
 		if(!imgDiv.child('img').hasClass('olImageLoadError')) return;
+
+        console.log(imgDiv)
+		
 		imgDiv.hide();
 		var layerName = this.layer.name;
-		console.log(this.layer)
 		Ext.Ajax.request({
 			url : imgDiv.child('img').dom.src, 
 			method: 'GET',

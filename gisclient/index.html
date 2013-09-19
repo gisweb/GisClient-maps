@@ -2,59 +2,77 @@
     <head>
         <title></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<script type="text/javascript" src="../resources/jslib/ext-3.4.0/adapter/ext/ext-base.js" ></script>
-		<script type="text/javascript" src="../resources/jslib/ext-3.4.0/ext-all.js" ></script>
-		<!--<link type="text/css" rel="stylesheet" href="../resources/jslib/ext-3.4.0/resources/css/ext-all.css" />-->
-		<link type="text/css" rel="stylesheet" href="../resources/jslib/ext-3.4.0/resources/css/ext-all-notheme.css" />
-		<link type="text/css" rel="stylesheet" href="../resources/jslib/ext-3.4.0/resources/css/xtheme-gray.css" />
+		<script type="text/javascript" src="../ext-resources/jslib/ext-3.4.0/adapter/ext/ext-base.js" ></script>
+		<script type="text/javascript" src="../ext-resources/jslib/ext-3.4.0/ext-all.js" ></script>
+		<!--<link type="text/css" rel="stylesheet" href="../ext-resources/jslib/ext-3.4.0/ext-resources/css/ext-all.css" />-->
+		<link type="text/css" rel="stylesheet" href="../ext-resources/jslib/ext-3.4.0/ext-resources/css/ext-all-notheme.css" />
+		<link type="text/css" rel="stylesheet" href="../ext-resources/jslib/ext-3.4.0/ext-resources/css/xtheme-gray.css" />
 		
 	   <!--
-		<script type="text/javascript" src="../resources/jslib/ext-3.3.1/adapter/ext/ext-base-debug.js" ></script>
-        <script type="text/javascript" src="../resources/jslib/ext-3.3.1/ext-all-debug.js" ></script>
+		<script type="text/javascript" src="../ext-resources/jslib/ext-3.3.1/adapter/ext/ext-base-debug.js" ></script>
+        <script type="text/javascript" src="../ext-resources/jslib/ext-3.3.1/ext-all-debug.js" ></script>
 		-->
 
-		<script type="text/javascript" src="../resources/jslib/openlayers/OpenLayers.js" ></script>
-		<script type="text/javascript" src="../resources/jslib/gcOloverride.js"></script>
-		<!--<script src="../resources/jslib/proj4js-compressed.js" type="text/javascript"></script>-->
+		<script type="text/javascript" src="../ext-resources/jslib/openlayers/OpenLayers.js" ></script>
+		<script type="text/javascript" src="../ext-resources/jslib/gcOloverride.js"></script>
+		<!--<script src="../ext-resources/jslib/proj4js-compressed.js" type="text/javascript"></script>-->
 
-		<script type="text/javascript" src="../resources/jslib/geoext/GeoExt.js"></script>
-		<script type="text/javascript" src="../resources/jslib/TreeNodeAutoDisable.js"></script>
-		<script type="text/javascript" src="../resources/jslib/LayerTreeBuilder.js"></script>
+		<script type="text/javascript" src="../ext-resources/jslib/geoext/GeoExt.js"></script>
+		<script type="text/javascript" src="../ext-resources/jslib/TreeNodeAutoDisable.js"></script>
+		<script type="text/javascript" src="../ext-resources/jslib/LayerTreeBuilder.js"></script>
 		
-		<link type="text/css"  rel="stylesheet" href="../resources/css/gcGeoext.css" />	
-		<link type="text/css" rel="stylesheet" href="../resources/css/LayerTreeBuilder.css" />		
+		<link type="text/css"  rel="stylesheet" href="../ext-resources/css/gcGeoext.css" />	
+		<link type="text/css" rel="stylesheet" href="../ext-resources/css/LayerTreeBuilder.css" />		
 
 		<!-- SCRIPT GISCLIENT -->
-		<script src="../resources/jslib/gcMapPanel.js" type="text/javascript"></script>
-		<script src="../resources/jslib/gcTreePanel.js" type="text/javascript"></script>
-		<script src="../resources/jslib/gcSLDSelect.js" type="text/javascript"></script>
-		<script src="../resources/jslib/gcZoomToolbar.js" type="text/javascript"></script>	
+		<script src="../ext-resources/jslib/gcMapPanel.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/gcTreePanel.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/gcSLDSelect.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/gcZoomToolbar.js" type="text/javascript"></script>	
 
 		<!-- PLUGINS GISCLIENT -->		
-		<script src="../resources/jslib/plugins/gcLoadingMessage.js" type="text/javascript"></script>
-		<script src="../resources/jslib/plugins/gcNavigation.js" type="text/javascript"></script>
-		<script src="../resources/jslib/plugins/gcMeasure.js" type="text/javascript"></script>
-		<script src="../resources/jslib/plugins/gcCoordinates.js" type="text/javascript"></script>
-		<script src="../resources/jslib/plugins/gcMapQuery.js" type="text/javascript"></script>
-		<script src="../resources/jslib/plugins/gcFeaturePopup.js" type="text/javascript"></script>
-		<script src="../resources/jslib/gcToolPanel.js" type="text/javascript"></script>
-		<script src="../resources/jslib/gcDataView.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcLoadingMessage.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcNavigation.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcMeasure.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcCoordinates.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcMapQuery.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcFeaturePopup.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/plugins/gcRedline.js" type="text/javascript"></script>
+
+		<script src="../ext-resources/jslib/gcToolPanel.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/gcDataView.js" type="text/javascript"></script>
+		<script src="../ext-resources/jslib/pipeSelect.js" type="text/javascript"></script>
+
 
 <script type="text/javascript">
 
 //Possibili parametri:
 //plominomap?mapset=os_scavi&zoom=11&lat=44.11193&lon=9.81699&layers=0000BTT00TFFTFTFTT&mapSettings=mappa&editpoint=1&editpolygon=1&editline=1&treepanel=1&zoomto=sitar
 
-var GisClientServiceUrl = "/gisclient/services/";
-
-<!--CARICA L'ELENCO DEI LAYER DEFINITI PER IL MAPSET-->
-document.write('<script src="' +  GisClientServiceUrl + 'gcmap.php' + window.location.search + '" type="text/javascript"><\/script>');
-Ext.BLANK_IMAGE_URL = "../resources/images/blank.gif";
+var GisClientServiceUrl = "/gisclient3/services/";
+document.write('<script src="' +  GisClientServiceUrl + 'olmap.php' + window.location.search + '" type="text/javascript"><\/script>');
+Ext.BLANK_IMAGE_URL = "../ext-resources/images/blank.gif";
 Ext.MessageBox.buttonText = {ok : "OK", cancel : "Annulla", yes : "Si",no : "No"};
 
 GisClient.initMapset = function() {
 
 	var mapset = GisClient.mapset[0];
+	//IN PHP NON SI RIESCE AD AVERE I FLOAT GIUSTI
+	for (var i = 0; i < mapset.map.serverResolutions.length; i++) {
+		mapset.map.serverResolutions[i] = parseFloat(mapset.map.serverResolutions[i]);
+	};
+	mapset.map.resolutions = mapset.map.serverResolutions.slice(mapset.map.minZoomLevel,mapset.map.maxZoomLevel);
+	//UN PO DI CASINO 
+	for (var i = 0; i < mapset.layers.length; i++) {
+		var layer =  mapset.layers[i];
+		if(layer instanceof(OpenLayers.Layer.TMS)){
+			layer.options.tileOrigin = new OpenLayers.LonLat(layer.options.tileOrigin[0],layer.options.tileOrigin[1]);
+		}
+		if(layer instanceof(OpenLayers.Layer.OSM) || layer instanceof(OpenLayers.Layer.Bing)){
+			layer.options.resolutions = mapset.map.resolutions;
+		}
+	}
+
 	document.title = mapset.title;
 
 	//SE VOGLIO AGGIUNGERE LAYER PRESI DA UN ALTRO MAPSET
@@ -62,8 +80,17 @@ GisClient.initMapset = function() {
 	
 	var options={	
 		title: "",
-		plugins: [{ptype:"gc_loading"},{ptype:"gc_navigation"},{ptype:"gc_measure"},{ptype:"gc_mapquery"},{ptype: 'gc_featurepopup'}],
-		controls: [new OpenLayers.Control.ScaleLine({bottomInUnits:false})]
+		plugins: [
+			{ptype:"gc_loading"},
+			{ptype:"gc_navigation"},
+			{ptype:"gc_measure"},
+			{ptype:"gc_coordinates",coordPrecision: 6},
+			{ptype:"gc_mapquery"},
+			//{ptype:"gc_featurepopup"},
+			{ptype:"gc_redline",redlineImages:"D:/apps/GeoWebSincro/schede/"}
+			//{ptype: 'gc_printpanel',url:"/gisclient/services/print",mapset:mapset}
+		],
+		controls:[]
 	}
 	
 	Ext.apply(mapset,options);
@@ -72,6 +99,19 @@ GisClient.initMapset = function() {
 	if (!mapPanel) return;
 	//printExtent.addPage();
 
+
+	var panzoom = new OpenLayers.Control.PanZoomBar();
+	mapPanel.map.addControl(panzoom);
+
+	var scale = new OpenLayers.Control.ScaleLine({bottomInUnits:false});
+	mapPanel.map.addControl(scale);
+	
+	var nav = new OpenLayers.Control.Navigation({'zoomWheelEnabled': true});
+    mapPanel.map.addControl(nav);
+
+	var touch = new OpenLayers.Control.TouchNavigation({'dragPanOptions': {'enableKinetic': true}});
+    mapPanel.map.addControl(touch);
+	
 	var zoomToolbar = [];
 	if(getParameterByName('zoomto')){
 		zoomToolbar = new GisClient.ZoomToolbar({
@@ -113,6 +153,10 @@ GisClient.initMapset = function() {
 	if(!mapPanel.map.getZoom()) mapPanel.map.addControl(new OpenLayers.Control.ArgParser()); //Se non ho settato l'estensione vedo se è stata settata da querystring 
 	if(!mapPanel.map.getZoom()) mapPanel.map.zoomToExtent(mapPanel.map.maxExtent); //Se non ho settato l'estensione vedo se è stata settata dal plugin o dalla configurazione del mapset
 	
+	addPipeSelection(mapPanel);
+
+
+
 };
 
 Ext.onReady(function() {

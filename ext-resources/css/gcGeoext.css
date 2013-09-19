@@ -99,6 +99,9 @@
 		.printproperties{
 			background-image:url(theme/img/silk/application_form.png) !important;
 		}
+		.play{
+			background-image:url(theme/img/silk/control_play_blue.png) !important;
+		}
 		.marker{
 			background-image:url(theme/img/marker-gold.png) !important;
             margin-left:5px;
