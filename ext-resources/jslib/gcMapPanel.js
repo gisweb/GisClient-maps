@@ -27,25 +27,20 @@ GisClient.MapPanel = Ext.extend(
 			
 			Ext.apply(this, gxMapPanelOptions);
 
+
+			var emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',Ext.BLANK_IMAGE_URL, new OpenLayers.Bounds.fromArray(this.map.maxExtent), new OpenLayers.Size(256,256),{maxResolution:this.map.resolutions[0], serverResolutions:this.map.serverResolutions, resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true});
+			emptyBaseLayer.title = this.baseLayerText;
+			
 			this.map.controls = [];
-			this.map.allOverlays = false;
-			if(this.layers) this.map.layers = this.layers;	
+			this.map.layers = [emptyBaseLayer];
+			for (var i = 0; i < this.layers.length; i++) {
+				this.map.layers.push(this.layers[i])
+			};
 
 			GisClient.MapPanel.superclass.initComponent.call(this);
-			//Add dummy base layer
-			var emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',Ext.BLANK_IMAGE_URL, this.map.maxExtent, new OpenLayers.Size(1,1),{maxResolution:this.map.resolutions[0],  resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true});
-			emptyBaseLayer.title = this.baseLayerText;
 
+			if(this.baseLayerName) 	this.map.setBaseLayer(this.getGCLayer(this.baseLayerName));
 
-			this.map.addLayer(emptyBaseLayer);
-			this.map.setLayerIndex(emptyBaseLayer,0);
-
-
-			
-			if(this.baseLayerName) 
-				this.map.setBaseLayer(this.getGCLayer(this.baseLayerName));
-			else
-				this.map.setBaseLayer(emptyBaseLayer);
 			
 			this.addEvents('activelayerset');
 			

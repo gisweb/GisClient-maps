@@ -84,8 +84,6 @@ GisClient.plugins.LoadingMessage = Ext.extend(Ext.util.Observable, {
 
         var imgDiv = Ext.fly(this.layer.div);
 		if(!imgDiv.child('img').hasClass('olImageLoadError')) return;
-
-        console.log(imgDiv)
 		
 		imgDiv.hide();
 		var layerName = this.layer.name;
