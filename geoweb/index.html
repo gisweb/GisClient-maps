@@ -29,6 +29,8 @@
 		<script src="../ext-resources/jslib/gcTreePanel.js" type="text/javascript"></script>
 		<script src="../ext-resources/jslib/gcSLDSelect.js" type="text/javascript"></script>
 		<script src="../ext-resources/jslib/gcZoomToolbar.js" type="text/javascript"></script>	
+		<script src="../ext-resources/jslib/gcDataView.js" type="text/javascript"></script>
+
 
 		<!-- PLUGINS GISCLIENT -->		
 		<script src="../ext-resources/jslib/plugins/gcLoadingMessage.js" type="text/javascript"></script>
@@ -37,7 +39,6 @@
 		<script src="../ext-resources/jslib/plugins/gcCoordinates.js" type="text/javascript"></script>
 		<script src="../ext-resources/jslib/plugins/gcMapQuery.js" type="text/javascript"></script>
 		<script src="../ext-resources/jslib/plugins/gcFeaturePopup.js" type="text/javascript"></script>
-		<script src="../ext-resources/jslib/plugins/gcWKTEdit.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 
@@ -61,36 +62,8 @@ GisClient.initMapset = function() {
 	
 	var options={	
 		title: "",
-		plugins: [{ptype:"gc_loading"},{ptype:"gc_navigation"},{ptype:"gc_measure"},{ptype:"gc_mapquery"},{ptype: 'gc_featurepopup'}],
+		plugins: [{ptype:"gc_loading"},{ptype:"gc_navigation"},{ptype:"gc_measure"},{ptype:"gc_mapquery"}],
 		controls: [new OpenLayers.Control.ScaleLine({bottomInUnits:false})]
-	}
-	
-	//Campo con la configurazione dlle mappa
-	var mapSettings = getParameterByName('mapsettings');
-	if(mapSettings) {
-		var wkteditConfig = {ptype:"gc_wktedit",mapset:mapset.name,confElement:window.parent.document.getElementById(mapSettings)};
-		if(getParameterByName('editpoint')) wkteditConfig["point"] = 1;
-		if(getParameterByName('editline')) wkteditConfig["line"] = 1;
-		if(getParameterByName('editpolygon')) wkteditConfig["polygon"] = 1;
-	    //Aggiungo il campo con la geometria di edit
-		var mapGeometry = getParameterByName('mapgeometry');
-		if(mapGeometry) wkteditConfig["mapGeometry"] = window.parent.document.getElementById(mapGeometry);
-	    //Per lagestione di marker da link esterno aggiunco la conf
-		
-		var markerField = getParameterByName('mapmarker');
-		if(markerField)  mapMarker = window.parent.document.getElementById(markerField);
-		eval('var configObject = ' + mapMarker.getAttribute("data-geocode-options"));
-		if(configObject) {
-			var iconPath =  mapMarker.getAttribute("data-icon-path");
-			var pos = window.parent.document.getElementById(markerField + '_geometry').value;
-			configObject.fieldId = markerField + '_geometry';
-			if(window.parent.document.getElementById(configObject.icon) && window.parent.document.getElementById(configObject.icon).getAttribute("value")) configObject.icon = window.parent.document.getElementById(configObject.icon).getAttribute("value");
-			configObject.icon = iconPath + configObject.icon;
-			if(pos) configObject.pos = eval(pos);
-			wkteditConfig["mapMarker"] = configObject;
-		}
-		
-		options.plugins.push(wkteditConfig);
 	}
 	
 	Ext.apply(mapset,options);
@@ -120,6 +93,38 @@ GisClient.initMapset = function() {
 		TreeMenu(mapPanel);
 		panelItems.push(mapPanel);
 	}
+	
+	var resultPanel = 	new GisClient.DataViewPanel({
+		region: "east",
+		title:'Risultati interrogazione',
+		id: "toolPanel",
+		collapsible: true,
+		autoScroll: true,
+		collapsed: Ext.util.Cookies.get('gcDataPanelCollapsed'),
+		iconCls:'queryresult',
+		width: 350,
+		max_features: 100,
+		mapPanel: mapPanel,
+
+		
+		tbar: {
+			//xtype: 'container',
+			//layout: 'anchor',
+			//defaultType: 'toolbar',
+			items:[{id:"tb-result",xtype:"tbtext",text:'',height:24}]// [{items: selectionToolbar(map, dataViewPanel)},{items:featureTools(map)}]
+		},
+		bbar: [],
+		listeners:{
+			collapse:function(p){
+				Ext.util.Cookies.set('gcDataPanelCollapsed', p.collapsed);
+			},
+			expand:function(p){
+				Ext.util.Cookies.set('gcDataPanelCollapsed', p.collapsed);
+			}
+		}
+	})
+	panelItems.push(resultPanel);
+	
 
 	new Ext.Viewport({
         layout: "fit",
@@ -133,11 +138,6 @@ GisClient.initMapset = function() {
 
 	if(!mapPanel.map.getZoom()) mapPanel.map.addControl(new OpenLayers.Control.ArgParser()); //Se non ho settato l'estensione vedo se è stata settata da querystring 
 	if(!mapPanel.map.getZoom()) mapPanel.map.zoomToExtent(mapPanel.map.maxExtent); //Se non ho settato l'estensione vedo se è stata settata dal plugin o dalla configurazione del mapset
-
-	if(window.parent) window.parent.mapPanel = mapPanel;
-	if(window.parent && window.parent.jQuery && window.parent.jQuery.plominoMaps.gisclient){
-		window.parent.jQuery.plominoMaps.gisclient.map = mapPanel;
-	}
 	
 };
 
