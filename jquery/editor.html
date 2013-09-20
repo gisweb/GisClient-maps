@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>GisCLient Maps</title>
+	<link rel="stylesheet" type="text/css" href="../resources/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../resources/themes/icon.css">
+	<script type="text/javascript" src="../resources/jslib/jquery.min.js"></script>
+	<script type="text/javascript" src="../resources/jslib/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../resources/themes/openlayers/style.css" type="text/css">
+    <link rel="stylesheet" href="../resources/themes/style.css" type="text/css">
+	<link rel="stylesheet" href="../resources/themes/ole/geosilk.css" type="text/css" />
+
+	
+    <script src="../resources/jslib/OpenLayers.js"></script>
+    <script src="../resources/jslib/gcOloverride.js"></script>    
+    <script src="../resources/jslib/jqSLDSelect.js"></script>
+    <script src="../resources/jslib/GisClientMap.js"></script>   
+	<script src="../resources/jslib/LayerTree.js"></script>
+    <script src="../resources/jslib/ResultPanel.js"></script>
+
+    <script src="../resources/jslib/json2.js" type="text/javascript"></script>
+    <script src="../resources/jslib/condition-builder.js" type="text/javascript"></script> 
+	
+	<script type="text/javascript" src="../resources/jslib/ole/loader.js"></script>
+
+
+	<script type="text/javascript">
+
+	//INITMAP PER FARCI QUALCOSA
+	$(function() {
+
+	var initMap = function(){
+
+		var map=this.map;
+
+	
+		document.title = this.title;
+
+        map.events.register("zoomend", map, function(){
+        	//console.log("scale:" + this.getScale())
+        });
+
+
+        OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
+            defaultHandlerOptions: {
+                'single': true,
+                'double': false,
+                'pixelTolerance': 0,
+                'stopSingle': false,
+                'stopDouble': false
+            },
+
+            initialize: function(options) {
+                this.handlerOptions = OpenLayers.Util.extend(
+                    {}, this.defaultHandlerOptions
+                );
+                OpenLayers.Control.prototype.initialize.apply(
+                    this, arguments
+                ); 
+                this.handler = new OpenLayers.Handler.Click(
+                    this, {
+                        'click': this.trigger
+                    }, this.handlerOptions
+                );
+            }, 
+
+            trigger: function(e) {
+                var lonlat = map.getLonLatFromPixel(e.xy);
+                alert("You clicked near " + lonlat.lat + " N, " +
+                                          + lonlat.lon + " E");
+
+
+                //console.log(lonlat.toString())
+            }
+
+        });
+
+        //var click = new OpenLayers.Control.Click();
+        //map.addControl(click);
+        //click.activate();
+
+//INIT WFS CACHE 
+//DA METTERE NEL PANNELLO O NEL CONTROLLO DEI CNTROLLI
+
+
+    var resultLayerStyle = new OpenLayers.StyleMap({
+        'default': {
+            fill: false,
+            fillColor: "#ff00FF",
+            fillOpacity: 0.1,
+            hoverFillColor: "white",
+            hoverFillOpacity: 0.1,
+            strokeColor: "yellow",
+            strokeOpacity: 0.4,
+            strokeWidth: 4,
+            strokeLinecap: "round",
+            strokeDashstyle: "solid",
+            hoverStrokeColor: "red",
+            hoverStrokeOpacity: 1,
+            hoverStrokeWidth: 0.2,
+            pointRadius: 6,
+            hoverPointRadius: 1,
+            hoverPointUnit: "%",
+            pointerEvents: "visiblePainted",
+            cursor: "inherit"
+        },
+        'select': {
+            fill: true,
+            fillColor: "blue",
+            fillOpacity: 0.4,
+            hoverFillColor: "white",
+            hoverFillOpacity: 0.8,
+            strokeColor: "yellow",
+            strokeOpacity: 1,
+            strokeWidth: 4,
+            strokeLinecap: "round",
+            strokeDashstyle: "solid",
+            hoverStrokeColor: "red",
+            hoverStrokeOpacity: 1,
+            hoverStrokeWidth: 0.2,
+            pointRadius: 6,
+            hoverPointRadius: 1,
+            hoverPointUnit: "%",
+            pointerEvents: "visiblePainted",
+            cursor: "pointer"
+        },
+        'temporary': {
+            fill: true,
+            fillColor: "EEA652",
+            fillOpacity: 0.2,
+            hoverFillColor: "white",
+            hoverFillOpacity: 0.8,
+            strokeColor: "#EEA652",
+            strokeOpacity: 1,
+            strokeLinecap: "round",
+            strokeWidth: 4,
+            strokeDashstyle: "solid",
+            hoverStrokeColor: "red",
+            hoverStrokeOpacity: 1,
+            hoverStrokeWidth: 0.2,
+            pointRadius: 6,
+            hoverPointRadius: 1,
+            hoverPointUnit: "%",
+            pointerEvents: "visiblePainted",
+            cursor: "pointer"
+        }
+    })
+
+
+
+
+
+        var resultLayer = new OpenLayers.Layer.Vector('Selezione',{displayInLayerSwitcher:false, styleMap: resultLayerStyle});
+        resultLayer.id = 'gc_dataviewlayer';
+        resultLayer.events.register('beforefeatureadded', this, checkFeature);
+        
+        map.addLayer(resultLayer);
+
+        map.resultLayer = resultLayer
+
+
+        //Setto i controlli
+        var selectControl = new OpenLayers.Control.SelectFeature(resultLayer);
+        var modifyControl = new OpenLayers.Control.ModifyFeature(resultLayer);
+        var highlightControl = new OpenLayers.Control.SelectFeature(resultLayer,
+            {
+                hover: true,
+                highlightOnly: true,
+                renderIntent: "temporary"
+            }
+        );
+
+        map.addControl(modifyControl);
+        map.addControl(selectControl); 
+        map.addControl(highlightControl);
+
+        /*
+    
+        this.selectControl = selectControl;
+        this.highlightControl = highlightControl;
+        this.modifyControl = modifyControl;
+        
+        this.resultLayer = resultLayer;
+*/
+
+
+
+    var checkFeature =  function(e){
+    
+
+        //controllo se ho raggiunto il max numero di oggeti previsto
+        //if(e.object.features.length >= this.maxVectorFeatures) return false;
+       // this.queryTools.menu.getComponent('clean-selection').enable();
+
+        //coloro gli oggetti se esiste uno stile dedicato??????
+        //casino colorare gli oggetti perchè poi bisogna gestire a mano i vari stili (temporary e select)
+        //var symbolizer = {strokeColor: "red"};e.feature.style=symbolizer;
+        //console.log(e);
+
+    };
+
+
+
+    var wfsCache = {};
+    var queryFilters = {};
+    var layers=[];
+    for (var i = 0; i < this.featureTypes.length; i++) {
+        var layer =  map.getLayersByName(this.featureTypes[i].WMSLayerName)[0];
+        layers.push(layer);
+        if(typeof(wfsCache[layer.id])=='undefined') wfsCache[layer.id] = {featureTypes:[]};
+        wfsCache[layer.id].featureTypes.push(this.featureTypes[i]);
+    };
+
+    var myControl = new OpenLayers.Control.GisClientSLDSelect(
+                OpenLayers.Handler.RegularPolygon,
+                {
+                    wfsCache:wfsCache,
+                    layers:layers,                    
+                    queryFilters:queryFilters,  
+                    resultLayer:resultLayer,           
+                    handlerOptions: {
+                        irregular: true
+                    }
+                }
+            )
+
+        //map.addControl(myControl);
+        //myControl.activate();
+
+
+
+        myControl.events.register('selected',map, onSelected)
+        var resControl = new OpenLayers.Control.ResultPanel({'div':OpenLayers.Util.getElement('resultpanel')})
+        map.addControl(resControl)
+
+
+
+
+
+
+
+            var zb = new OpenLayers.Control.ZoomBox({title:"Zoom box: titolo di zoombox."});
+            var pan = new OpenLayers.Control.DragPan({title:"Pan: titolo di pan."});
+            var panel = new OpenLayers.Control.Panel({defaultControl: pan});
+            panel.addControls([zb,pan,myControl]);
+
+
+             map.addControl(panel);
+
+
+
+
+             var data=[{
+    "id":1,
+    "text":"Ricerca 1"
+},{
+    "id":2,
+    "text":"Ricerca 2"
+},{
+    "id":3,
+    "text":"Ricerca 3",
+    "selected":true
+},{
+    "id":4,
+    "text":"Ricerca 4"
+},{
+    "id":5,
+    "text":"Ricerca 5"
+}];
+
+
+$('#mioelenco').combobox({
+    data:data,
+    valueField:'id',
+    textField:'text'
+});
+
+
+
+
+
+
+
+            editor = new OpenLayers.Editor(map, {
+                activeControls: ['Navigation', 'SnappingSettings', 'CADTools', 'TransformFeature', 'Separator', 'DeleteFeature', 'DragFeature', 'SelectFeature', 'Separator', 'DrawHole', 'ModifyFeature', 'Separator'],
+                featureTypes: ['regular', 'polygon', 'path', 'point']
+            });
+            editor.startEditMode();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	}//END initMap
+
+
+
+
+    var  onSelected = function(e){
+
+
+
+            console.log(e)
+
+        }
+
+
+
+
+
+
+
+
+
+	OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
+	new OpenLayers.Map.GisClient('http://localhost/gisclient3/services/gcmap.php' + window.location.search,'map',{
+        pippo:'pippo', 
+        mapOptions:{displayProjection:'EPSG:4326',controls:[new OpenLayers.Control.Navigation(),new OpenLayers.Control.PanZoomBar(),new OpenLayers.Control.LayerTree({emptyTitle:'Base vuota', div:OpenLayers.Util.getElement('layertree')})]},
+        callback:initMap
+    })
+
+});
+
+
+
+
+	</script>
+</head>
+<body>
+    <h1 id="title">Layer tree</h1>
+    <div id="panel"></div>
+    <div id="map" class="smallmap"></div>
+    <div id="layertree" class="olControlLayerTree"></div>
+
+
+
+    <div id="combo">
+
+    <input class="easyui-combobox" style="width:280px;" id="mioelenco">
+
+    </div>
+    <div id="resultpanel">RISULTATI</div>
+    <div id="querybuilder"></div>
+</body>
+</html>
