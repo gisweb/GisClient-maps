@@ -80,11 +80,18 @@
 
     $(function(){
 
-        $.getJSON('http://iol.gisweb.it/gisclient3/services/gcmap.php' + window.location.search, null,
+        $.getJSON('http://localhost/gisclient3/services/gcmap.php' + window.location.search, null,
         	function(response) {
 
         		console.log()
 				 var center//projection.fromPointToLatLng(ul)
+				 // Enable the visual refresh
+				google.maps.visualRefresh = true;
+				//var currentProjection = G_NORMAL_MAP.getProjection();
+
+				var baseMap = new google.maps.ImageMapType();
+
+
 			      $("#map_canvas").gmap3({
 			        map:{
 			          options:{
