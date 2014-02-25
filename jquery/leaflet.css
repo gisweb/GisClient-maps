@@ -603,12 +603,16 @@ nav.secondary .dropdown-menu .count-number {
     position: relative;
 }
 .map-layout #sidebar {
-    background: none repeat scroll 0 0 #FFFFFF;
+    background: none repeat scroll 0 0;
+    background-color: rgba(0, 0, 0, 0.6);
     float: left;
     top:4px;
     left:4px;
     font-size: 12px;
+    color:#FFFFFF;
+    width:260px;
 }
+
 .map-layout #sidebar h2 {
     padding: 20px 20px 10px;
 }
@@ -625,7 +629,9 @@ nav.secondary .dropdown-menu .count-number {
     display: none;
 }
 .map-layout .overlay-sidebar #sidebar {
-    border-bottom-right-radius: 5px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
     height: auto;
     overflow: hidden;
     position: absolute;
@@ -2471,7 +2477,6 @@ input.richtext_title[type="text"] {
     top:0px;
     right:0px;
     width:47px;
-    border:1px solid blue;
     height:100%;
 
 }

@@ -215,7 +215,7 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
 
         	OpenLayers.Util.extend(responseJSON.mapOptions, this.mapOptions);
         	OpenLayers.Util.extend(this, responseJSON);
-        	//console.log(this);return
+
         	//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
 			for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
 				this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);

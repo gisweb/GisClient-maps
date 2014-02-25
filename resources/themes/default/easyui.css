@@ -2103,6 +2103,7 @@ a.s-btn-plain-active {
   white-space: nowrap;
   padding: 0 2px;
   height: 18px;
+  color: #ffffff;
   line-height: 18px;
 }
 .tree-node-proxy {
@@ -2271,7 +2272,7 @@ a.s-btn-plain-active {
   background: url('images/check-disabled.png') no-repeat;
 }
 .tree-title-disabled {
-  color: #666666; !important
+  color: #AECCB5; !important
 }
 .base-layer {
   background: url('images/map.png') no-repeat;

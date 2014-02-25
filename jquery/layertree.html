@@ -314,7 +314,7 @@ $('#mioelenco').combobox({
 
 
 	OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-	new OpenLayers.Map.GisClient('http://localhost/gisclient3/services/gcmap.php' + window.location.search,'map',{
+	new OpenLayers.Map.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
         pippo:'pippo', 
         mapOptions:{displayProjection:'EPSG:4326',controls:[new OpenLayers.Control.Navigation(),new OpenLayers.Control.PanZoomBar(),new OpenLayers.Control.LayerTree({emptyTitle:'Base vuota', div:OpenLayers.Util.getElement('layertree')})]},
         callback:initMap
