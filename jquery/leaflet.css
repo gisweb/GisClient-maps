@@ -556,14 +556,15 @@ nav.secondary .dropdown-menu .count-number {
     margin-left: -5px;
     top: -5px;
 }
+
 .leaflet-control .control-button {
     background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 4px 0 0 4px;
+    border-radius: 8px 0 0 8px;
     display: block;
-    height: 40px;
-    margin-bottom: 10px;
+    height: 35px;
+    margin-bottom: 5px;
     outline: medium none;
-    width: 40px;
+    width: 35px;
 }
 .leaflet-control .control-button:hover {
     background-color: #000000;
@@ -579,7 +580,7 @@ nav.secondary .dropdown-menu .count-number {
     margin: 10px;
 }
 .leaflet-control .zoomin, .control-layers .control-button {
-    border-radius: 4px 0 0;
+    border-radius: 8px 0 0;
     margin-bottom: 0;
 }
 .leaflet-control .zoomout, .control-key .control-button {
@@ -587,7 +588,7 @@ nav.secondary .dropdown-menu .count-number {
     margin-bottom: 0;
 }
 .control-locate .control-button, .control-share .control-button {
-    border-radius: 0 0 0 4px;
+    border-radius: 0 0 0 8px;
 }
 .map-layout #content {
     bottom: 0;
@@ -604,13 +605,13 @@ nav.secondary .dropdown-menu .count-number {
 }
 .map-layout #sidebar {
     background: none repeat scroll 0 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
     float: left;
     top:4px;
     left:4px;
     font-size: 12px;
     color:#FFFFFF;
-    width:260px;
+    
 }
 
 .map-layout #sidebar h2 {
@@ -2472,16 +2473,6 @@ input.richtext_title[type="text"] {
 .railway.tram:before {
     content: url("/assets/browse/tram.20-5a1ff2e1a7faadc91c4ada19e9bbddde.png");
 }
-.leaflet-control-container {
-    position:absolute;
-    top:0px;
-    right:0px;
-    width:47px;
-    height:100%;
-
-}
-
-
 @media only screen and (max-width: 960px) {
 .header-illustration.new-user-arm {
     display: none;

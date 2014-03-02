@@ -1,118 +1,13 @@
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control.js
- * @requires OpenLayers/Lang.js
- * @requires OpenLayers/Util.js
- * @requires OpenLayers/Events/buttonclick.js
- */
-
-/**
- * Class: OpenLayers.Control.LayerSwitcher
- * The LayerSwitcher control displays a table of contents for the map. This
- * allows the user interface to switch between BaseLasyers and to show or hide
- * Overlays. By default the switcher is shown minimized on the right edge of
- * the map, the user may expand it by clicking on the handle.
- *
- * To create the LayerSwitcher outside of the map, pass the Id of a html div
- * as the first argument to the constructor.
- *
- * Inherits from:
- *  - <OpenLayers.Control>
- */
 OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
 
-    /**  
-     * Property: layerStates 
-     * {Array(Object)} Basically a copy of the "state" of the map's layers 
-     *     the last time the control was drawn. We have this in order to avoid
-     *     unnecessarily redrawing the control.
-     */
-    layerStates: null,
-
-  // DOM Elements
-
-    /**
-     * Property: layersDiv
-     * {DOMElement}
-     */
-    layersDiv: null,
-
-    /**
-     * Property: baseLayersDiv
-     * {DOMElement}
-     */
-    baseLayersDiv: null,
-
-    /**
-     * Property: baseLayers
-     * {Array(Object)}
-     */
-    baseLayers: null,
-
-
-    /**
-     * Property: dataLbl
-     * {DOMElement}
-     */
-    dataLbl: null,
-
-    /**
-     * Property: dataLayersDiv
-     * {DOMElement}
-     */
-    dataLayersDiv: null,
-
-    /**
-     * Property: dataLayers
-     * {Array(Object)}
-     */
-    dataLayers: null,
-
-
-    /**
-     * Property: minimizeDiv
-     * {DOMElement}
-     */
-    minimizeDiv: null,
-
-    /**
-     * Property: maximizeDiv
-     * {DOMElement}
-     */
-    maximizeDiv: null,
-
-    /**
-     * APIProperty: ascending
-     * {Boolean}
-     */
-    ascending: true,
-
-
-
-
-    /**
-     * Constructor: OpenLayers.Control.LayerSwitcher
-     *
-     * Parameters:
-     * options - {Object}
-     */
     initialize: function(options) {
         OpenLayers.Control.prototype.initialize.apply(this, arguments);
     },
 
-    /**
-     * APIMethod: destroy
-     */
     destroy: function() {
-
         //clear out layers info and unregister their events
         this.clearLayersArray("base");
         this.clearLayersArray("data");
-
         this.map.events.un({
             buttonclick: this.onButtonClick,
             addlayer: this.redraw,
@@ -126,40 +21,10 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
         OpenLayers.Control.prototype.destroy.apply(this, arguments);
     },
 
-	
-	
-	
-    /**
-     * Method: setMap
-     *
-     * Properties:
-     * map - {<OpenLayers.Map>}
-     */
-    setMap: function(map) {
-        OpenLayers.Control.prototype.setMap.apply(this, arguments);
-        this.map.events.register("myfeatureloaded", this, this.redraw);
-    },
-
-    /**
-     * Method: draw
-     *
-     * Returns:
-     * {DOMElement} A reference to the DIV DOMElement containing the
-     *     switcher tabs.
-     */
     draw: function() {
         OpenLayers.Control.prototype.draw.apply(this);
 
-        // create layout divs
-        this.loadContents();
-
-        // set mode to minimize
-        if(!this.outsideViewport) {
-            this.minimizeControl();
-        }
-
-        // populate div with current info
-        //this.redraw();
+        this.loadHeaders();
 
         return this.div;
     },
@@ -214,6 +79,9 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
      * {Boolean} The layer state changed since the last redraw() call.
      */
     checkRedraw: function() {
+
+
+        //BOH NON SERVE
         return true;
     },
 	
@@ -227,7 +95,7 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
      * Returns:
      * {DOMElement} A reference to the DIV DOMElement containing the control
      */
-    redraw: function(e) {
+    redraw: function(mySelection) {
         //if the state hasn't changed since last redraw, no need
         // to do anything. Just return the existing div.
         if (!this.checkRedraw()) {
@@ -235,9 +103,10 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
         }
 
 		
-		//console.log('redraw');
+		console.log('ricarico il pannello dei risultati');
+        console.log(mySelection.wfsCache)
 
-
+/*
 
         var featureGrid = this.getFeatureGrid(e.featureType);
         var cols = jQuery(featureGrid).datagrid('getColumnFields');
@@ -253,7 +122,7 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
         jQuery(featureGrid).datagrid('loadData', aData);
 
         //leggo il risultato e costruisco la stringa json per il datagrid
-
+*/
 
         return this.div;
     },
@@ -315,25 +184,6 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
 
         return myDatagrid;
     },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     updateMap: function() {
@@ -407,7 +257,22 @@ OpenLayers.Control.ResultPanel = OpenLayers.Class(OpenLayers.Control, {
      * Method: loadContents
      * Set up the labels and divs for the control
      */
+
     loadContents: function() {
+
+
+
+    },
+
+
+    loadHeaders: function() {
+
+
+        this.layersDiv = document.createElement("div");
+        this.layersDiv.id = this.id + "_layersDiv";
+        this.layersDiv.innerHTML="PROVA";
+        OpenLayers.Element.addClass(this.layersDiv, "layersDiv");
+        this.div.appendChild(this.layersDiv);
 
 
 return;    

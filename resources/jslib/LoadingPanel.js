@@ -40,6 +40,10 @@ OpenLayers.Control.LoadingPanel = OpenLayers.Class(OpenLayers.Control, {
      * Parameters:
      * options - {Object} additional options.
      */
+
+     autoActivate: true,
+
+
     initialize: function(options) {
          OpenLayers.Control.prototype.initialize.apply(this, [options]);
     },

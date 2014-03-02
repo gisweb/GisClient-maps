@@ -1,11 +1,11 @@
 /**
- * Class: OpenLayers.Control.GisClientSLDSelect
+ * Class: OpenLayers.Control.MapQuery
  * Perform selections on WMS layers using Styled Layer Descriptor (SLD)
  * Inherits from:
  *  - <OpenLayers.Control.SLDSelect>
  */
-OpenLayers.Control.SLDSelect.prototype.EVENT_TYPES = ["beforeselect","selected","featuresloaded"];
-OpenLayers.Control.GisClientSLDSelect = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
+//OpenLayers.Control.SLDSelect.prototype.EVENT_TYPES = ["beforeselect","selected","featureload","featuresloaded","startMapQuery","endMapQuery"];
+OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
     /**
      * Constant: EVENT_TYPES
@@ -70,6 +70,15 @@ OpenLayers.Control.GisClientSLDSelect = OpenLayers.Class(OpenLayers.Control.SLDS
 
 
 	resultLayer: null,
+
+	resultPanel: null,
+
+	//NUMERO DI RISULTATI MASSIMI RICHIESTI AL SERVIZIO WFS PER OGNI FETURETYPE
+	maxFeatures: 250,
+
+	//NUMERO COMPESSIVO DI ELEMENTI VETTORIALI DA AGGIUNGERE AL LIVELLO VETTORIALE DEI RISULTATI
+	maxVectorFeatures: 0,
+
 	 
 	selectionSymbolizer: {
         'Polygon': {strokeColor: '#FFFF00',fillColor:'#FF0000'},
@@ -78,10 +87,8 @@ OpenLayers.Control.GisClientSLDSelect = OpenLayers.Class(OpenLayers.Control.SLDS
     },
 	
 	autoDeactivate: false,
-	
-	
-	
-	
+
+
 	//CREA UN UNICO LIVELLO PER LA SELEZIONE BASATO SU PROJECT E MAP DI UNO DEI LIVELLI INTERROGATI (DA VEDERE)
 	createSelectionLayer: function(key) {
         // check if we already have a selection layer for the source layer
@@ -446,8 +453,12 @@ OpenLayers.Control.GisClientSLDSelect = OpenLayers.Class(OpenLayers.Control.SLDS
 		*/
 		if(this.nquery == 0){
 			this.resultLayer.removeAllFeatures();
+			//this.resultPanel.innerHTML='';
 			//this.mapPanel.fireEvent('loading',{start:true,title:'Interrogazione',width:200,msg:'Ricerca informazioni in corso....'})
-			this.events.triggerEvent('featureload',{start:true});
+			//this.events.triggerEvent('featureload',{start:true});
+			this.events.triggerEvent('startMapQuery');
+
+
 		}
 		
 		
@@ -455,8 +466,6 @@ OpenLayers.Control.GisClientSLDSelect = OpenLayers.Class(OpenLayers.Control.SLDS
 		
 		
 		this.nquery++;
-this.maxFeatures = 100;
-
 		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
 		var xml = new OpenLayers.Format.XML();
 		var filterValue = xml.write(filter_1_1.write(filter));
@@ -483,10 +492,15 @@ this.maxFeatures = 100;
 				}
 				var format = new OpenLayers.Format.GML();
 				var features = format.read(doc);
+				featureType.features = features;
+				this.events.triggerEvent('featuresLoaded',featureType);
+				if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) this.resultLayer.addFeatures(features);
+				
 
-				//if(features.length>0){
-					this.resultLayer.addFeatures(features);
-					//this.fireEvent('featureload',{layer:layer, featureType:featureType, features:features});
+				if(features.length>0){
+					//if(this.addVectorFeatures) this.resultLayer.addFeatures(features);
+					//this.writeDataResults(featureType)
+/*
 					this.map.events.triggerEvent("myfeatureloaded", {
 						layer: layer,
 						resultLayer:this.resultLayer,
@@ -494,13 +508,11 @@ this.maxFeatures = 100;
 						featureType:featureType,
 						features:features
 					});
-
-				//}
+*/
+				}
 				if(this.nquery == this.nresponse){
 					this.nquery = this.nresponse = 0;
-					this.events.triggerEvent('featureload',{end:true});
-
-
+					this.events.triggerEvent('endMapQuery');
 				}
 
 				var resp=format.read(doc);
@@ -537,6 +549,14 @@ this.maxFeatures = 100;
 		this.autoDeactivate && this.deactivate();
 
     },
-	
-    CLASS_NAME: "OpenLayers.Control.GisClientSLDSelect"
+
+
+
+    writeDataResults: function(featureType) {
+
+
+    },
+
+
+    CLASS_NAME: "OpenLayers.Control.MapQuery"
 });
