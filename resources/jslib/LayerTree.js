@@ -100,36 +100,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
 
-
-    getQueryBuilder: function(evt) {
-        var options ={
-            width:600,
-            height:400,
-            modal:true,
-            title:'Ricerca',
-            href: 'content.html'
-            ,onLoad:function(){
-                $('#btnCondition').click(function () {
-                    var query = {};
-                    query = getCondition('.query > table');
-                    //var l = JSON.stringify(query,null,4);
-                    var l = JSON.stringify(query);
-                    alert(l);
-                });
-
-                $('#btnQuery').click(function () {
-                    var con = getCondition('.query >table');
-                    var k = getQuery(con);
-                    alert(k);
-                });
-                addqueryroot('.query', true);
-            }
-        };
-        jQuery("#querybuilder").window(options)
-       // window.open('querybuilder.html')
-
-    },
-
     redraw: function(e) {
         //if the state hasn't changed since last redraw, no need
         // to do anything. Just return the existing div.
@@ -295,7 +265,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 else{
                     var val = node.attributes.layer.name; 
                     var id = node.attributes.layer.id;                    
-                    var checked = (node.attributes.layer.name == self.map.GisClientMap.baseLayerName || node.attributes.layer.name == 'EMPTY_BASE_LAYER')?"checked='checked'":"";
+                    var checked = (node.attributes.layer.name == self.map.config.baseLayerName || node.attributes.layer.name == 'EMPTY_BASE_LAYER')?"checked='checked'":"";
                     return '<input type="radio" '+ checked +' id="'+ id +'" name="' + radioName + '">' + node.text;
                 }
             },
@@ -357,16 +327,25 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                         layer = childNode.attributes.layer;
                         self.updateLayerVisibility(layer, checked);
                     })
-
-
                 }
-
             },
             onDblClick: function(node){
 
 
-                 if(node.attributes && node.attributes.featureTypes) 
-                    self.getQueryBuilder()
+
+            },
+
+            onClick: function(node){
+
+                //console.log(node)
+                var numChildren = self.overlayTree.tree('getChildren',(node.target)).length;
+                if(numChildren > 0)
+                    self.overlayTree.tree('toggle',node.target);
+                else if(node.checked)
+                    self.overlayTree.tree('uncheck',node.target);
+                else
+                    self.overlayTree.tree('check',node.target);
+
 
             },
 
@@ -393,8 +372,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
     getFetureTypes: function(WMSLayerName){
         var result = []; 
-        for (var i = 0; i < this.map.GisClientMap.featureTypes.length; i++) {
-            if(this.map.GisClientMap.featureTypes[i].WMSLayerName == WMSLayerName) result.push(this.map.GisClientMap.featureTypes[i]);
+        for (var i = 0; i < this.map.config.featureTypes.length; i++) {
+            if(this.map.config.featureTypes[i].WMSLayerName == WMSLayerName) result.push(this.map.config.featureTypes[i]);
         };
         return result
     },

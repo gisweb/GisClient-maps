@@ -6,82 +6,59 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>testlayout</title>
 
-<!--
-  <link rel="stylesheet" href="../resources/themes/bootstrap.min.css" type="text/css">
--->
+  <link rel="stylesheet" href="../resources/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../resources/themes/openlayers/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../resources/themes/bootstrap-icon.css" type="text/css">
-
-  <link rel="stylesheet" type="text/css" href="../resources/themes/default/easyui.css">
-  <link rel="stylesheet" type="text/css" href="../resources/themes/icon.css">
   <script type="text/javascript" src="../resources/jslib/jquery.min.js"></script>
   <script type="text/javascript" src="../resources/jslib/jquery.easyui.min.js"></script>
-    <link rel="stylesheet" href="../resources/themes/openlayers/style.css" type="text/css">
-    <link rel="stylesheet" href="../resources/themes/style.css" type="text/css">
+  <link rel="stylesheet" type="text/css" href="../resources/themes/black/tree.css">
+
+
     <script src="../resources/jslib/OpenLayers.js"></script>
     <script src="../resources/jslib/gcOloverride.js"></script>    
-    <script src="../resources/jslib/MapQuery.js"></script>
+    <script src="../resources/jslib/QueryMap.js"></script>
     <script src="../resources/jslib/GisClientMap.js"></script>   
   <script src="../resources/jslib/LayerTree.js"></script>
     <script src="../resources/jslib/LoadingPanel.js"></script>
-    <script src="../resources/jslib/ResultPanel.js"></script>
+    <script src="../resources/jslib/PipeSelect.js"></script>
     <script src="../resources/jslib/DynamicMeasure.js"></script>
 
+    <script src="../resources/jslib/QueryToolbar.js"></script>   
 
 
     <script src="../resources/jslib/json2.js" type="text/javascript"></script>
     <script src="../resources/jslib/condition-builder.js" type="text/javascript"></script> 
 
-    <script src="init.js" type="text/javascript"></script>
-
-    <link rel="stylesheet" type="text/css" href="leaflet.css">
-
-<!--
-  <link rel="stylesheet" href="../resources/themes/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" type="text/css" href="../resources/themes/black/easyui.css">
-	<link rel="stylesheet" type="text/css" href="../resources/themes/icon.css">
-	<script type="text/javascript" src="../resources/jslib/jquery.min.js"></script>
-	<script type="text/javascript" src="../resources/jslib/jquery.easyui.min.js"></script>
-
-    <link rel="stylesheet" href="../resources/themes/openlayers/style.css" type="text/css">
 
 
-   <link rel="stylesheet" href="../resources/themes/style.css" type="text/css">
+    <script src="mobile.js" type="text/javascript"></script>
+
+   <script src="../resources/jslib/bootstrap.min.js"></script>
 
 
 
+    <script type="text/javascript" src="../resources/jslib/ole/loader.js"></script>
+    <link rel="stylesheet" href="../resources/themes/ole/geosilk.css" type="text/css" />
 
-    <script src="../resources/jslib/OpenLayers.js?mobile"></script>
-    <script src="../resources/jslib/gcOloverride.js"></script>    
-    <script src="../resources/jslib/jqSLDSelect.js"></script>
-    <script src="../resources/jslib/GisClientMap.js"></script>   
-	  <script src="../resources/jslib/LayerTree.js"></script>
-    <script src="../resources/jslib/ResultPanel.js"></script>
 
-    <script src="../resources/jslib/json2.js" type="text/javascript"></script>
-    <script src="../resources/jslib/condition-builder.js" type="text/javascript"></script> 
 
-    <script src="init.js" type="text/javascript"></script>
-
-    <link rel="stylesheet" type="text/css" href="leaflet.css">
-
--->	<script type="text/javascript">
+	<script type="text/javascript">
 
 
     function testpanel(fileToLoad){
 
 
-        if($(".leaflet-control-container").hasClass("open")){
-            $(".leaflet-control-container").animate({
+        if($(".gisclient-toolbar-container").hasClass("open")){
+            $(".gisclient-toolbar-container").animate({
                 width:'45px'
               });
-            $(".leaflet-control-container").removeClass("open")
+            $(".gisclient-toolbar-container").removeClass("open")
         }
         else{
-            $(".leaflet-control-container").animate({
+            $(".gisclient-toolbar-container").animate({
                 width:'320px'
               });
-            $(".leaflet-control-container").addClass("open");
+            $(".gisclient-toolbar-container").addClass("open");
             if(fileToLoad) {
                 $( "#mypanel" ).load(fileToLoad);
             }
@@ -90,36 +67,23 @@
     }
 
 
+    function test3(){
+        if(mycontrol.active)
+          mycontrol.deactivate()
+        else
+          mycontrol.activate()
+
+    }
 
 
-  $(function() {
+    function ricerca(){
 
-
-
-   // $("#lista").select2();
-   // $( "#mypanel" ).load( "test_table.html" );
-
-/*
-$('#resultpanel .featureTypeDiv').live('click', function(){
-  console.log(this)
-    $(this).css({}).next('.featureTypeData').slideToggle(200).siblings('.featureTypeData').slideUp(500);
-    $(this).siblings().css({});
-});
-*/
+//$('#myModal').modal({remote:'test_table.html'});
+$('#SearchWindow').modal('show')
 
 
 
-
-
-
-
-
-
-
-  });
-
-
-
+    }
 
 
 
@@ -127,275 +91,121 @@ $('#resultpanel .featureTypeDiv').live('click', function(){
 </script>
 
 
+    <script src="../resources/jslib/json2.js" type="text/javascript"></script>
+    <script src="../resources/jslib/condition-builder.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnCondition').click(function () {
+                var query = {};
+                query = getCondition('.query > table');
+                //var l = JSON.stringify(query,null,4);
+                var l = JSON.stringify(query);
+                alert(l);
+            });
 
-<style>
+            $('#btnQuery').click(function () {
+                var con = getCondition('.query >table');
+                var k = getQuery(con);
+                alert(k);
+            });
+            addqueryroot('.query', true);
 
-.multiselect {
-    width:20em;
-    height:15em;
-    border:solid 1px #c0c0c0;
-    overflow:auto;
-}
- 
-.multiselect label {
-    display:block;
-}
- 
-.multiselect-on {
-    color:#ffffff;
-    background-color:#000099;
-}
-.dataLbl, .baseLbl{
-
-    color:#ffffff;
-
-}
-
-.l-btn-text{
-  color:#FFFFFF;
-}
-
-
-.myicon {
-    margin-left: 12px;
-    margin-top: 7px;
-}
-
-
-#mypanel {
-  position:absolute;
-  top:0px;
-  left:35px;
-  width:100%;
-  height:100%;
-  padding:10px;
-  background:#6a6a6a;
-  overflow:auto;
-  opacity: 0.85;
-  color:#FFFFFF
-}
-
-.leaflet-control-container {
-    position:absolute;
-    top:0px;
-    right:0px;
-    width:400px;
-    height:100%;
-
-}
-
-.leaflet-control .olButton {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 0 0 0;
-    display: block;
-    height: 35px;
-    margin-bottom: 0px;
-    outline: medium none;
-    width: 35px;
-    border: 1px solid #aaaaaa;
-}
-.leaflet-control .olButton.first{
-    border-radius: 8px 0 0 0;
-    margin-bottom: 0;
-    margin-top: 10px;
-}
-.leaflet-control .olButton.last{
-    border-radius: 0 0 0 8px;
-    margin-bottom: 10px;
-}
-.leaflet-control .olButton:hover {
-    background-color: #000000;
-}
-.leaflet-control .olButton.active {
-    background-color: #9ED485;
-}
-.leaflet-control .olButton.disabled {
-    background-color: rgba(0, 0, 0, 0.5);
-    cursor: default;
-}
-.leaflet-control .olButton .icon {
-    margin: 10px;
-}
-
-
-
-.featureTypeData{
-
-    overflow:scroll;
-    border:1px solid black;
-
-}
-
-    table, thead, tbody, th, td, tr { 
-      display: block; 
-    }
-    
-    /* Hide table headers (but not display: none;, for accessibility) */
-    theadxx trxx { 
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-    }
-
-    tr { border: 1px solid #ccc; }
-    
-    tdxx { 
-      /* Behave  like a "row" */
-      border: none;
-      border-bottom: 1px solid #eee; 
-      position: relative;
-      padding-left: 50%; 
-    }
-
-
-#resultpanelddd {
-    width: 200px;
-    background-color: #ddd;
-    border-radius: 10px;
-    font-style: "Tahoma";
-    font-size: 1.1em;
-    border: 1px solid #eee;
-}
-
-.featureTypeTitle {
-    padding: 10px 15px;
-    margin-top: 1px;
-    cursor: pointer;
-    position: relative;
-    font-weight: bold;
-    border-radius: 0;
-    background-repeat: no-repeat;
-    background-color: #aaaaaa;
-    background-image: url(freccia_destra.png) center right;
-}
-
-.featureTypeTitle:first-child {
-    border-radius: 10px 10px 0 0;
-    margin-top: 0;
-}
-
-.featureTypeTitle:last-child {
-    border-radius: 0 0px 10px 10px;
-}
-
-.featureTypeData {
-    display:none;
-}
-
-
-</style>
+        });
+    </script>
 
 
 
 
-<link rel="stylesheet" type="text/css" href="button.css">
+
+
+
+  <link rel="stylesheet" href="header.css" type="text/css">
+  <link rel="stylesheet" href="toolbars.css" type="text/css">
+  <link rel="stylesheet" href="sidebar.css" type="text/css">
+
+
+
 
 </head>
 <body class="map-layout">
+<!--  <header>
 
-<!--
-<header style="margin-bottom:50px">
-  <nav class="secondary">
-    <ul>
-      <li class="compact-hide "><a href="/traces">Tracciati GPS</a></li>
-      <li class="compact-hide "><a href="/diary">Diari degli utenti</a></li>
-      <li class="compact-hide "><a href="/copyright">Copyright</a></li>
-      <li class="compact-hide "><a href="/help">Aiuto</a></li>
-      <li class="compact-hide "><a href="/about">Informazioni</a></li>
-      <li class="dropdown" id="compact-secondary-nav">
-        <a href="#" data-toggle="dropdown" class="dropdown-toggle">Altro <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li class=""><a href="/traces">Tracciati GPS</a></li>
-          <li class=""><a href="/diary">Diari degli utenti</a></li>
-          <li class=""><a href="/help">Aiuto</a></li>
-          <li class=""><a href="/about">Informazioni</a></li>
-          <li class=""><a href="/copyright">Copyright</a></li>
-        </ul>
-      </li>
-    </ul>
-      <ul class="user-menu clearfix">
-        <li><a href="/login?referer=%2F">Accedi</a></li>
-        <li><a href="/user/new">Registrati</a></li>
-      </ul>
-  </nav>
+    <h1> intestazione...... </h1>
 
   </header>
-
 -->
 
-<div id="content" class="overlay-sidebar">
-<div id="sidebar">
-    <div id="toolbar_tool" style="padding:5px;border:1px solid #ddd;;display:none">
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-ok'">tool1</a>
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-ok'">tool2</a>      
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-ok'">tool3</a>
+  <div id="content">
+    <div id="map"></div>
+    <div id="map-toolbars">
+
+      <div id="map-toolbar-query" class="olToolbarsControl"></div>
+      <div id="map-toolbar-measure" class="olToolbarsControl"></div>
+      <div id="map-toolbar-redline" class="olToolbarsControl"></div>
+      <div id="map-toolbar-tools" class="olToolbarsControl"></div>
     </div>
 
-
-    <div id="tbarControl2" class="htbar-control"></div>
-
-
-
-
-    <!--
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-ok'">Lunghezza</a>
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-ok'">Area</a>
-    -->
-
-<div id="toolbar_redline" style="padding:5px;border:1px solid #ddd;display:none">
-
-
-
-</div>
-
-    <div id="toolbar_search" style="padding:5px;border:1px solid #ddd;display:none">
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'">Box</a>
-        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'">Cerchio</a>
-        <a href="#" onclick="testpanel()" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'">Ricerca</a>
-      <select style="width:250px"  id="searchCombo" placeHolder="Ricerche">
-      </select>        
+    <div id="map-overlay-panel" >
+      <div id="map-sidebar"></div>
+      <div id="sidebar-panel">
+        <div class="panel-header"><div class="panel-title">Pannello di dx </div><div class="panel-close">chiudi X</div></div>
+        <div id="layertree" style="display:none"></div>
+        <div id="resultpanel" style="display:none"></div>
+        <div id="printpanel" style="display:none">STAMPA</div>
+      </div>
+      <div id="sidebar-drag"></div>
     </div>
+  </div>
 
-</div>
-<div id="map" style="width:100%" class="leaflet-container leaflet-fade-anim" tabindex="2"></div>
 
-<div class="leaflet-control-container" >
 
-        <div id="tbarControl" class="leaflet-control">
+<!-- Modal -->
+
+<div id="SearchWindow" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title">Ricerca ...... modello di ricerca</h4>
+    </div>
+    <div class="modal-body">
+           <!-- Nav tabs -->
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#ricerca" data-toggle="tab">Ricerca</a></li>
+        <li><a href="#avanzata" data-toggle="tab">Ricerca avanzata</a></li>
+        <li><a href="#stile" data-toggle="tab">Stile</a></li>
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div class="tab-pane active" id="ricerca">
+
+          Form di ricerca per il livello indicato
 
         </div>
+        <div class="tab-pane" id="avanzata">
+          <span> Form di ricerca avanzata per il livello indicato</span>
+          <div class="query"></div>
+          <button id="btnCondition">Condizione</button>
+          <button id="btnQuery">Query</button>    
 
-        <div class="control-note leaflet-control">
-            
-            <a onclick="testpanel('responsive.html')" class="control-button easyui-tooltip" data-options="position:'left'" href="#" title="test3"><i class="myicon icon-edit icon-white"></i></a>
-            
         </div>
+        <div class="tab-pane" id="stile">
 
 
-    <div id="mypanel" title="My Panel" data-options="iconCls:'icon-save',closable:true,
-    collapsible:true,minimizable:true,maximizable:true">
-
-      <div id="layertree" style="display:none"></div>
-      <div id="searchpanel" style="display:none">RICERCA</div>
-      <div id="resultpanel" style="display:"></div>
-      <div id="printpanel" style="display:none">STAMPA</div>
-
+        </div>
+      </div>
     </div>
-
+    </div>
+  </div>
 </div>
 
 
-
-
-
-    
-
-
-
-
-
+<div id="map-footer">
+  <select id="map-select-scale"><option>ELENCO DELLE SCALE</option></select>
+  <span id="map-coordinates">coordinate</span>
+  <span id="map-footer-info">info...</span>
 </div>
-
 
 </body>
 </html>

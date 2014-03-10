@@ -101,3 +101,4 @@ OpenLayers.Protocol.HTTP.prototype.create = function(features, options) {
 		  else
 			return decodeURIComponent(results[1].replace(/\+/g, " "));
 		}
+

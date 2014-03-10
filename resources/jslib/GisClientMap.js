@@ -1,4 +1,4 @@
-OpenLayers.Map.GisClient = OpenLayers.Class({
+OpenLayers.GisClient = OpenLayers.Class({
 
    /**
      * Property: url
@@ -17,12 +17,6 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
      * {String} Unique identifier for the Editor.
      */
     id: null,
-
-    /**
-     * Property: resultsLayer
-     * {<OpenLayers.Layer.Vector>} Editor workspace.
-     */
-    resultsLayer: null,
 
     /**
      * Property: dialog
@@ -88,7 +82,6 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
      */
     oleUrl: '',
 
-
 	initialize : function(url, map, options){
 
         OpenLayers.Util.extend(this, options);
@@ -112,79 +105,6 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
         }
 
         this.id = OpenLayers.Util.createUniqueID('OpenLayers.GisClientMap_');
-
-        if (options.resultsLayer) {
-            this.resultsLayer = options.resultsLayer
-        } else {
-            this.resultsLayer = new OpenLayers.Layer.Vector('wfsResults', {
-                displayInLayerSwitcher: false
-            });
-        }
-        if (options.styleMap) {
-            this.resultsLayer.styleMap = options.styleMap;
-        } else {
-            this.resultsLayer.styleMap = new OpenLayers.StyleMap({
-                'default': new OpenLayers.Style({
-                    fillColor: '#07f',
-                    fillOpacity: 0.8,
-                    strokeColor: '#037',
-                    strokeWidth: 2,
-                    graphicZIndex: 1,
-                    pointRadius: 5
-                }),
-                // defaultLabel and selectLabel Styles are needed for DrawText Control
-                'defaultLabel': new OpenLayers.Style({
-                    fillColor: '#07f',
-                    fillOpacity: 0.8,
-                    strokeColor: '#037',
-                    strokeWidth: 2,
-                    graphicZIndex: 11,
-                    pointRadius: 0,
-                    cursor: 'default',
-                    label: '${label}',
-                    fontColor: '#000000',
-                    fontSize: "11px",
-                    fontFamily: "Verdana, Arial, Helvetica, sans-serif",
-                    fontWeight: "bold",
-//					labelAlign: "cm",
-//					labelXOffset: 0,
-//					labelYOffset: 0,
-                    labelOutlineColor: '#FFFFFF',
-                    labelOutlineWidth: 4,
-                    labelSelect: true
-                }),
-                'select': new OpenLayers.Style({
-                    fillColor: '#fc0',
-                    strokeColor: '#f70',
-                    graphicZIndex: 2
-                }),
-                // defaultLabel and selectLabel Styles are needed for DrawText Control
-                'selectLabel': new OpenLayers.Style({
-                    pointRadius: 5,
-                    label: '${label}',
-                    fontColor: 'black',
-                    fontSize: "11px",
-                    fontFamily: "Verdana, Arial, Helvetica, sans-serif",
-                    fontWeight: "bold",
-                    labelAlign: "cm",
-                    labelXOffset: "${xOffset}",
-                    labelYOffset: "${yOffset}",
-                    fillColor: '#fc0',
-                    strokeColor: '#f70',
-                    labelOutlineColor: '#fc0',
-                    labelOutlineWidth: 6,
-                    graphicZIndex: 2
-                }),
-                'temporary': new OpenLayers.Style({
-                    fillColor: '#fc0',
-                    fillOpacity: 0.8,
-                    strokeColor: '#f70',
-                    strokeWidth: 2,
-                    graphicZIndex: 2,
-                    pointRadius: 5
-                })
-            });
-        }
 
 
 		if(url!=null){//SE  C'E URL CARICO LA CONFIGURAZIONE DA REMOTO
@@ -228,8 +148,8 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
 					script.type = "text/javascript";
 					script.src = this.mapProviders[i];
 					if(this.mapProviders[i].indexOf('google')>0){
-						script.src += "&callback=OpenLayers.Map.GisClient.CallBack";
-						OpenLayers.Map.GisClient.CallBack = this.createDelegate(this.initGCMap,this);
+						script.src += "&callback=OpenLayers.GisClient.CallBack";
+						OpenLayers.GisClient.CallBack = this.createDelegate(this.initGCMap,this);
 						googleCallback=true;
 					} 
 					document.getElementsByTagName('head')[0].appendChild(script);
@@ -249,7 +169,7 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
 		}
        // this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel,this.mapOptions.maxZoomLevel);
 		this.map = new OpenLayers.Map(this.mapDiv, this.mapOptions);
-		this.map.GisClientMap = this;
+		this.map.config = this;
 		this.map.addLayer(new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{maxResolution:this.map.resolutions[0],  resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true}));
 		this.map.zoomToMaxExtent ({restricted:true});
 		this.initLayers();
@@ -259,6 +179,7 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
 			var ret = this.map.getLayersByName(this.baseLayerName);
 			if(ret.length > 0) this.map.setBaseLayer(ret[0]);
 		}	
+
 
 		if(controls) this.map.addControls(controls);
 		//if(this.mapOptions.center) this.map.setCenter(this.mapOptions.center);
@@ -306,12 +227,13 @@ OpenLayers.Map.GisClient = OpenLayers.Class({
 				break;
 
 			}
-
+            //var theme_id = (cfgLayer.parameters && cfgLayer.parameters.theme_id) || cfgLayer.options.theme_id;
+            //oLayer.id = theme_id+"_"+cfgLayer.name;
 			this.map.addLayer(oLayer);
 		}
 	},
 
-	CLASS_NAME: "OpenLayers.Map.GisClient"
+	CLASS_NAME: "OpenLayers.GisClient"
 });
 function createDelegate(handler, obj)
 {
@@ -320,4 +242,4 @@ function createDelegate(handler, obj)
         handler.apply(obj, arguments);
     }
 }
-OpenLayers.Map.GisClient.prototype.createDelegate = createDelegate;
+OpenLayers.GisClient.prototype.createDelegate = createDelegate;

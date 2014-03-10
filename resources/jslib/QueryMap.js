@@ -1,30 +1,6 @@
-/**
- * Class: OpenLayers.Control.MapQuery
- * Perform selections on WMS layers using Styled Layer Descriptor (SLD)
- * Inherits from:
- *  - <OpenLayers.Control.SLDSelect>
- */
-//OpenLayers.Control.SLDSelect.prototype.EVENT_TYPES = ["beforeselect","selected","featureload","featuresloaded","startMapQuery","endMapQuery"];
-OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
-    /**
-     * Constant: EVENT_TYPES
-     * {Array(String)} Supported application event types.  Register a listener
-     *     for a particular event with the following syntax:
-     * (code)
-     * control.events.register(type, obj, listener);
-     * (end)
-     *
-     * Listeners will be called with a reference to an event object.  The
-     *     properties of this event depends on exactly what happened.
-     *
-     * Supported control event types (in addition to those from 
-     * <OpenLayers.Control>):
-     * selected - Triggered when a selection occurs.  Listeners receive an 
-     *     event with *filters* and *layer* properties.  Filters will be an 
-     *     array of OpenLayers.Filter objects created in order to perform 
-     *     the particular selection.
-     */
+OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
+
 
 	/** 
 		* dumpSldUrl - url per il dump di sld
@@ -77,7 +53,7 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	maxFeatures: 250,
 
 	//NUMERO COMPESSIVO DI ELEMENTI VETTORIALI DA AGGIUNGERE AL LIVELLO VETTORIALE DEI RISULTATI
-	maxVectorFeatures: 0,
+	maxVectorFeatures: 500,
 
 	 
 	selectionSymbolizer: {
@@ -211,7 +187,6 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
             doc = request.responseText;
         }
         var describeFeatureType = format.read(doc);
-        console.log(describeFeatureType)
 		if(describeFeatureType.featureTypes){
 			for(var i=0, leni=describeFeatureType.featureTypes.length; i<leni; i++) {
 				featureType = describeFeatureType.featureTypes[i];
@@ -241,9 +216,12 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 		if(!this.wfsCache[layerId]["featureTypes"]) return false;
 		//SE IN QUALCHE FEATURETYPE HO IL TYPENAME MA NON HO PROPERTIES DEVO FARE LA CHIAMATA PER RECUPERARE I CAMPI
         for (var i=0, len=this.wfsCache[layerId]["featureTypes"].length; i<len; i++){
-			if(typeof(this.wfsCache[layerId]["featureTypes"][i]["properties"])=='undefined') return false
+			if(typeof(this.wfsCache[layerId]["featureTypes"][i]["properties"])=='undefined'){
+				if(typeof(console)!="undefined") console.log(this.wfsCache[layerId]["featureTypes"][i]); 
+				return false;
+			}
 		}
-		return true
+		return true;
 	},
     activate: function() {
 
@@ -453,18 +431,9 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 		*/
 		if(this.nquery == 0){
 			this.resultLayer.removeAllFeatures();
-			//this.resultPanel.innerHTML='';
-			//this.mapPanel.fireEvent('loading',{start:true,title:'Interrogazione',width:200,msg:'Ricerca informazioni in corso....'})
-			//this.events.triggerEvent('featureload',{start:true});
-			this.events.triggerEvent('startMapQuery');
-
-
+			this.events.triggerEvent('startQueryMap');
 		}
-		
-		
-		
-		
-		
+
 		this.nquery++;
 		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
 		var xml = new OpenLayers.Format.XML();
@@ -494,7 +463,8 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				var features = format.read(doc);
 				featureType.features = features;
 				this.events.triggerEvent('featuresLoaded',featureType);
-				if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) this.resultLayer.addFeatures(features);
+				//if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) 
+					this.resultLayer.addFeatures(features);
 				
 
 				if(features.length>0){
@@ -512,7 +482,7 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				}
 				if(this.nquery == this.nresponse){
 					this.nquery = this.nresponse = 0;
-					this.events.triggerEvent('endMapQuery');
+					this.events.triggerEvent('endQueryMap');
 				}
 
 				var resp=format.read(doc);
@@ -551,12 +521,5 @@ OpenLayers.Control.MapQuery = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
     },
 
 
-
-    writeDataResults: function(featureType) {
-
-
-    },
-
-
-    CLASS_NAME: "OpenLayers.Control.MapQuery"
+    CLASS_NAME: "OpenLayers.Control.QueryMap"
 });
