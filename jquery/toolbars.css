@@ -26,11 +26,12 @@
 }
 
 #map-select-scale {
-    font-size: 10px;
+    font-size: 12px;
     height: 20px;
-    width: 23em;
-    margin-left: 10px;
+    width: 15em;
+    margin-left: 5px;
     bottom:0px;
+    color:#000;
 }
 #map-coordinates {
     height: 20px;

@@ -34,6 +34,10 @@ var initMap = function(){
     var openPanel = function(width){
         var el = $("#map-overlay-panel");
         var w = width || 300;
+        //var ell = document.getElementById("map-overlay-panel");
+        //ell.style.width = "300px";
+
+        //el.css({width:w+"px"});
         el.animate({width:w+"px"});
         el.addClass("panel-open");
     }
@@ -41,6 +45,10 @@ var initMap = function(){
     var closePanel = function(width){
         var el = $("#map-overlay-panel");
         var w = width || 45;
+        //var ell = document.getElementById("map-overlay-panel");
+        //ell.style.width = "45px";
+
+        //el.css({width:w+"px"});
         el.animate({width:w+"px"});
         el.removeClass("panel-open");
     }
@@ -52,9 +60,12 @@ var initMap = function(){
         var ell = document.getElementById("map-overlay-panel")
         if(el.hasClass("panel-open")){
             w = w1||45;
-            el.animate({width:w+"px"});
+            var ell = document.getElementById("map-overlay-panel");
+            ell.style.width = "45px";
+
+            //el.animate({width:w+"px"});
             //ell.style.width = "45px"
-            el.removeClass("panel-open");
+            //el.removeClass("panel-open");
             //$("#resultpanel").addClass("smalltable")
 
 
@@ -330,6 +341,38 @@ var initMap = function(){
 
 
 
+    //VISUALIZZAZIONE DELLE COORDINATE
+    var projection = this.mapOptions.displayProjection || this.mapOptions.projection;
+    var v = projection.split(":");
+    map.addControl(new OpenLayers.Control.MousePosition({
+        element:document.getElementById("map-coordinates"),
+        prefix: '<a target="_blank" ' + 'href="http://spatialreference.org/ref/epsg/' + v[1] + '/">' + projection + '</a> coordinate: '
+    }));
+
+
+    //ELENCO DELLE SCALE
+    var scale, zoomLevel, option;
+
+    for(var i=this.mapOptions.minZoomLevel;i<this.mapOptions.maxZoomLevel;i++){
+        scale = OpenLayers.Util.getScaleFromResolution (this.mapOptions.serverResolutions[i],this.mapOptions.units);
+        option = $("<option></option>");
+        option.val(i);
+        option.text('Scala 1:'+ parseInt(scale));
+        $('#map-select-scale').append(option);
+    }
+    $('#map-select-scale').change(function(){
+
+        map.zoomTo(this.value);
+        console.log(this.value);//?????????????????????????????????
+
+    })
+
+
+
+
+
+
+
 
 
     //queryToolbar.activate();
@@ -344,18 +387,10 @@ var initMap = function(){
 	GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
         pippo:'pippo', 
         mapOptions:{
-            displayProjection:'EPSG:4326',
             controls:[
                 new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
-                new OpenLayers.Control.MousePosition({
-                    div:document.getElementById("map_coordinates"),
-                    prefix: '<a target="_blank" ' +
-                        'href="http://spatialreference.org/ref/epsg/4326/">' +
-                        'EPSG:4326</a> coordinates: '
-                    }
-                ),
                 //new OpenLayers.Control.PanZoomBar(),
                 /*
                 new OpenLayers.Control.TouchNavigation({

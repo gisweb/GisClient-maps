@@ -266,7 +266,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         this.resultLayer.setVisibility(this.active);
         var currentHeight = this.div.style.height;
         if (this.active) {
-            this.setQueryLayers(this.featuresCombo.value)
+            this.setQueryLayers(this.featuresCombo.value);
+            for(var i=0;i<this.map.layers.length;i++) if(this.wfsCache[this.map.layers[i].id]) this.updateFeatureCombo(this.map.layers[i]);
             this.activateVectorControl();
             this.map.events.register('changelayer',this,this.updateVisibleLayers);
             if (this.outsideViewport){
