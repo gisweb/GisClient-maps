@@ -40,6 +40,7 @@ var initMap = function(){
         //el.css({width:w+"px"});
         el.animate({width:w+"px"});
         el.addClass("panel-open");
+        $("#resultpanel").addClass("smalltable")
     }
 
     var closePanel = function(width){
@@ -51,6 +52,7 @@ var initMap = function(){
         //el.css({width:w+"px"});
         el.animate({width:w+"px"});
         el.removeClass("panel-open");
+        $("#resultpanel").addClass("smalltable")
     }
 
 
@@ -315,7 +317,8 @@ var initMap = function(){
 
     $('#sidebar-drag').on('click',function(){
 
-        togglePanel(300,1200)
+        openPanel(1200);
+        $("#resultpanel").removeClass("smalltable");
 
     })
 
@@ -335,8 +338,7 @@ var initMap = function(){
 
 
     $('#sidebar-panel .panel-close').click(function(){
-        $("#map-overlay-panel").animate({width:'45px'});
-        $("#map-overlay-panel").removeClass("panel-open");
+        closePanel()
     });
 
 
