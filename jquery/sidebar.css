@@ -87,15 +87,15 @@
 
 #sidebar-panel .panel-header .panel-title{
   float: left;
+  margin-left: 25px;
   color:#000000;  
 }
 
 #sidebar-panel .panel-header .panel-close{
   float:right;
   width:100px;
-  color:#000000;  
+  color:#fff;  
   cursor: pointer;
-
 }
 
 #sidebar-drag {

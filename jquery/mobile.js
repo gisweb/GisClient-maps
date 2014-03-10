@@ -31,6 +31,20 @@ var initMap = function(){
     if(ret.length > 0) map.setBaseLayer(ret[0]);
 
 
+    var openPanel = function(width){
+        var el = $("#map-overlay-panel");
+        var w = width || 300;
+        el.animate({width:w+"px"});
+        el.addClass("panel-open");
+    }
+
+    var closePanel = function(width){
+        var el = $("#map-overlay-panel");
+        var w = width || 45;
+        el.animate({width:w+"px"});
+        el.removeClass("panel-open");
+    }
+
 
     var togglePanel = function(w1,w2){
 
@@ -38,10 +52,10 @@ var initMap = function(){
         var ell = document.getElementById("map-overlay-panel")
         if(el.hasClass("panel-open")){
             w = w1||45;
-            el.animate({width:w1+"px"});
+            el.animate({width:w+"px"});
             //ell.style.width = "45px"
             el.removeClass("panel-open");
-            $("#resultpanel").addClass("smalltable")
+            //$("#resultpanel").addClass("smalltable")
 
 
         }
@@ -50,7 +64,7 @@ var initMap = function(){
             el.animate({width:w+"px"});
             //ell.style.width = "300px"
             el.addClass("panel-open");
-            $("#resultpanel").removeClass("smalltable")
+            //$("#resultpanel").removeClass("smalltable")
         }
 
     }
@@ -209,8 +223,8 @@ var initMap = function(){
             iconclass:"icon-layers", 
             title:"Pannello dei livelli",
             eventListeners: {
-                'activate': function(){togglePanel();$("#resultpanel").hide();$("#layertree").show();},
-                'deactivate': function(){togglePanel();$("#layertree").hide();}
+                'activate': function(){$("#resultpanel").hide();$("#layertree").show();openPanel();},
+                'deactivate': function(){$("#layertree").hide();if(!btnResult.active) closePanel();}
             }
         }),
         btnResult = new OpenLayers.Control.Button({
@@ -219,8 +233,8 @@ var initMap = function(){
             title:"Tabella dei risultati",
             tbarpos:"last",
             eventListeners: {
-                'activate': function(){togglePanel();$("#layertree").hide();$("#resultpanel").show();},
-                'deactivate': function(){togglePanel();$("#resultpanel").hide();}
+                'activate': function(){$("#layertree").hide();$("#resultpanel").show();openPanel();},
+                'deactivate': function(){$("#resultpanel").hide();if(!btnLayertree.active) closePanel();}
             }
         }),
 
