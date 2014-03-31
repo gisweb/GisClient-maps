@@ -291,7 +291,19 @@ var initMap = function(){
             type: OpenLayers.Control.TYPE_TOGGLE, 
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
-
+            eventListeners: {
+                'activate': function(){
+                    if($.trim($('#printpanel').html()) == '') {
+                        $("#printpanel").load('print_panel.html');
+                    }
+                    $('#printpanel').show();
+                    openPanel();
+                },
+                'deactivate': function(){
+                    $("#printpanel").hide();
+                    closePanel();
+                }
+            }
         }),
         btnSettings = new OpenLayers.Control.Button({
             tbarpos:"last", 
