@@ -20,6 +20,7 @@
     <script src="../resources/jslib/GisClientMap.js"></script>   
   <script src="../resources/jslib/LayerTree.js"></script>
     <script src="../resources/jslib/LoadingPanel.js"></script>
+    <script src="../resources/jslib/PrintMap.js"></script>
     <script src="../resources/jslib/PipeSelect.js"></script>
     <script src="../resources/jslib/DynamicMeasure.js"></script>
 
@@ -109,7 +110,8 @@ $('#SearchWindow').modal('show')
                 alert(k);
             });
             addqueryroot('.query', true);
-
+            
+            
         });
     </script>
 
@@ -145,13 +147,14 @@ $('#SearchWindow').modal('show')
       <div id="map-toolbar-tools" class="olToolbarsControl"></div>
     </div>
 
-    <div id="map-overlay-panel" >
+    <div id="map-overlay-panel">
       <div id="map-sidebar"></div>
       <div id="sidebar-panel">
         <div class="panel-header"><div class="panel-title">Pannello di dx </div><div class="panel-close">chiudi X</div></div>
         <div id="layertree" style="display:none"></div>
         <div id="resultpanel" style="display:none"></div>
-        <div id="printpanel" style="display:none">STAMPA</div>
+        <div id="printpanel" style="display:none">
+        </div>
       </div>
       <div id="sidebar-drag"></div>
     </div>
