@@ -66,13 +66,14 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
 
 	//CREA UN UNICO LIVELLO PER LA SELEZIONE BASATO SU PROJECT E MAP DI UNO DEI LIVELLI INTERROGATI (DA VEDERE)
-	createSelectionLayer: function(key) {
+	createSelectionLayer: function(key, selection) {
         // check if we already have a selection layer for the source layer
-        var selectionLayer;
+        var selection = this.selection || selection,
+            selectionLayer;
         if (!this.layerCache[key]) {
 			selectionLayer = new OpenLayers.Layer.WMS('Oggetti evidenziati',
-				this.selection[key].url, 
-				OpenLayers.Util.applyDefaults({HIGHLIGHT:1},this.selection[key].params), 
+				selection[key].url, 
+				OpenLayers.Util.applyDefaults({HIGHLIGHT:1},selection[key].params), 
 				OpenLayers.Util.applyDefaults(this.layerOptions,{singleTile:true})
 			);
 			selectionLayer.displayInLayerSwitcher = true;//???????
@@ -252,7 +253,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
         }
         return activated;
     },
-	
+    
 	
     /**
      * Method: select
@@ -313,7 +314,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 						
 							// from the click handler we will not get an actual 
 							// geometry so transform
-							if (!(geometry instanceof OpenLayers.Geometry)) {
+							if (!(geometry instanceof OpenLayers.Geometry) && geometry.xy) {
 								var point = this.map.getLonLatFromPixel(
 									geometry.xy);
 								geometry = new OpenLayers.Geometry.Point(
@@ -322,7 +323,16 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 								
 							//######## faccio sempre una selezione spaziale anche quando faccio una ricerca !!!! quindi ho sempre un filtro spaziale
 							//##### infatti quando uso select come query passo una tra le opzioni estensione completa, estensione corrente, selezione corrente, oggetto selezionato come in gc 2
-							var filter = this.createFilter(geometryAttribute, geometry);
+                            var filter;
+                            if(geometry instanceof OpenLayers.Bounds) {
+                                filter = new OpenLayers.Filter.Spatial({
+                                    type: OpenLayers.Filter.Spatial.BBOX,
+                                    property: geometryAttribute.name,
+                                    value: geometry
+                                });
+                            } else {
+                                filter = this.createFilter(geometryAttribute, geometry);
+                            }
 							if (filter !== null) {
 								if(this.queryFilters[featureType.typeName]){
 									filter = new OpenLayers.Filter.Logical({
@@ -337,7 +347,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 							else if(this.queryFilters[featureType.typeName]){
 									filter = this.queryFilters[featureType.typeName];
 							}
-							selection[filterId]["Filters"].push(filter);
+							selection[filterId]["Filters"].push(filter.clone());
 							geometryAttribute.typeName = featureType.typeName;
 							if(featureType.symbolizer) geometryAttribute.symbolizer = featureType.symbolizer;
 							selection[filterId]["geometryAttributes"].push(geometryAttribute);
@@ -352,16 +362,16 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				
 				//delete this._queue;
             }
-			
+
 			if(this.highLight) { //SOLO SE VOGLIO ANCHE GLI OGGETTI SELEZIONATI
 				//PER OGNI MAPPA(PROGETTO O LAYER INDIP) CREO IL LAYER DI SELEZIONE (SE HO SOLO LAYER DI 1 PROGETTO HO 1 SOLO LAYER DI SELEZIONE
+                
 				for(filterId in selection){
-					var selectionLayer = this.createSelectionLayer(filterId);
+					var selectionLayer = this.createSelectionLayer(filterId, selection);
 					var sld = this.createSLD(selectionLayer, selection[filterId]["Filters"], selection[filterId]["geometryAttributes"]);
 										
 					//VEDO SE PASSARE IL POST O IN GET
 					//VEDERE selectionLayer.tileOptions
-					
 					if(sld.length < this.maxSldLength)	
 						selectionLayer.mergeNewParams({SLD_BODY:sld});
 					else
