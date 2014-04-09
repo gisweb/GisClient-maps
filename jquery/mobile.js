@@ -213,8 +213,9 @@ var initMap = function(){
 
     sideBar.addControls([
         //new OpenLayers.Control.ZoomIn({tbarpos:"first", iconclass:"glyphicon-white glyphicon-white glyphicon-plus", title:"Zoom avanti"}),
-        //new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-minus", title:"Zoom indietro"}),
+
         new OpenLayers.Control.ZoomBox({tbarpos:"first", iconclass:"glyphicon-white glyphicon-zoom-in", title:"Zoom riquadro", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
+        new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-zoom-out", title:"Zoom indietro"}),
         new OpenLayers.Control.DragPan({ iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
         new OpenLayers.Control.ZoomToMaxExtent({iconclass:"glyphicon-white glyphicon-globe", title:"Zoom estensione"}),
         new OpenLayers.Control.Geolocate({tbarpos:"last", iconclass:"glyphicon-white glyphicon-map-marker", title:"La mia posizione"}),
@@ -291,19 +292,7 @@ var initMap = function(){
             type: OpenLayers.Control.TYPE_TOGGLE, 
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
-            eventListeners: {
-                'activate': function(){
-                    if($.trim($('#printpanel').html()) == '') {
-                        $("#printpanel").load('print_panel.html');
-                    }
-                    $('#printpanel').show();
-                    openPanel();
-                },
-                'deactivate': function(){
-                    $("#printpanel").hide();
-                    closePanel();
-                }
-            }
+
         }),
         btnSettings = new OpenLayers.Control.Button({
             tbarpos:"last", 
