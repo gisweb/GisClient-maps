@@ -6,7 +6,7 @@ $(document).ready(function() {
     $('#printpanel').on('click', 'button[role="print"]', function() {
         var params = getParams();
         $.ajax({
-            url: '/author33/services/print.php',
+            url: '/gisclient/services/print.php',
             type: 'POST',
             data: params,
             dataType: 'json',
