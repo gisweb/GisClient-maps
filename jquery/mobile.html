@@ -11,7 +11,7 @@
 
   <script type="text/javascript" src="../resources/jslib/jquery.min.js"></script>
   <script type="text/javascript" src="../resources/jslib/jquery.easyui.min.js"></script>
-  <script type="text/javascript" src="typeahead.bundle.js"></script>
+  <script type="text/javascript" src="../resources/external/typeahead/typeahead.bundle.js"></script>
   <link rel="stylesheet" type="text/css" href="../resources/themes/black/tree.css">
 
 
@@ -26,10 +26,6 @@
     <script src="../resources/jslib/DynamicMeasure.js"></script>
 
     <script src="../resources/jslib/QueryToolbar.js"></script>   
-
-
-    <script src="../resources/jslib/json2.js" type="text/javascript"></script>
-    <script src="../resources/jslib/condition-builder.js" type="text/javascript"></script> 
 
 
 
@@ -249,42 +245,22 @@
 
 
     <script src="../resources/jslib/json2.js" type="text/javascript"></script>
-    <script src="../resources/jslib/condition-builder.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#btnCondition').click(function () {
-                var query = {};
-                query = getCondition('.query > table');
-                //var l = JSON.stringify(query,null,4);
-                var l = JSON.stringify(query);
-                alert(l);
-            });
-
-            $('#btnQuery').click(function () {
-                var con = getCondition('.query >table');
-                var k = getQuery(con);
-                alert(k);
-            });
-            addqueryroot('.query', true);
-            
-            
-        });
-    </script>
-
-
-
-
 
 
 
   <link rel="stylesheet" href="header.css" type="text/css">
   <link rel="stylesheet" href="toolbars.css" type="text/css">
   <link rel="stylesheet" href="sidebar.css" type="text/css">
-  <link rel="stylesheet" href="typeahead.css" type="text/css">
+  <link rel="stylesheet" href="../resources/external/typeahead/typeahead.css" type="text/css">
 
-
-
-
+  <script src="../resources/external/knockout-query-builder/js/vendor/knockout-2.2.1.js"></script>
+  <script src="../resources/external/knockout-query-builder/js/condition.js"></script>
+  <script src="../resources/external/knockout-query-builder/js/group.js"></script>
+  <script src="../resources/external/knockout-query-builder/js/viewModel.js"></script>
+  
+  <link rel="stylesheet" href="../resources/external/knockout-query-builder/css/styles.css" type="text/css">
+  
+  
 </head>
 <body class="map-layout">
 <!--  <header>
