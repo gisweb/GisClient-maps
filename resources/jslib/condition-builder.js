@@ -10,46 +10,49 @@ function makeStruct(names) {
     return constructor;
 }
 
+
+var conditionBuilderFields = []; // conditionBuilderFields per adesso è global, poi di tutto questo si farà una classe
+function getConditionStatement() {
+    
+    var len = conditionBuilderFields.length, i, field;
+
+    var statement = '<div><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" />'
+
+    statement += '<select class="col">';
+    for(i = 0; i < len; i++) {
+        field = conditionBuilderFields[i];
+        statement += '<option value="'+field.name+'">'+field.label+'</option>';
+    }
+    statement += '</select>';
+
+    statement += '<select class="op">';
+    statement += '<option value="contains">contains</option>';
+    statement += '<option value="startswith">starts with</option>';
+    statement += '<option value="endswith">ends with</option>';
+    statement += '<option value="doesnotcontain">does not contain</option>';
+    statement += '<option value="doesnotstartwith">does not start with</option>';
+    statement += '<option value="national">does not end with</option>';
+    statement += '<option value="area">equals</option>';
+    statement += '<option value="pop">not equal</option>';
+    statement += '<option value="gdp">less than</option>';
+    statement += '<option value="g8">greater than</option>';
+    statement += '<option value="g8">less than or equal to</option>';
+    statement += '<option value="g8">greater than or equal to</option>';
+    statement += '<option value="g8">between</option>';
+    statement += '<option value="g8">is null</option>';
+    statement += '<option value="g8">is not null</option>';
+    statement += '<option value="g8">matches other field</option>';
+    statement += '<option value="g8">differs from field</option>';
+    statement += '</select>'
+
+    statement += '<input type="text" /></div>';
+    return statement;
+}
+
+
 var rootcondition = '<table><tr><td class="seperator" ><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" /><select><option value="and">And</option><option value="or">Or</option></select></td>';
 rootcondition += '<td><div class="querystmts"></div><div><img class="add" src="../resources/themes/icons/add.png" alt="Add" /> <button class="addroot">+()</button></div>';
 rootcondition += '</td></tr></table>';
-
-var statement = '<div><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" />'
-
-statement += '<select class="col">';
-statement += '<option value="code">Code</option>';
-statement += '<option value="country">Country</option>';
-statement += '<option value="capital">Capital</option>';
-statement += '<option value="govt">Government</option>';
-statement += '<option value="cont">Continent</option>';
-statement += '<option value="national">Nationalhood</option>';
-statement += '<option value="area">Area(km2)</option>';
-statement += '<option value="pop">Population</option>';
-statement += '<option value="gdp">GDP($M)</option>';
-statement += '<option value="g8">G8</option>';
-statement += '</select>';
-
-statement += '<select class="op">';
-statement += '<option value="contains">contains</option>';
-statement += '<option value="startswith">starts with</option>';
-statement += '<option value="endswith">ends with</option>';
-statement += '<option value="doesnotcontain">does not contain</option>';
-statement += '<option value="doesnotstartwith">does not start with</option>';
-statement += '<option value="national">does not end with</option>';
-statement += '<option value="area">equals</option>';
-statement += '<option value="pop">not equal</option>';
-statement += '<option value="gdp">less than</option>';
-statement += '<option value="g8">greater than</option>';
-statement += '<option value="g8">less than or equal to</option>';
-statement += '<option value="g8">greater than or equal to</option>';
-statement += '<option value="g8">between</option>';
-statement += '<option value="g8">is null</option>';
-statement += '<option value="g8">is not null</option>';
-statement += '<option value="g8">matches other field</option>';
-statement += '<option value="g8">differs from field</option>';
-statement += '</select>'
-
-statement += '<input type="text" /></div>';
 
 var addqueryroot = function (sel, isroot) {
     $(sel).append(rootcondition);
@@ -70,6 +73,8 @@ var addqueryroot = function (sel, isroot) {
             $(this).parent().parent().parent().parent().detach();
         });
     }
+    
+    var statement = getConditionStatement();
 
     // Add the default staement segment to the root condition
     elem.find('td >.querystmts').append(statement);
