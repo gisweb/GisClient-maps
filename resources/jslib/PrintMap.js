@@ -69,7 +69,7 @@ function getConfigParams() {
         text: $('#printpanel textarea[name="text"]').val(),
         extent: GisClientMap.map.calculateBounds().toBBOX(),
         date: $('#printpanel input[name="date"]').val(),
-        dpi: $('#printpanel select[name="dpi"]').val(),
+        dpi: $('#print_panel_resolution').val(),
         srid: GisClientMap.map.getProjection(),
         pixels_distance: pixelsDistance,
         copyrightString: copyrightString
