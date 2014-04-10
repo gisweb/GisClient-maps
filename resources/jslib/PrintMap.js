@@ -5,6 +5,10 @@
 $(document).ready(function() {
     $('#printpanel').on('click', 'button[role="print"]', function() {
         var params = getParams();
+        
+        var loadingControl = GisClientMap.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
+        loadingControl.maximizeControl();
+        
         $.ajax({
             url: '/gisclient/services/print.php',
             type: 'POST',
@@ -25,9 +29,12 @@ $(document).ready(function() {
                     $('#printpanel div.results span[name="result"]').html(link);
                     $('#printpanel div.results').show();
                 } else alert(OpenLayers.i18n('Error'));
+                
+                loadingControl.minimizeControl();
             },
             error: function() {
                 alert(OpenLayers.i18n('Error'));
+                loadingControl.minimizeControl();
             }
         });
     });
