@@ -18,7 +18,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     modifyControl:null,
     resultTarget:null,
     resultLayout:'TABLE',//LIST POPUP
-
+    searchButtonHander: null,
 
     initialize: function(options) {
         OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
@@ -81,25 +81,19 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     eventListeners: {'activate': function(){this.map.currentControl.deactivate();this.map.currentControl=this}}
 
                 }
-            ),
-            new OpenLayers.Control.Button({
+            )
+        ];
+        
+        if(typeof(this.searchButtonHander) == 'function') {
+            controls.push(new OpenLayers.Control.Button({
                 //type: OpenLayers.Control.TYPE_TOGGLE, 
                 iconclass:"glyphicon-white glyphicon-search", 
                 title:"Ricerca",
                 text:"Ricerca",
-                trigger:ricerca
-            })
-/*
-            ,new OpenLayers.Control.Button({
-                //type: OpenLayers.Control.TYPE_TOGGLE, 
-                iconclass:"glyphicon-white glyphicon-search", 
-                title:"Avanzata",
-                text:"Avanzata",
-                trigger:ricercaAvanzata
+                trigger:this.searchButtonHander
+            }));
+        }
 
-            })
-*/
-        ];
         this.addControls(controls);
     },
 

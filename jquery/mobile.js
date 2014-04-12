@@ -104,8 +104,163 @@ var initMap = function(){
             'endQueryMap': function() {        //Aggiungo l'animazione (???? da spostare sulla pagina)
                 $("#resultpanel .featureTypeTitle").on('click',function(){
                     $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
-                })}
+                })
             }
+        },
+        searchButtonHander: function() {
+            var selectedFeatureType = $('select.olControlQueryMapSelect').val();
+            if(selectedFeatureType == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS ||
+                selectedFeatureType == OpenLayers.GisClient.queryToolbar.ALL_LAYERS) {
+                return alert('Seleziona un livello prima');
+            }
+            
+            var featureTypes = GisClientMap.featureTypes,
+                len = featureTypes.length, fType, i,
+                form = '';
+             
+            for(i = 0; i < len; i++) {
+                if(featureTypes[i].typeName == selectedFeatureType) {
+                    fType = featureTypes[i];
+                    break;
+                }
+            }
+            
+            if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
+            
+            var form = '',
+                properties = fType.properties, 
+                len = properties.length, property, i;
+            
+            $('#searchFormTitle').html('Ricerca '+fType.title);
+            
+            form += '<form role="form">';
+            
+            for(i = 0; i < len; i++) {
+                property = properties[i];
+                
+                if(!property.searchType) continue; //searchType undefined oppure 0
+                
+                form += '<div class="form-group">'+
+                            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
+                
+                switch(property.searchType) {
+                    case 1:
+                    case 2: //testo
+                        form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
+                    break;
+                    case 3: //lista di valori
+                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" class="form-control typeahead" id="search_form_input_'+i+'">';
+                    break;
+                    case 4: //numero
+                        form += '<div class="form-inline">'+
+                            '<select name="'+property.name+'_operator" class="form-control">'+
+                            '<option value="'+OpenLayers.Filter.Comparison.EQUAL_TO+'">=</option>'+
+                            '<option value="'+OpenLayers.Filter.Comparison.NOT_EQUAL_TO+'">!=</option>'+
+                            '<option value="'+OpenLayers.Filter.Comparison.LESS_THAN+'">&lt;</option>'+
+                            '<option value="'+OpenLayers.Filter.Comparison.GREATER_THAN+'">&gt;</option>'+
+                            '</select>'+
+                            '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">'+
+                            '</div>';
+                    break;
+                    case 5: //data
+                        form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
+                    break;
+                    case 6: //lista di valori non wfs
+                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
+                    break;
+                }
+                
+                form += '</div>';
+            }
+            
+            form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>'+
+                '<button type="submit" class="btn btn-default">Cerca</button>'+
+                '</form>';
+            
+            $('#ricerca').empty().append(form);
+            
+            $('#ricerca input.typeahead').each(function(e, input) {
+                var fieldId = $(input).attr('fieldId');
+                
+                $(input).typeahead({
+                    minLength: 2
+                },{
+                    source: function(query, process) {
+                        return $.ajax({
+                            url: '/gisclient/services/xSuggest.php',
+                            data: {
+                                suggest: query,
+                                field_id: fieldId
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                return process(data.data);
+                            }
+                        });
+                    }
+                });
+            });
+            
+            $('#ricerca button[type="submit"]').click(function(event) {
+                event.preventDefault();
+                
+                var filters = [];
+                $('#ricerca form input[gcfilter!="false"]').each(function(e, input) {
+                    var name = $(input).attr('name'),
+                        value = $(input).val(),
+                        searchType = $(input).attr('searchType'),
+                        type = OpenLayers.Filter.Comparison.EQUAL_TO;
+                    
+                    if(!value || value == '') return;
+                    
+                    if(searchType == 4) {
+                        type = $('#ricerca form input[name="'+name+'_operator"]').val();
+                    }
+                    if(searchType == 2) {
+                        type = OpenLayers.Filter.Comparison.LIKE;
+                        value = '%'+value+'%';
+                    }
+                    
+                    filters.push(new OpenLayers.Filter.Comparison({
+                        type: type,
+                        property: name,
+                        value: value
+                    }));
+                    
+                });
+                
+                if(filters.length == 0) return alert('Specificare almeno un parametro di ricerca');
+                
+                var geometry;
+                if($('#ricerca input[name="use_current_extent"]').prop('checked')) {
+                    geometry = GisClientMap.map.getExtent();
+                } else {
+                    geometry = GisClientMap.map.getMaxExtent();
+                }
+                
+                var filter = new OpenLayers.Filter.Logical({
+                    type: OpenLayers.Filter.Logical.AND,
+                    filters: filters
+                });
+                
+                var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
+                var oldQueryFilters = control.queryFilters[fType.typeName];
+                control.queryFilters[fType.typeName] = filter;
+                var oldHighlight = control.highLight;
+                control.highLight = true;
+                
+                control.select(geometry);
+                
+                control.queryFilters[fType.typeName] = oldQueryFilters;
+                control.highLight = oldHighlight;
+
+                $('#SearchWindow').modal('hide');
+            });
+        
+            //$('#myModal').modal({remote:'test_table.html'});
+            $('#SearchWindow').modal('show');
+        
+        }
 
     });
     queryToolbar.defaultControl = queryToolbar.controls[0];
@@ -395,7 +550,11 @@ var initMap = function(){
     map.zoomToScale(2000)
 
         
-    }//END initMap
+}//END initMap
+
+
+
+
 
 
 	OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
