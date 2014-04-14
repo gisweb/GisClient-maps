@@ -92,6 +92,9 @@ var initMap = function(){
     //******************** TOOLBARS STRUMENTI (IN ALTO A SX) *****************************************
 
     //
+    
+    if(ConditionBuilder) ConditionBuilder.init('.query');
+    
     var queryToolbar = new OpenLayers.GisClient.queryToolbar({
         createControlMarkup:customCreateControlMarkup,
         resultTarget:document.getElementById("resultpanel"),
@@ -105,6 +108,11 @@ var initMap = function(){
                 $("#resultpanel .featureTypeTitle").on('click',function(){
                     $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
                 })
+            },
+            'featureTypeSelected': function(fType) {
+                if(ConditionBuilder) {
+                    ConditionBuilder.setFeatureType(fType);
+                }
             }
         },
         searchButtonHander: function() {

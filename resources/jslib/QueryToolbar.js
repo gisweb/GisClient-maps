@@ -192,11 +192,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             } 
         }
 
-        //temporaneamente funziona con la var globale conditionBuilderFields, poi del conditionBuilder si farà una classe e verrà fatto diversamente
         var featureTypes = GisClientMap.featureTypes,
             len = featureTypes.length, fType, i;
-         
-        conditionBuilderFields = [];
          
         for(i = 0; i < len; i++) {
             if(featureTypes[i].typeName == typeName) {
@@ -207,22 +204,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         
         if(!fType) return;
         
-        var properties = fType.properties, 
-            len = properties.length, property, i;
-
-        for(i = 0; i < len; i++) {
-            property = properties[i];
-
-            if(!property.searchType) continue;
-            
-            conditionBuilderFields.push({
-                name: property.name,
-                label: property.header
-            });
-        }
-        $('.query').empty();
-        addqueryroot('.query', true);
-        //fine cose temporanee
+        this.events.triggerEvent('featureTypeSelected', fType);
+        
     },
 
     //crea una option per select
