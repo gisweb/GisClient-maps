@@ -138,7 +138,7 @@ var initMap = function(){
             for(i = 0; i < len; i++) {
                 property = properties[i];
                 
-                if(!property.searchType) continue; //searchType undefined oppure 0
+                if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
                 
                 form += '<div class="form-group">'+
                             '<label for="search_form_input_'+i+'">'+property.header+'</label>';
