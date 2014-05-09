@@ -41,10 +41,13 @@ var ConditionBuilder = {
             label: 'Minore'
         },
         greaterthan: {
-            operator: '<',
+            operator: '>',
             label: 'Maggiore'
         }
     },
+    
+    iterations: 0,
+    placeHolderCount: 0,
     
     featureType: undefined,
     rootSelector: undefined,
@@ -133,7 +136,7 @@ var ConditionBuilder = {
             options = [], fieldOption,
             operator, statement, suggest;
 
-        statement = '<div><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" />'
+        statement = '<div cbcontainer="yes"><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" />'
 
         suggest = false;
         for(i = 0; i < len; i++) {
@@ -180,9 +183,13 @@ var ConditionBuilder = {
         this.addQueryRoot(this.rootSelector, true);
     },
     
-    getCondition: function() {
+    getCondition: function(selector) {
+        this.iterations++;
+        if(this.iterations > 10) return console.log('troppe iterations...');
+        
+        var rootSelector = selector || $(this.rootSelector).children();
         //Get the columns from table (to find a clean way to do it later) //tbody>tr>td
-        var elem = $(this.rootSelector).children().children().children();
+        var elem = $(rootSelector).children().children().children();
         //elem 0 is for operator, elem 1 is for expressions
 
         var q = {};
@@ -193,7 +200,7 @@ var ConditionBuilder = {
         q.operator = operator;
 
         // Get all the expressions in a condition
-        var expressionelem = $(elem[1]).find('> .querystmts div');
+        var expressionelem = $(elem[1]).find('> .querystmts div[cbcontainer="yes"]');
         for (var i = 0; i < expressionelem.length; i++) {
             expressions[i] = {};
             var col = $(expressionelem[i]).find('.col :selected');
@@ -202,16 +209,17 @@ var ConditionBuilder = {
             expressions[i].coldisp = col.text();
             expressions[i].opval = op.val();
             expressions[i].opdisp = op.text();
-            expressions[i].val = $(expressionelem[i]).find(':text').val();
+            expressions[i].val = $(expressionelem[i]).find('input:not(.tt-hint)').val();
         }
         q.expressions = expressions;
 
         // Get all the nested expressions
-        if ($(elem[1]).find('table').length != 0) {
+        var childTables = $(elem[1]).find('table');
+        if (childTables.length != 0) {
             var len = $(elem[1]).find('table').length;
 
             for (var k = 0; k < len; k++) {
-                nestedexpressions[k] = getCondition($(elem[1]).find('table')[k]);
+                nestedexpressions[k] = this.getCondition($(elem[1]).find('table')[k]);
             }
         }
         q.nestedexpressions = nestedexpressions;
@@ -219,16 +227,21 @@ var ConditionBuilder = {
         return q;
     },
     
-    getQuery: function() {
-        var condition = this.getCondition();
+    getQuery: function(rootCondition) {
+        var condition = rootCondition || this.getCondition();
         var op = [' ', condition.operator, ' '].join('');
+        var values = {};
 
         //la costruzione della query è ben più complicata di così...
         var e = [];
         var elen = condition.expressions.length;
         for (var i = 0; i < elen; i++) {
             var expr = condition.expressions[i];
-            e.push(expr.colval + " " + expr.opval + " " + expr.val);
+            var operator = this.operators[expr.opval].operator;
+            var placeholder = ':param_' + this.placeHolderCount;
+            values['param_' +  this.placeHolderCount] = expr.val;
+            this.placeHolderCount++;
+            e.push(expr.colval + ' ' + operator + ' ' + placeholder);
         }
 
         var n = [];
@@ -236,7 +249,8 @@ var ConditionBuilder = {
         for (var k = 0; k < nlen; k++) {
             var nestexpr = condition.nestedexpressions[k];
             var result = this.getQuery(nestexpr);
-            n.push(result);
+            n.push(result.query);
+            $.extend(values, result.values);
         }
 
         var q = [];
@@ -245,6 +259,9 @@ var ConditionBuilder = {
         if (n.length > 0)
             q.push(n.join(op));
 
-        return ['(', q.join(op), ')'].join(' ');
+        return {
+            query: ['(', q.join(op), ')'].join(' '), 
+            values: values
+        };
     }
 };

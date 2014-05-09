@@ -74,7 +74,143 @@
     }
 
 
+    $(document).ready(function() {
+    $('#btnAdvancedQuery').click(function(event) {
+        console.log('advanced query click');
+        event.preventDefault();
+        
+        var selectedFeatureType = $('select.olControlQueryMapSelect').val();
+        
+        //di questo si potrebbe fare una funzione in GisClientMap.js, tipo getFeatureTypeByName o qualcosa del genere..
+        // lo stesso codice è anche nella parte dove viene gestito il link per visualizzare i dati 1n
+        var featureTypes = GisClientMap.featureTypes,
+            len = featureTypes.length, fType, i,
+            form = '';
+         
+        for(i = 0; i < len; i++) {
+            if(featureTypes[i].typeName == selectedFeatureType) {
+                fType = featureTypes[i];
+                break;
+            }
+        }
+        
+        if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
+        
+        var queryMap = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
+		queryMap.resultLayer.removeAllFeatures();
+		queryMap.events.triggerEvent('startQueryMap');
+        
+        var params = ConditionBuilder.getQuery();
+        params.projectName = GisClientMap.projectName;
+        params.mapsetName = GisClientMap.name;
+        params.srid = GisClientMap.map.projection;
+        params.featureType = selectedFeatureType;
+        
+        $.ajax({
+            url: '/gisclient/services/xMapQuery.php',
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: function(response) {
+                if(!response || typeof(response) != 'object') {
+                    return alert('Errore di sistema');
+                }
+                if(!response.length) {
+                    return alert('Nessun risultato');
+                }
+                
+                var features = [],
+                    len = response.length, result, i, geometry;
+                
+                for(i = 0; i < len; i++) {
+                    result = response[i];
+                    
+                    geometry = result.gc_geom && OpenLayers.Geometry.fromWKT(result.gc_geom);
+                    if(!geometry) continue;
+                    delete result.gc_geom;
+                    
+                    features.push(new OpenLayers.Feature.Vector(geometry, result));
+                }
+                
+				fType.features = features;
+				queryMap.events.triggerEvent('featuresLoaded',fType);
+                queryMap.resultLayer.addFeatures(features);
+                queryMap.events.triggerEvent('endQueryMap');
+                $('#SearchWindow').modal('hide');
+                $("#resultpanel").addClass("smalltable"); //non so perchè l'ho dovuto mettere qui....
+            },
+            error: function() {
+                alert('Errore di sistema');
+            }
+        });
+        
+    });
     
+    setTimeout(function() { //soluzione super-temporanea, tanto questo va spostato da qui...
+    var queryToolbar = GisClientMap.map.getControlsByClass('OpenLayers.GisClient.queryToolbar')[0];
+    queryToolbar.events.register('viewdetailsclick', null, function(event) {
+        var featureTypes = GisClientMap.featureTypes,
+            feature = event.feature,
+            len = featureTypes.length, fType, i,
+            form = '';
+        
+        if(!feature) return console.log('Feature undefined');
+        
+        for(i = 0; i < len; i++) {
+            if(featureTypes[i].typeName == event.featureType) {
+                fType = featureTypes[i];
+                break;
+            }
+        }
+        
+        if(!fType) return alert('Errore: il featureType '+event.featureType+' non esiste');
+        
+        var len = fType.properties.length, property, i,
+            pkey;
+
+        for(i = 0; i < len; i++) {
+            property = fType.properties[i];
+            
+            if(property.isPrimaryKey) {
+                pkey = property.name;
+                break;
+            }
+        }
+        
+        if(!pkey) {
+            return alert('Errore: la primary key non è tra i campi del layer, impossibile visualizzare i dati collegati');
+        }
+        
+        if(!feature.attributes[pkey]) {
+            return alert('Errore: la feature selezionata non ha un valore per la primary key '+pkey);
+        }
+        
+        var params = {
+            projectName: GisClientMap.projectName,
+            mapsetName: GisClientMap.name,
+            srid: GisClientMap.map.projection,
+            featureType: event.featureType,
+            featureId: feature.attributes[pkey],
+            action: 'viewdetails'
+        };
+        
+        $.ajax({
+            url: '/gisclient/services/xMapQuery.php',
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: function(response) {
+                console.log('success', response);
+            }
+        });
+        
+        
+        console.log(fType, feature);
+    });
+    }, 5000);
+    
+    
+    });
 
 
 
@@ -89,6 +225,10 @@
   <link rel="stylesheet" href="toolbars.css" type="text/css">
   <link rel="stylesheet" href="sidebar.css" type="text/css">
   <link rel="stylesheet" href="../resources/external/typeahead/typeahead.css" type="text/css">
+  
+  <style>
+  #map-overlay-panel {z-index: 10000}
+  </style>
   
   
 </head>
@@ -134,12 +274,12 @@
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
       <h4 class="modal-title" id="searchFormTitle">Ricerca</h4>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="overflow:auto;">
            <!-- Nav tabs -->
       <ul class="nav nav-tabs">
         <li class="active"><a href="#ricerca" data-toggle="tab">Ricerca</a></li>
         <li><a href="#avanzata" data-toggle="tab">Ricerca avanzata</a></li>
-        <li><a href="#stile" data-toggle="tab">Stile</a></li>
+        <!--<li><a href="#stile" data-toggle="tab">Stile</a></li>-->
       </ul>
 
       <!-- Tab panes -->
@@ -152,8 +292,7 @@
         <div class="tab-pane" id="avanzata">
           <span> Form di ricerca avanzata per il livello indicato</span>
           <div class="query"></div>
-          <button id="btnCondition">Condizione</button>
-          <button id="btnQuery">Query</button>    
+          <button id="btnAdvancedQuery">Query</button>    
 
         </div>
         <div class="tab-pane" id="stile">

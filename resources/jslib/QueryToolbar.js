@@ -413,6 +413,12 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     writeDataTable: function(featureType){
 
         var col, colIndex, values, htmlTable, htmlHeaders = '', cssHeaders = '', aCols = [];
+        
+        aCols.push('gc_actions');
+        colIndex = aCols.length;
+        htmlHeaders += '<th>Azioni</th>';
+        cssHeaders += '.smalltable td:nth-of-type(' + colIndex + '):before { content: "Azioni";}\n';
+        
         for (var i = 0; i < featureType.properties.length; i++) {
             col = featureType.properties[i];
             if(col.header && col.resultType!=4){
@@ -427,11 +433,21 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
         cssHeaders = '<style>' + cssHeaders + '</style>';
 
-        htmlTable = "<span class='featureTypeTitlexxx'>"+featureType.title+"</span><table class='featureTypeData'><thead><tr>" + htmlHeaders + '</tr><tbody>';
+        htmlTable = '<span>'+featureType.title;
+        //link a tutte le features disabilitato per adesso... vediamo prima se serve
+        if(false) htmlTable += ' <a href="#" zoomFType="'+featureType.typeName+'">Zoom</a>';
+        htmlTable += '</span><table class="featureTypeData"><thead><tr>' + htmlHeaders + '</tr><tbody>';
         for (var j = 0; j < featureType.features.length; j++) {
-            values = '';
             for (var i = 0; i < aCols.length; i++) {
-                values += '<td>'+ this.writeDataAttribute(featureType.properties[i].fieldType,featureType.features[j].attributes[aCols[i]]) +'</td>';
+                if(aCols[i] == 'gc_actions') {
+                    values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a>';
+//                    | <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails">Details</a></td>';
+                } else {
+                    var value = featureType.features[j].attributes[aCols[i]] || '';
+                    values += '<td>'+value+'</td>';
+                }
+                //il property va recuperato per nome, non per l'indice di aCols, visto che alcune properties vengono saltate!
+                //values += '<td>'+ this.writeDataAttribute(featureType.properties[i].fieldType,featureType.features[j].attributes[aCols[i]]) +'</td>';
             }
             htmlTable +=  '<tr>'+values+'</tr>';        
         }
@@ -460,12 +476,51 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     },
 
     writeResultPanel: function(e) {
-
+        var me = this;
         //opzioni tabella lista popup todo
         //attivare opzione scrivo anche se la lista dei risultati è vuota
         if(e.properties){
-            var resDiv = this.writeDataTable(e);
-            resDiv && this.resultTarget.appendChild(resDiv);
+            var resDiv = me.writeDataTable(e);
+            resDiv && me.resultTarget.appendChild(resDiv);
+            
+            var links = me.resultTarget.getElementsByTagName('a'),
+                len = links.length, link, i;
+            
+            for(i = 0; i < len; i++) {
+                link = links[i];
+                
+                if(!link.addEventListener) continue;
+                link.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    
+                    var action = this.getAttribute('action');
+                    var featureType = this.getAttribute('featureType');
+                    var featureId = this.getAttribute('featureId');
+                    if(action) {
+                        switch(action) {
+                            case 'zoom':
+                                if(featureId) {
+                                    var feature = me.resultLayer.getFeatureById(featureId);
+                                    if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
+                                    me.map.zoomToExtent(feature.geometry.getBounds());
+                                }
+                            break;
+                            case 'viewDetails':
+                                if(featureId) {
+                                    var params = {
+                                        featureType: featureType
+                                    };
+                                    var feature = me.resultLayer.getFeatureById(featureId);
+                                    if(!feature) console.log('viewDetails: non trovo la feature ', featureType, featureId);
+                                    else params.feature = feature;
+                                    me.events.triggerEvent('viewdetailsclick', params);
+                                }
+                            break;
+                        }
+                    }
+                    
+                }, false);
+            }
         }
 
     },
