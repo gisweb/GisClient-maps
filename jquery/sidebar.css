@@ -93,9 +93,22 @@
 
 #sidebar-panel .panel-header .panel-close{
   float:right;
-  width:100px;
+  width:80px;
   color:#fff;  
   cursor: pointer;
+}
+#sidebar-panel .panel-header .panel-expand{
+  float:right;
+  width:80px;
+  color:#fff;  
+  cursor: pointer;
+}
+#sidebar-panel .panel-header .panel-collapse{
+  float:right;
+  width:80px;
+  color:#fff;  
+  cursor: pointer;
+  display:none;
 }
 
 #sidebar-drag {
