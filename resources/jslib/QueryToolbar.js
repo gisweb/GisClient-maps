@@ -411,7 +411,6 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     },
 
     writeDataTable: function(featureType){
-
         var col, colIndex, values, htmlTable, htmlHeaders = '', cssHeaders = '', aCols = [];
         
         aCols.push('gc_actions');
@@ -427,7 +426,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 colIndex = aCols.length;
                 cssHeaders += '.smalltable td:nth-of-type(' + colIndex + '):before { content: "' + col.header + '";}\n'
             };
-        };
+        }; 
         if(aCols.length == 0) return false;
         if(featureType.features.length == 0) return false;//VEDERE DI METTRE NELLE OPZIONI SE AGGIUNGERE COMUNQUE GLI HEADERS
 
@@ -438,12 +437,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         if(false) htmlTable += ' <a href="#" zoomFType="'+featureType.typeName+'">Zoom</a>';
         htmlTable += '</span><table class="featureTypeData"><thead><tr>' + htmlHeaders + '</tr><tbody>';
         for (var j = 0; j < featureType.features.length; j++) {
+            values = '';
             for (var i = 0; i < aCols.length; i++) {
                 if(aCols[i] == 'gc_actions') {
-                    values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a>';
+                    values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a></td>';
 //                    | <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails">Details</a></td>';
                 } else {
-                    var value = featureType.features[j].attributes[aCols[i]] || '';
+                    var value = featureType.features[j].attributes[aCols[i]] || '&nbsp;';
                     values += '<td>'+value+'</td>';
                 }
                 //il property va recuperato per nome, non per l'indice di aCols, visto che alcune properties vengono saltate!
