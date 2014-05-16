@@ -50,7 +50,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	resultPanel: null,
 
 	//NUMERO DI RISULTATI MASSIMI RICHIESTI AL SERVIZIO WFS PER OGNI FETURETYPE
-	maxFeatures: 250,
+	maxFeatures: 100,
 
 	//NUMERO COMPESSIVO DI ELEMENTI VETTORIALI DA AGGIUNGERE AL LIVELLO VETTORIALE DEI RISULTATI
 	maxVectorFeatures: 500,
