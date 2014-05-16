@@ -32,6 +32,7 @@ var initMap = function(){
 
 
     var openPanel = function(width){
+//console.log('openPanel', arguments);
         var el = $("#map-overlay-panel");
         var w = width || 300;
         //var ell = document.getElementById("map-overlay-panel");
@@ -40,10 +41,13 @@ var initMap = function(){
         //el.css({width:w+"px"});
         el.animate({width:w+"px"});
         el.addClass("panel-open");
-        $("#resultpanel").addClass("smalltable")
+        if(w == 300) {
+            $("#resultpanel").addClass("smalltable");
+        }
     }
 
     var closePanel = function(width){
+//console.log('closePanel', arguments);
         var el = $("#map-overlay-panel");
         var w = width || 45;
         //var ell = document.getElementById("map-overlay-panel");
@@ -57,14 +61,13 @@ var initMap = function(){
 
 
     var togglePanel = function(w1,w2){
-
+//console.log('togglePanel', arguments);
         var el = $("#map-overlay-panel");
         var ell = document.getElementById("map-overlay-panel")
         if(el.hasClass("panel-open")){
             w = w1||45;
             var ell = document.getElementById("map-overlay-panel");
             ell.style.width = "45px";
-
             //el.animate({width:w+"px"});
             //ell.style.width = "45px"
             //el.removeClass("panel-open");
@@ -77,9 +80,25 @@ var initMap = function(){
             el.animate({width:w+"px"});
             //ell.style.width = "300px"
             el.addClass("panel-open");
-            //$("#resultpanel").removeClass("smalltable")
+            if(w == 300) {
+                $("#resultpanel").addClass("smalltable");
+            } else if(w > 300) {
+                $("#resultpanel").removeClass("smalltable");
+            }
         }
 
+    }
+    
+    var expandPanel = function() {
+        var el = $('#map-overlay-panel');
+        var width = ($(document).width() / 3) * 2;
+        el.animate({width: width + 'px'});
+        $('#resultpanel').removeClass('smalltable');
+    }
+    var collapsePanel = function() {
+        var el = $('#map-overlay-panel');
+        el.animate({width: '300px'});
+        $('#resultpanel').addClass('smalltable');
     }
 
 
@@ -105,6 +124,7 @@ var initMap = function(){
         eventListeners: {
             'startQueryMap': function() {$("#layertree").hide();$("#resultpanel").show();togglePanel()},
             'endQueryMap': function() {        //Aggiungo l'animazione (???? da spostare sulla pagina)
+                openPanel();
                 $("#resultpanel .featureTypeTitle").on('click',function(){
                     $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
                 })
@@ -113,7 +133,10 @@ var initMap = function(){
                 if(ConditionBuilder) {
                     ConditionBuilder.setFeatureType(fType);
                 }
-            }
+            }/* , //è temporaneamente in mobile.html
+            'viewdetailsclick': function(featureType, feature) {
+                
+            } */
         },
         searchButtonHander: function() {
             var selectedFeatureType = $('select.olControlQueryMapSelect').val();
@@ -492,7 +515,7 @@ var initMap = function(){
 
 
     $('#sidebar-drag').on('click',function(){
-
+//console.log('sidebar drag click');
         openPanel(1200);
         $("#resultpanel").removeClass("smalltable");
 
@@ -515,6 +538,16 @@ var initMap = function(){
 
     $('#sidebar-panel .panel-close').click(function(){
         closePanel()
+    });
+    $('#sidebar-panel .panel-expand').click(function(){
+        expandPanel();
+        $(this).hide();
+        $('#sidebar-panel .panel-collapse').show();
+    });
+    $('#sidebar-panel .panel-collapse').click(function(){
+        collapsePanel();
+        $(this).hide();
+        $('#sidebar-panel .panel-expand').show();
     });
 
 
