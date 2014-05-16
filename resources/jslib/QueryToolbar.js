@@ -168,7 +168,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
         if(value == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS){
             for(var i=0;i<this.map.layers.length;i++)
-                if(this.wfsCache[this.map.layers[i].id] && this.map.layers[i].visibility && this.map.layers[i].inRange) layers.push(this.map.layers[i]);
+                if(this.wfsCache[this.map.layers[i].id] && this.map.layers[i].getVisibility() && this.map.layers[i].calculateInRange()) layers.push(this.map.layers[i]);
             this.visibleLayers = layers;
         }
         else if(value == OpenLayers.GisClient.queryToolbar.ALL_LAYERS){

@@ -164,15 +164,17 @@ var initMap = function(){
             
             $('#searchFormTitle').html('Ricerca '+fType.title);
             
-            form += '<form role="form">';
+            //form += '<form role="form">';
+            form += '<table>';
             
             for(i = 0; i < len; i++) {
                 property = properties[i];
                 
                 if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
                 
-                form += '<div class="form-group">'+
-                            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
+                //form += '<div class="form-group">'+
+                //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
+                form += '<tr><td>'+property.header+'</td><td>';
                 
                 switch(property.searchType) {
                     case 1:
@@ -180,7 +182,7 @@ var initMap = function(){
                         form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
                     break;
                     case 3: //lista di valori
-                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" class="form-control typeahead" id="search_form_input_'+i+'">';
+                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
                     break;
                     case 4: //numero
                         form += '<div class="form-inline">'+
@@ -197,12 +199,14 @@ var initMap = function(){
                         form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
                     break;
                     case 6: //lista di valori non wfs
-                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
+                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:300px;">';
                     break;
                 }
                 
-                form += '</div>';
+                //form += '</div>';
+                form += '</td></tr>';
             }
+            form += '</table>';
             
             form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>'+
                 '<button type="submit" class="btn btn-default">Cerca</button>'+
@@ -210,22 +214,28 @@ var initMap = function(){
             
             $('#ricerca').empty().append(form);
             
-            $('#ricerca input.typeahead').each(function(e, input) {
+            $('#ricerca input[searchType="3"],#ricerca input[searchType="6"]').each(function(e, input) {
                 var fieldId = $(input).attr('fieldId');
                 
-                $(input).typeahead({
-                    minLength: 2
-                },{
-                    source: function(query, process) {
-                        return $.ajax({
+                $(input).select2({
+                    minimumInputLength: 0,
+                    query: function(query) {
+                        $.ajax({
                             url: '/gisclient/services/xSuggest.php',
                             data: {
-                                suggest: query,
+                                suggest: query.term,
                                 field_id: fieldId
                             },
                             dataType: 'json',
                             success: function(data) {
-                                return process(data.data);
+                                var results = [];
+                                $.each(data.data, function(e, val) {
+                                    results.push({
+                                        id: val.value,
+                                        text: val.value
+                                    });
+                                });
+                                query.callback({results:results});
                             }
                         });
                     }
