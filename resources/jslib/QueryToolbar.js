@@ -417,7 +417,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     },
 
     writeDataTable: function(featureType){
-        var col, colIndex, values, htmlTable, htmlHeaders = '', cssHeaders = '', aCols = [];
+        var col, colIndex, values, htmlTable, htmlHeaders = '', cssHeaders = '', aCols = [], relation;
         
         aCols.push('gc_actions');
         colIndex = aCols.length;
@@ -431,7 +431,10 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 aCols.push(col.name);
                 colIndex = aCols.length;
                 cssHeaders += '.smalltable td:nth-of-type(' + colIndex + '):before { content: "' + col.header + '";}\n'
-            };
+            }
+            if(col.relationType && col.relationType == 2) {
+                if(relations1n.indexOf(col.relationName) == -1) relations1n.push(col.relationName);
+            }
         }; 
         if(aCols.length == 0) return false;
         if(featureType.features.length == 0) return false;//VEDERE DI METTRE NELLE OPZIONI SE AGGIUNGERE COMUNQUE GLI HEADERS
@@ -446,8 +449,17 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             values = '';
             for (var i = 0; i < aCols.length; i++) {
                 if(aCols[i] == 'gc_actions') {
-                    values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a></td>';
-//                    | <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails">Details</a></td>';
+                    values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a>';
+                    
+                    for(var f = 0; f < featureType.relations.length; f++) {
+                        relation = featureType.relations[f];
+                        if(relation.relationType != 2) continue;
+                        
+                        values += '| <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails" relationName="'+relation.relationName+'">'+relation.relationTitle+'</a>';
+                        
+                    }
+                    values += '</td>';
+                    
                 } else {
                     var value = featureType.features[j].attributes[aCols[i]] || '&nbsp;';
                     values += '<td>'+value+'</td>';
@@ -513,13 +525,15 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                             break;
                             case 'viewDetails':
                                 if(featureId) {
+                                    var relationName = this.getAttribute('relationName');
                                     var params = {
                                         featureType: featureType
                                     };
                                     var feature = me.resultLayer.getFeatureById(featureId);
-                                    if(!feature) console.log('viewDetails: non trovo la feature ', featureType, featureId);
-                                    else params.feature = feature;
-                                    me.events.triggerEvent('viewdetailsclick', params);
+                                    if(!feature) return console.log('viewDetails: non trovo la feature ', featureType, featureId);
+                                    params.feature = feature;
+                                    
+                                    me.getFeatureDetails(featureType, feature, relationName);
                                 }
                             break;
                         }
@@ -536,6 +550,65 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         //SCRIVO TUTTA LA TABELLA (???)
         this.events.triggerEvent('endQueryMap');
 
+    },
+    
+    getFeatureDetails: function(featureType, feature, relation) {
+        var fType = GisClientMap.getFeatureType(featureType);
+        
+        if(!feature) return console.log('Feature undefined');
+        if(!fType) return alert('Errore: il featureType '+featureType+' non esiste');
+        
+        var len = fType.properties.length, property, i,
+            pkey;
+
+        for(i = 0; i < len; i++) {
+            property = fType.properties[i];
+            
+            if(property.isPrimaryKey) {
+                pkey = property.name;
+                break;
+            }
+        }
+        
+        if(!pkey) {
+            return alert('Errore: la primary key non è tra i campi del layer, impossibile visualizzare i dati collegati');
+        }
+        
+        if(!feature.attributes[pkey]) {
+            return alert('Errore: la feature selezionata non ha un valore per la primary key '+pkey);
+        }
+        
+        var params = {
+            projectName: GisClientMap.projectName,
+            mapsetName: GisClientMap.name,
+            srid: GisClientMap.map.projection,
+            featureType: featureType,
+            featureId: feature.attributes[pkey],
+            relationName: relation.relationName,
+            action: 'viewdetails'
+        };
+        var request = OpenLayers.Request.POST({
+            url: '/gisclient/services/xMapQuery.php',
+            data: OpenLayers.Util.getParameterString(params),
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            callback: function(response) {
+                if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
+                    return alert('Errore di sistema');
+                }
+                
+                var eventData = {
+                    featureType: featureType,
+                    feature: feature,
+                    relation: relation,
+                    response: response
+                };
+                
+                this.events.triggerEvent('viewdetails', eventData);
+            },
+            scope: this
+        });
     },
 
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"

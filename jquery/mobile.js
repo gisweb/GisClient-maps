@@ -133,10 +133,51 @@ var initMap = function(){
                 if(ConditionBuilder) {
                     ConditionBuilder.setFeatureType(fType);
                 }
-            }/* , //è temporaneamente in mobile.html
-            'viewdetailsclick': function(featureType, feature) {
+            }, //è temporaneamente in mobile.html
+            'viewdetails': function(event) {
+                var featureType = event.featureType,
+                    fType = GisClientMap.getFeatureType(featureType),
+                    len = fType.properties.length, i, property,
+                    table = '<table><thead><tr>', 
+                    cols = [], col, j,
+                    results, result, value, title;
                 
-            } */
+                try {
+                    results = $.parseJSON(event.response.responseText);
+                } catch(e) {
+                    return alert('Errore di sistema');
+                }
+                
+                for(i = 0; i < len; i++) {
+                    property = fType.properties[i];
+                    
+                    if(!property.relationName || property.relationName != event.relation.relationName) continue;
+                    
+                    title = property.header || property.name;
+                    table += '<th>'+title+'</th>';
+                    cols.push(property.name);
+                }
+                table += '</tr></thead><tbody>';
+
+                for(i = 0; i < results.length; i++) {
+                    result = results[i];
+                    
+                    table += '<tr>';
+                    
+                    for(j = 0; j < cols.length; j++) {
+                        col = cols[j];
+                        value = result[col] || '';
+                        
+                        table += '<td>'+value+'</td>';
+                    }
+                    table += '</tr>';
+                }
+                table += '</tbody></table>';
+                
+                $('#DetailsWindow div.modal-body').html(table);
+                $('#DetailsWindow h4.modal-title').html(event.relation.relationTitle + ' di ' + fType.title);
+                $('#DetailsWindow').modal('show');
+            }
         },
         searchButtonHander: function() {
             var selectedFeatureType = $('select.olControlQueryMapSelect').val();
@@ -246,7 +287,7 @@ var initMap = function(){
                 event.preventDefault();
                 
                 var filters = [];
-                $('#ricerca form input[gcfilter!="false"]').each(function(e, input) {
+                $('#ricerca input[gcfilter!="false"]').each(function(e, input) {
                     var name = $(input).attr('name'),
                         value = $(input).val(),
                         searchType = $(input).attr('searchType'),
@@ -255,7 +296,7 @@ var initMap = function(){
                     if(!value || value == '') return;
                     
                     if(searchType == 4) {
-                        type = $('#ricerca form input[name="'+name+'_operator"]').val();
+                        type = $('#ricerca input[name="'+name+'_operator"]').val();
                     }
                     if(searchType == 2) {
                         type = OpenLayers.Filter.Comparison.LIKE;

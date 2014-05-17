@@ -232,6 +232,20 @@ OpenLayers.GisClient = OpenLayers.Class({
 			this.map.addLayer(oLayer);
 		}
 	},
+    
+    getFeatureType: function(featureTypeName) {
+        var featureTypes = this.featureTypes,
+            len = featureTypes.length, fType, i;
+        
+        for(i = 0; i < len; i++) {
+            if(featureTypes[i].typeName == featureTypeName) {
+                fType = featureTypes[i];
+                break;
+            }
+        }
+        
+        return fType;
+    },
 
 	CLASS_NAME: "OpenLayers.GisClient"
 });
