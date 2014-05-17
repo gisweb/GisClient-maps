@@ -119,7 +119,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             return;
         } 
 
-        var option, list = document.createElement("select");
+        var option, options, list = document.createElement("select");
         list.add(this.getOption("LIVELLI VISIBILI",OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS));
         //AGGIUNGO I GRUPPI DI SELEZIONE
         if(this.map.config.selgroup){
@@ -129,18 +129,24 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         } 
         //AGGIUNGO GLI ALTRI RAGGRUPPATI PER TEMI
         for (index in this.wfsCache){
-            featureTypes = this.wfsCache[index].featureTypes;  
-            if(group != featureTypes[0].group){
+            featureTypes = this.wfsCache[index].featureTypes; 
+            options=[];
+            for(var i=0;i<featureTypes.length;i++){
+                if(featureTypes[i].searchable){
+                    option = this.getOption(featureTypes[i].title,featureTypes[i].typeName);
+                    OpenLayers.Element.addClass(option, "olOptionDisabled");
+                    options.push(option);
+                }
+            }
+
+            if(options.length>0 && group != featureTypes[0].group){
                 group=featureTypes[0].group;
                 option = document.createElement("optgroup");
                 option.label="Tema: " + group;
                 list.add(option);
+                for(var i=0;i<options.length;i++)  list.add(options[i])
             }
-            for(var i=0;i<featureTypes.length;i++){
-                option = this.getOption(featureTypes[i].title,featureTypes[i].typeName);
-                OpenLayers.Element.addClass(option, "olOptionDisabled");
-                list.add(option);
-            }
+
         };
 
         list.add(this.getOption("--------",""));
