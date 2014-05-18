@@ -133,7 +133,31 @@ var initMap = function(){
                 if(ConditionBuilder) {
                     ConditionBuilder.setFeatureType(fType);
                 }
-            }, //è temporaneamente in mobile.html
+            },
+            'featurehighlighted': function(event) {
+                var feature = event.feature,
+                    featureType = feature.featureTypeName;
+
+                var element = $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]');
+                $('#sidebar-panel').scrollTop(0);
+                //var containerTop = $('#sidebar-panel').scrollTop(); 
+                var containerTop = 0; 
+                var containerBottom = containerTop + $('#sidebar-panel').height(); 
+                var elemTop = element.offset().top;
+                //var elemTop = 0;
+                var elemBottom = elemTop + $(element).height(); 
+
+                if (elemTop < containerTop) {
+                    $('#sidebar-panel').scrollTop(elemTop);
+                } else if (elemBottom > containerBottom) {
+                    $('#sidebar-panel').scrollTop(elemBottom - $('#sidebar-panel').height());
+                }
+                var previousBG = element.css('background-color');
+                element.css('background-color', 'yellow');
+                setTimeout(function() {
+                    element.css('background-color', previousBG);
+                }, 1000);
+            },
             'viewdetails': function(event) {
                 var featureType = event.featureType,
                     fType = GisClientMap.getFeatureType(featureType),
@@ -380,7 +404,7 @@ var initMap = function(){
         autoActivate:false,
         saveState:true,
     })
-    var redlineLayer = new OpenLayers.Layer.Vector();
+    var redlineLayer = new OpenLayers.Layer.Vector('Redline');
     map.addLayer(redlineLayer);
     var controls = [
             new OpenLayers.Control.DrawFeature(

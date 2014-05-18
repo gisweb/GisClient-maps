@@ -473,8 +473,13 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				var features = format.read(doc);
 				featureType.features = features;
 				this.events.triggerEvent('featuresLoaded',featureType);
-				//if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) 
-					this.resultLayer.addFeatures(features);
+				//if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures)
+                
+                for(var i = 0; i < features.length; i++) {
+                    features[i].featureTypeName = featureType.typeName;
+                }
+                
+                this.resultLayer.addFeatures(features);
 				
 
 				if(features.length>0){

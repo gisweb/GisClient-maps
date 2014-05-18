@@ -354,12 +354,12 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     strokeColor: "#EEA652",
                     strokeOpacity: 1,
                     strokeLinecap: "round",
-                    strokeWidth: 4,
+                    strokeWidth: 40,
                     strokeDashstyle: "solid",
                     hoverStrokeColor: "red",
                     hoverStrokeOpacity: 1,
                     hoverStrokeWidth: 0.2,
-                    pointRadius: 6,
+                    pointRadius: 60,
                     hoverPointRadius: 1,
                     hoverPointUnit: "%",
                     pointerEvents: "visiblePainted",
@@ -377,35 +377,46 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         this.map.addLayer(resultLayer);
 
         //Setto i controlli
-        var selectControl = new OpenLayers.Control.SelectFeature(resultLayer);
-        var modifyControl = new OpenLayers.Control.ModifyFeature(resultLayer);
+        //var selectControl = new OpenLayers.Control.SelectFeature(resultLayer);
+        //var modifyControl = new OpenLayers.Control.ModifyFeature(resultLayer);
         var highlightControl = new OpenLayers.Control.SelectFeature(resultLayer,
             {
                 hover: true,
+                autoActivate: false,
                 highlightOnly: true,
+                box: false,
                 renderIntent: "temporary"
             }
         );
+        
+        highlightControl.events.register('featurehighlighted', this, this.handleFeatureHighlighted);
+        highlightControl.events.register('featureunhighlighted', this, this.handleFeatureUnHighlighted);
 
-        this.map.addControl(modifyControl);
-        this.map.addControl(selectControl); 
+        //this.map.addControl(modifyControl);
+        //this.map.addControl(selectControl); 
         this.map.addControl(highlightControl);
     
-        this.selectControl = selectControl;
+        //this.selectControl = selectControl;
         this.highlightControl = highlightControl;
-        this.modifyControl = modifyControl;
+        //this.modifyControl = modifyControl;
         
         this.resultLayer = resultLayer;
 
     },
 
     activateVectorControl: function(e){
+        var lastLayer = this.map.layers[this.map.layers.length -1],
+            maxIndex = this.map.getLayerIndex(lastLayer),
+            resultIndex = this.map.getLayerIndex(this.resultLayer);
+        
+        if(resultIndex < maxIndex) this.map.raiseLayer(this.resultLayer, (maxIndex - resultIndex));
+        
         this.highlightControl.activate();
-        this.selectControl.activate();
+        //this.selectControl.activate();
     },
     
     deactivateVectorControl: function(e){
-        this.selectControl.deactivate();
+        //this.selectControl.deactivate();
         this.highlightControl.deactivate();
     },
 
@@ -451,12 +462,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 if(aCols[i] == 'gc_actions') {
                     values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a>';
                     
-                    for(var f = 0; f < featureType.relations.length; f++) {
-                        relation = featureType.relations[f];
-                        if(relation.relationType != 2) continue;
-                        
-                        values += '| <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails" relationName="'+relation.relationName+'">'+relation.relationTitle+'</a>';
-                        
+                    if(featureType.relations) {
+                        for(var f = 0; f < featureType.relations.length; f++) {
+                            relation = featureType.relations[f];
+                            if(relation.relationType != 2) continue;
+                            
+                            values += '| <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails" relationName="'+relation.relationName+'">'+relation.relationTitle+'</a>';
+                            
+                        }
                     }
                     values += '</td>';
                     
@@ -467,7 +480,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 //il property va recuperato per nome, non per l'indice di aCols, visto che alcune properties vengono saltate!
                 //values += '<td>'+ this.writeDataAttribute(featureType.properties[i].fieldType,featureType.features[j].attributes[aCols[i]]) +'</td>';
             }
-            htmlTable +=  '<tr>'+values+'</tr>';        
+            htmlTable +=  '<tr featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'">'+values+'</tr>';        
         }
 
         htmlTable += '</tbody></table>';
@@ -549,7 +562,6 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         loadingControl.minimizeControl();
         //SCRIVO TUTTA LA TABELLA (???)
         this.events.triggerEvent('endQueryMap');
-
     },
     
     getFeatureDetails: function(featureType, feature, relation) {
@@ -609,6 +621,22 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             },
             scope: this
         });
+    },
+    
+    handleFeatureHighlighted: function(event) {
+        var me = this,
+            feature = event.feature;
+        
+        if(me.featureHighlightedTimeout) clearTimeout(me.featureHighlightedTimeout);
+        
+        me.featureHighlightedTimeout = setTimeout(function() {
+            me.events.triggerEvent('featurehighlighted', {feature:feature});
+            delete me.featureHighlightedTimeout;
+        }, 500);
+    },
+    
+    handleFeatureUnHighlighted: function(event) {
+        if(this.featureHighlightedTimeout) clearTimeout(this.featureHighlightedTimeout);
     },
 
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"
