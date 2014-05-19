@@ -123,10 +123,15 @@ var customCreateControlMarkup = function(control) {
 var initMap = function(){
     var map=this.map;
 
+        //SETTO IL BASE LAYER SE IMPOSTATO
+    if(this.baseLayerName) {
+        var ret = map.getLayersByName(this.baseLayerName);
+        if(ret.length > 0) map.setBaseLayer(ret[0]);
+    }
 
     //setto osm come base... vedere perché non va da author
-    var ret = map.getLayersByName("osm");
-    if(ret.length > 0) map.setBaseLayer(ret[0]);
+/*     var ret = map.getLayersByName("osm");
+    if(ret.length > 0) map.setBaseLayer(ret[0]); */
 
     sidebarPanel.init('#sidebar-panel');
 
@@ -674,14 +679,24 @@ var initMap = function(){
 
 
 
-
+    //if(this.mapOptions.center) map.setCenter(this.mapOptions.center);
+   // if(this.mapOptions.zoom) map.setCenter(this.mapOptions.center,this.mapOptions.zoom);
+    //queryToolbar.activate();
+    //queryToolbar.controls[0].activate();
+    if(this.mapOptions.center){
+        var center = new OpenLayers.LonLat(this.mapOptions.center[0],this.mapOptions.center[1]).transform(map.displayProjection, map.projection);
+        map.setCenter(center);
+    }
+    if(this.mapOptions.scale){
+        map.zoomToScale(this.mapOptions.scale)
+    }
 
 
 
 
     //queryToolbar.activate();
     //queryToolbar.controls[0].activate();
-    map.zoomToScale(2000)
+    //map.zoomToScale(2000)
 
         
 }//END initMap
@@ -711,7 +726,9 @@ var initMap = function(){
                     emptyTitle:'Base vuota', 
                     div:OpenLayers.Util.getElement('layertree')
                 })
-            ]
+            ],
+            scale:2000,
+            center:[8.92077, 44.40945]
         },
         callback:initMap
     })
