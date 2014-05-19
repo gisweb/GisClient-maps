@@ -271,7 +271,16 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             },
             onBeforeSelect: function(){
                 return false
-            }
+            },
+            onClick: function(node){
+                var numChildren = self.baseTree.tree('getChildren',(node.target)).length;
+                if(numChildren > 0)
+                    self.baseTree.tree('toggle',node.target);
+                else if(node.checked)
+                    self.baseTree.tree('uncheck',node.target);
+                else
+                    self.baseTree.tree('check',node.target);
+            },
 
         }); 
 
@@ -336,8 +345,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             },
 
             onClick: function(node){
-
-                //console.log(node)
                 var numChildren = self.overlayTree.tree('getChildren',(node.target)).length;
                 if(numChildren > 0)
                     self.overlayTree.tree('toggle',node.target);
@@ -345,7 +352,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     self.overlayTree.tree('uncheck',node.target);
                 else
                     self.overlayTree.tree('check',node.target);
-
 
             },
 
