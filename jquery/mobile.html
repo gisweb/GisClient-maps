@@ -177,11 +177,17 @@
 
     <div id="map-overlay-panel">
       <div id="map-sidebar"></div>
-      <div id="sidebar-panel">
-        <div class="panel-header"><div class="panel-title"></div><div class="panel-close">chiudi X</div><div class="panel-expand">Espandi</div><div class="panel-collapse">Restringi</div></div>
-        <div id="layertree" style="display:none"></div>
-        <div id="resultpanel" style="display:none"></div>
-        <div id="printpanel" style="display:none">
+      <div id="sidebar-panel" >
+        <div class="panel-header" style="display:none;">
+            <div class="panel-title"></div>
+            <div class="panel-close">chiudi X</div>
+            <div class="panel-expand">Espandi</div>
+            <div class="panel-collapse">Restringi</div>
+        </div>
+        <div class="panel-content" style="overflow:auto;height:100%">
+            <div id="layertree" style="display:none"></div>
+            <div id="resultpanel" style="display:none"></div>
+            <div id="printpanel" style="display:none"></div>
         </div>
       </div>
       <div id="sidebar-drag"></div>

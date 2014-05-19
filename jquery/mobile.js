@@ -2,6 +2,104 @@ var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
 
+var sidebarPanel = {
+    closeTimeout: null,
+    
+    init: function(selector) {
+        var self = this;
+        
+        self.selector = selector;
+        self.$element = $(selector);
+        
+        $('.panel-close', self.$element).click(function(){
+            self.close();
+        });
+        $('.panel-expand', self.$element).click(function(){
+            self.expand();
+        });
+        $('.panel-collapse', self.$element).click(function(){
+            self.collapse();
+        });
+    },
+    
+    show: function(panelId) {
+        var self = this;
+        
+        $('div.panel-content', self.$element).children('div').each(function() {
+            if($(this).hasClass('panel-header')) return;
+            
+            $(this).hide();
+        });
+        $('#'+panelId, self.$element).show();
+        
+        self.open();
+    },
+    
+    hide: function(panelId) {
+        var self = this;
+        
+        $('#'+panelId, self).hide();
+        
+        self.closeTimeout = setTimeout(function() {
+            self.close();
+        }, 100);
+    },
+    
+    open: function() {
+        if(this.closeTimeout) clearTimeout(this.closeTimeout);
+        
+        var el = $("#map-overlay-panel");
+        //var w = width || 300;
+        var w = 300;
+        //var ell = document.getElementById("map-overlay-panel");
+        //ell.style.width = "300px";
+
+        //el.css({width:w+"px"});
+        el.animate({width:w+"px"});
+        el.addClass("panel-open");
+        if(w == 300) {
+            $("#resultpanel").addClass("smalltable");
+        }
+        $('div.panel-header', this.$element).show();
+        $('#map-overlay-panel').css('right', '25px');
+    },
+    
+    close: function() {
+        var el = $("#map-overlay-panel");
+        //var w = width || 45;
+        var w = 45;
+        //var ell = document.getElementById("map-overlay-panel");
+        //ell.style.width = "45px";
+
+        //el.css({width:w+"px"});
+        el.animate({width:w+"px"});
+        el.removeClass("panel-open");
+        $("#resultpanel").addClass("smalltable");
+        $('div.panel-header', this.$element).hide();
+        $('#map-overlay-panel').css('right', '0px');
+    },
+    
+    expand: function() {
+        var el = $('#map-overlay-panel');
+        var width = ($(document).width() / 3) * 2;
+        el.animate({width: width + 'px'});
+        $('#resultpanel').removeClass('smalltable');
+        
+        $('.panel-expand', this.$element).hide();
+        $('.panel-collapse', this.$element).show();
+    },
+        
+    collapse: function() {
+        var el = $('#map-overlay-panel');
+        el.animate({width: '300px'});
+        $('#resultpanel').addClass('smalltable');
+        
+        $('.panel-expand', this.$element).show();
+        $('.panel-collapse', this.$element).hide();
+    }
+};
+
+
 
 //INITMAP PER FARCI QUALCOSA
 $(function() {
@@ -30,77 +128,7 @@ var initMap = function(){
     var ret = map.getLayersByName("osm");
     if(ret.length > 0) map.setBaseLayer(ret[0]);
 
-
-    var openPanel = function(width){
-//console.log('openPanel', arguments);
-        var el = $("#map-overlay-panel");
-        var w = width || 300;
-        //var ell = document.getElementById("map-overlay-panel");
-        //ell.style.width = "300px";
-
-        //el.css({width:w+"px"});
-        el.animate({width:w+"px"});
-        el.addClass("panel-open");
-        if(w == 300) {
-            $("#resultpanel").addClass("smalltable");
-        }
-    }
-
-    var closePanel = function(width){
-//console.log('closePanel', arguments);
-        var el = $("#map-overlay-panel");
-        var w = width || 45;
-        //var ell = document.getElementById("map-overlay-panel");
-        //ell.style.width = "45px";
-
-        //el.css({width:w+"px"});
-        el.animate({width:w+"px"});
-        el.removeClass("panel-open");
-        $("#resultpanel").addClass("smalltable")
-    }
-
-
-    var togglePanel = function(w1,w2){
-//console.log('togglePanel', arguments);
-        var el = $("#map-overlay-panel");
-        var ell = document.getElementById("map-overlay-panel")
-        if(el.hasClass("panel-open")){
-            w = w1||45;
-            var ell = document.getElementById("map-overlay-panel");
-            ell.style.width = "45px";
-            //el.animate({width:w+"px"});
-            //ell.style.width = "45px"
-            //el.removeClass("panel-open");
-            //$("#resultpanel").addClass("smalltable")
-
-
-        }
-        else{
-            w = w2||300;
-            el.animate({width:w+"px"});
-            //ell.style.width = "300px"
-            el.addClass("panel-open");
-            if(w == 300) {
-                $("#resultpanel").addClass("smalltable");
-            } else if(w > 300) {
-                $("#resultpanel").removeClass("smalltable");
-            }
-        }
-
-    }
-    
-    var expandPanel = function() {
-        var el = $('#map-overlay-panel');
-        var width = ($(document).width() / 3) * 2;
-        el.animate({width: width + 'px'});
-        $('#resultpanel').removeClass('smalltable');
-    }
-    var collapsePanel = function() {
-        var el = $('#map-overlay-panel');
-        el.animate({width: '300px'});
-        $('#resultpanel').addClass('smalltable');
-    }
-
+    sidebarPanel.init('#sidebar-panel');
 
    var vectorEditor = new OpenLayers.Editor(map, {
         activeControls: ['Navigation', 'SnappingSettings', 'CADTools', 'TransformFeature', 'Separator', 'DeleteFeature', 'DragFeature', 'SelectFeature', 'Separator', 'DrawHole', 'ModifyFeature', 'Separator'],
@@ -122,9 +150,10 @@ var initMap = function(){
         autoActivate:false,
         saveState:true,
         eventListeners: {
-            'startQueryMap': function() {$("#layertree").hide();$("#resultpanel").show();togglePanel()},
+            'startQueryMap': function() { sidebarPanel.show('resultpanel');},
             'endQueryMap': function() {        //Aggiungo l'animazione (???? da spostare sulla pagina)
-                openPanel();
+                
+
                 $("#resultpanel .featureTypeTitle").on('click',function(){
                     $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
                 })
@@ -139,24 +168,29 @@ var initMap = function(){
                     featureType = feature.featureTypeName;
 
                 var element = $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]');
-                $('#sidebar-panel').scrollTop(0);
-                //var containerTop = $('#sidebar-panel').scrollTop(); 
-                var containerTop = 0; 
-                var containerBottom = containerTop + $('#sidebar-panel').height(); 
-                var elemTop = element.offset().top;
-                //var elemTop = 0;
-                var elemBottom = elemTop + $(element).height(); 
+                var container = $('#sidebar-panel div.panel-content');
+                container.scrollTop(0);
+                if(element.length) {
+                    //var containerTop = $('#sidebar-panel').scrollTop(); 
+                    var containerTop = 0; 
+                    var containerBottom = containerTop + container.height(); 
+                    var elemTop = element.offset().top;
+                    //var elemTop = 0;
+                    var elemBottom = elemTop + $(element).height(); 
 
-                if (elemTop < containerTop) {
-                    $('#sidebar-panel').scrollTop(elemTop);
-                } else if (elemBottom > containerBottom) {
-                    $('#sidebar-panel').scrollTop(elemBottom - $('#sidebar-panel').height());
+                    if (elemTop < containerTop) {
+                        container.scrollTop(elemTop);
+                    } else if (elemBottom > containerBottom) {
+                        container.scrollTop(elemBottom - container.height());
+                    }
+                    var previousBG = element.css('background-color');
+                    element.css('background-color', 'yellow');
+                    setTimeout(function() {
+                        element.css('background-color', previousBG);
+                    }, 1000);
+                } else {
+                    console.log('non trovo ', featureType, feature.id);
                 }
-                var previousBG = element.css('background-color');
-                element.css('background-color', 'yellow');
-                setTimeout(function() {
-                    element.css('background-color', previousBG);
-                }, 1000);
             },
             'viewdetails': function(event) {
                 var featureType = event.featureType,
@@ -467,7 +501,7 @@ var initMap = function(){
 
     //******************** TOOLBAR VERTICALE *****************************************
 
-    var sideBar = new OpenLayers.Control.Panel({
+    var sideBar = new OpenLayers.GisClient.Toolbar({
         div:document.getElementById("map-sidebar"),
         createControlMarkup:customCreateControlMarkup
     });
@@ -477,7 +511,7 @@ var initMap = function(){
 
         new OpenLayers.Control.ZoomBox({tbarpos:"first", iconclass:"glyphicon-white glyphicon-zoom-in", title:"Zoom riquadro", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
         new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-zoom-out", title:"Zoom indietro"}),
-        new OpenLayers.Control.DragPan({ iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
+        new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
         new OpenLayers.Control.ZoomToMaxExtent({iconclass:"glyphicon-white glyphicon-globe", title:"Zoom estensione"}),
         new OpenLayers.Control.Geolocate({tbarpos:"last", iconclass:"glyphicon-white glyphicon-map-marker", title:"La mia posizione"}),
 
@@ -494,22 +528,24 @@ var initMap = function(){
             }
         }),
         btnLayertree = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
+            type: OpenLayers.Control.TYPE_TOGGLE,
+            exclusiveGroup: 'sidebar',
             iconclass:"icon-layers", 
             title:"Pannello dei livelli",
             eventListeners: {
-                'activate': function(){$("#resultpanel").hide();$("#layertree").show();openPanel();},
-                'deactivate': function(){$("#layertree").hide();if(!btnResult.active) closePanel();}
+                'activate': function(){sidebarPanel.show('layertree');},
+                'deactivate': function(){sidebarPanel.hide('layertree');}
             }
         }),
         btnResult = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE, 
+            exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-list-alt", 
             title:"Tabella dei risultati",
             tbarpos:"last",
             eventListeners: {
-                'activate': function(){$("#layertree").hide();$("#resultpanel").show();openPanel();},
-                'deactivate': function(){$("#resultpanel").hide();if(!btnLayertree.active) closePanel();}
+                'activate': function(){sidebarPanel.show('resultpanel');},
+                'deactivate': function(){sidebarPanel.hide('resultpanel');}
             }
         }),
 
@@ -518,8 +554,7 @@ var initMap = function(){
             eventListeners: {
                 'activate': function(){measureToolbar.activate();},
                 'deactivate': function(){measureToolbar.deactivate();}
-                }
-
+            }
         }),
 
 
@@ -528,18 +563,16 @@ var initMap = function(){
             eventListeners: {
                 'activate': function(){vectorEditor.startEditMode();},
                 'deactivate': function(){vectorEditor.stopEditMode();}
-                }
-
+            }
         }),
         new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", type: OpenLayers.Control.TYPE_TOGGLE, title:"Redline",
 
             eventListeners: {
                 'activate': function(){redlineToolbar.activate();},
                 'deactivate': function(){redlineToolbar.deactivate();}
-                }
-
+            }
         }),
-        new OpenLayers.Control.Button({tbarpos:"last", iconclass:"glyphicon-white glyphicon-tint", type: OpenLayers.Control.TYPE_TOGGLE, title:"Tools aggiunti tipo ricerca valvole",
+        new OpenLayers.Control.Button({tbarpos:"last", iconclass:"glyphicon-white glyphicon-tint", type: OpenLayers.Control.TYPE_TOGGLE, exclusiveGroup: 'sidebar', title:"Tools aggiunti tipo ricerca valvole",
 
             eventListeners: {
                 'activate': function(){toolsToolbar.activate();},
@@ -551,6 +584,7 @@ var initMap = function(){
         btnPrint = new OpenLayers.Control.Button({
             tbarpos:"first", 
             type: OpenLayers.Control.TYPE_TOGGLE, 
+            exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
             eventListeners: {
@@ -558,17 +592,16 @@ var initMap = function(){
                     if($.trim($('#printpanel').html()) == '') {
                         $("#printpanel").load('print_panel.html');
                     }
-                    $('#printpanel').show();
-                    openPanel();
+                    sidebarPanel.show('printpanel');
                 },
                 'deactivate': function(){
-                    $("#printpanel").hide();
-                    closePanel();
+                    sidebarPanel.hide('printpanel');
                 }
             }
         }),
         btnSettings = new OpenLayers.Control.Button({
             tbarpos:"last", 
+            exclusiveGroup: 'sidebar',
             type: OpenLayers.Control.TYPE_TOGGLE, 
             iconclass:"glyphicon-white glyphicon-wrench", 
             title:"Settings",
@@ -608,21 +641,6 @@ var initMap = function(){
 
 
         }
-    });
-
-
-    $('#sidebar-panel .panel-close').click(function(){
-        closePanel()
-    });
-    $('#sidebar-panel .panel-expand').click(function(){
-        expandPanel();
-        $(this).hide();
-        $('#sidebar-panel .panel-collapse').show();
-    });
-    $('#sidebar-panel .panel-collapse').click(function(){
-        collapsePanel();
-        $(this).hide();
-        $('#sidebar-panel .panel-expand').show();
     });
 
 
@@ -702,4 +720,28 @@ var initMap = function(){
 
 
 });
+
+
+
+
+
+OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
+    CLASS_NAME: "OpenLayers.GisClient.Toolbar",
+    
+    activateControl: function(control) {
+        var len = this.controls.length, i;
+        
+        if(control.exclusiveGroup) {
+            for(i = 0; i < len; i++) {
+                if(this.controls[i] != control &&
+                    this.controls[i].exclusiveGroup == control.exclusiveGroup) {
+                    this.controls[i].deactivate();
+                }
+            }
+        }
+        
+        OpenLayers.Control.Panel.prototype.activateControl.apply(this, [control]);
+    }
+});
+
 
