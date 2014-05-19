@@ -627,14 +627,14 @@ var initMap = function(){
 
 
 
-    $('#sidebar-drag').on('click',function(){
+/*     $('#sidebar-drag').on('click',function(){
 //console.log('sidebar drag click');
         openPanel(1200);
         $("#resultpanel").removeClass("smalltable");
 
-    })
+    }) */
 
-   $('#sidebar-dragxx').draggable({
+/*    $('#sidebar-dragxx').draggable({
         handlexx:'#title',
         axis:'h',
         cursor:'col-resize',
@@ -646,7 +646,7 @@ var initMap = function(){
 
 
         }
-    });
+    }); */
 
 
 
