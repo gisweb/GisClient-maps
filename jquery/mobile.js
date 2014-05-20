@@ -714,7 +714,7 @@ var initMap = function(){
                 new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
-                //new OpenLayers.Control.PanZoomBar(),
+                new OpenLayers.Control.PanZoomBar(),
                 /*
                 new OpenLayers.Control.TouchNavigation({
                     dragPanOptions: {
