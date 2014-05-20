@@ -191,14 +191,18 @@ OpenLayers.GisClient = OpenLayers.Class({
 	
 	initLayers: function(){
 		var cfgLayer,oLayer;
-
 		// baselayer finto
 		for (var i = 0, len = this.layers.length; i < len; i++) {
 			cfgLayer =  this.layers[i];
 			switch(cfgLayer.type){
 				case "WMS":
 					oLayer = new OpenLayers.Layer.WMS(cfgLayer.name,cfgLayer.url,cfgLayer.parameters,cfgLayer.options);
-					if(cfgLayer.nodes) oLayer.nodes = cfgLayer.nodes;
+					if(cfgLayer.nodes){
+                        //SE MAPPROXY AGGIUNGO IL LAYER WMTS
+                        oLayer.nodes = cfgLayer.nodes;
+                        if(this.useMapproxy) this.addWMTSLayer(oLayer);
+                    } 
+
 				break;
 				case "WMTS":
 					oLayer = new OpenLayers.Layer.WMTS(cfgLayer.parameters);
@@ -233,6 +237,29 @@ OpenLayers.GisClient = OpenLayers.Class({
 		}
 	},
     
+
+    addWMTSLayer: function(oLayer){
+        var layerParams = {
+            "name": oLayer.name + '_tiles',
+            "layer": oLayer.name + '_tiles',
+            "url": this.mapProxyBaseUrl + "/" + this.name +"/wmts/" + oLayer.name + "_tiles/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+            "style": "",
+            "matrixSet": this.mapOptions.matrixSet,
+            "requestEncoding": "REST",
+            "maxExtent": this.mapOptions.tilesExtent, 
+            "zoomOffset": this.mapOptions.minZoomLevel,
+            "transitionEffect": "resize",
+            "displayInLayerSwitcher":false,
+            "visibility":false,
+            "isBaseLayer":oLayer.isBaseLayer
+        };
+        var ll = new OpenLayers.Layer.WMTS(layerParams);
+        var vis = oLayer.params['LAYERS'].length == oLayer.nodes.length;
+        ll.setVisibility(vis);
+        this.map.addLayer(ll);
+    },
+
+
     getFeatureType: function(featureTypeName) {
         var featureTypes = this.featureTypes,
             len = featureTypes.length, fType, i;

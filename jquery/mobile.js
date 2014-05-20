@@ -708,13 +708,14 @@ var initMap = function(){
 
 	OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
 	GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
-        pippo:'pippo', 
+        useMapproxy:true,
+        mapProxyBaseUrl:"http://gisclient.rr.nu/ows",
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
-                new OpenLayers.Control.PanZoomBar(),
+                //new OpenLayers.Control.PanZoomBar(),
                 /*
                 new OpenLayers.Control.TouchNavigation({
                     dragPanOptions: {
@@ -728,7 +729,7 @@ var initMap = function(){
                 })
             ],
             scale:2000,
-            center:[8.92077, 44.40945]
+            center:[8.92811, 44.41320]
         },
         callback:initMap
     })
