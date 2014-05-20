@@ -25,7 +25,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             var layer = this.map.layers[i];
             layer.events.register('loadstart', {layer:layer,control:this}, this.startLoading);
             layer.events.register('loadend', {layer:layer,control:this}, this.endLoading);
-            this.initTreeData(layer);
+            if(layer.displayInLayerSwitcher) this.initTreeData(layer);
         }
 
     },
@@ -169,18 +169,25 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         if(!this.overlayTree) return;
 
-        layer.setVisibility(checked);
-
         var node = jQuery(this.overlayTree).tree('find',layer.id);
         var childs = jQuery(this.overlayTree).tree('getChildren',node.target);
-
         if(childs.length > 0){
             var layers = [];
+            var tileLayer = layer.map.getLayersByName(layer.name + '_tiles') && layer.map.getLayersByName(layer.name + '_tiles')[0];
             jQuery.each(childs ,function(_,child){
                 if(child.checked) layers.push(child.attributes.layerParam)
             });
-            if(layer.params["LAYERS"] != layers) layer.mergeNewParams({layers:layers});
-            layer.setVisibility(layers.length > 0);
+
+            //controllo qui se devo accendere i figli oppure il tile-layer mapproxy 
+            if(tileLayer && layers.length==childs.length){
+                layer.setVisibility(false);
+                tileLayer.setVisibility(true);
+            }
+            else{
+                if(tileLayer) tileLayer.setVisibility(false);
+                if(layer.params["LAYERS"] != layers) layer.mergeNewParams({layers:layers});
+                layer.setVisibility(layers.length > 0);
+            } 
         }
         else{
             layer.setVisibility(checked)
@@ -327,6 +334,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             },
 
             onCheck:function(node, checked){
+
                 if(node.attributes && node.attributes.layer){
                     layer = node.attributes.layer;
                     self.updateLayerVisibility(layer, checked);
@@ -337,6 +345,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                         self.updateLayerVisibility(layer, checked);
                     })
                 }
+
             },
             onDblClick: function(node){
 

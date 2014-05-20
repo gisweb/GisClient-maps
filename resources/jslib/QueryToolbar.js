@@ -105,7 +105,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             if(typeof(this.wfsCache[layer.id])=='undefined') this.wfsCache[layer.id] = {featureTypes:[]};
             this.wfsCache[layer.id].featureTypes.push(this.map.config.featureTypes[i]);
         };
-        this.addfeaturesCombo();
+        //console.log(this.wfsCache)
+        //this.addfeaturesCombo();
     },
 
     //AGGIUNGE LA SELECT CON LE FEATURES INTERROGABILI
@@ -173,10 +174,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var typeName=false;
 
         if(value == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS){
-            for(var i=0;i<this.map.layers.length;i++)
-                if(this.wfsCache[this.map.layers[i].id] && this.map.layers[i].getVisibility() && this.map.layers[i].calculateInRange()) layers.push(this.map.layers[i]);
+            for(var i=0;i<this.map.layers.length;i++){
+                layer = this.map.layers[i];
+                if(this.wfsCache[layer.id] && layer.getVisibility() && layer.calculateInRange()) layers.push(layer);
+            }
             this.visibleLayers = layers;
         }
+
         else if(value == OpenLayers.GisClient.queryToolbar.ALL_LAYERS){
             layers = this.map.layers;
         }
@@ -195,6 +199,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             if(this.controls[i] instanceof OpenLayers.Control.QueryMap){
                 this.controls[i].layers=layers;
                 this.controls[i].queryFeatureType = typeName;
+                this.controls[i].onlyVisibleLayers= (value == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS)
             } 
         }
 

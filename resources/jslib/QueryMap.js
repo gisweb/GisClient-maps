@@ -65,6 +65,8 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	autoDeactivate: false,
 
 
+	onlyVisibleLayers: false,
+
 	//CREA UN UNICO LIVELLO PER LA SELEZIONE BASATO SU PROJECT E MAP DI UNO DEI LIVELLI INTERROGATI (DA VEDERE)
 	createSelectionLayer: function(key, selection) {
         // check if we already have a selection layer for the source layer
@@ -265,13 +267,33 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	 */
     select: function(geometry) {		
         this._queue = function() {
-			var layer, cache, geometryAttribute, filterId, params;
+			var layer, featureTypes, geometryAttribute, filterId, params;
 			var selection = {};
 			this.nquery=0;
 			this.nresponse=0;
 			for(var i=0, leni=this.layers.length; i<leni; i++) {
 				layer = this.layers[i];
-				cache = this.wfsCache[layer.id];
+				//SE DEVO INTERROGARE SOLO I VISIBILI METTO LE FATURE DEI SOLI VISIBILI ALTRIMENTI LE METTO TUTTE
+				if(layer.nodes && this.onlyVisibleLayers){
+					//per ogni nodo prendo solo il layername (stringa con il nome) che risulta visibile e in range
+					//dato il layername inserisco in cache solo le feturetupes con typeName che comincia con layername + 
+					var scale = layer.map.getScale()
+					var node,layerName;
+					console.log(scale)
+					featureTypes=[];
+					for(var j=0, lenj=layer.nodes.length; j<lenj; j++) {
+						node = layer.nodes[j];
+						if(!(node.minScale && node.minScale < scale) && !(node.maxScale && node.maxScale > scale)){
+							console.log(node.layer)
+							for(k in this.wfsCache[layer.id].featureTypes){
+								if(this.wfsCache[layer.id].featureTypes[k].typeName.indexOf(node.layer + '.') != -1) featureTypes.push(this.wfsCache[layer.id].featureTypes[k])
+							}
+						}
+					}
+				}
+				else
+					featureTypes = this.wfsCache[layer.id].featureTypes;
+
 				filterId = (layer.params.PROJECT && layer.params.MAP)?(layer.params.PROJECT + '_' + layer.params.MAP):layer.id;
 				selection[filterId] = selection[filterId] || {
 					Filters:[],
@@ -280,8 +302,8 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 					url:(typeof(layer.owsurl)!='undefined')?layer.owsurl:layer.url
 				};
 				//#######   getGeometryAttributes ################
-				for(var j=0, lenj=cache.featureTypes.length; j<lenj; j++) {
-					featureType = cache.featureTypes[j];
+				for(var j=0, lenj=featureTypes.length; j<lenj; j++) {
+					featureType = featureTypes[j];
 					if(!this.queryFeatureType ||(this.queryFeatureType && featureType.typeName == this.queryFeatureType)){
 						if(featureType.properties){
 							var properties = featureType.properties;
