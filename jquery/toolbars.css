@@ -25,7 +25,7 @@
 
 }
 
-#map-select-scale {
+#map-fast-search {
     font-size: 12px;
     height: 20px;
     width: 15em;
@@ -33,17 +33,28 @@
     bottom:0px;
     color:#000;
 }
+
+#map-select-scale {
+    font-size: 12px;
+    height: 20px;
+    width: 15em;
+    margin-right: 5px;
+    float: right;
+    bottom:0px;
+    color:#000;
+}
 #map-coordinates {
     height: 20px;
     width: 23em;
-    margin-left: 250px;
+    margin-left: 300px;
 }
-
+/*
 #map-footer-info {
     height: 20px;
     width: 23em;
     margin-left: 250px;
 }
+*/
 
 
 div.olMapViewport {
@@ -104,7 +115,7 @@ div.olMapViewport {
 }
 
 
-.map-layout  #map-toolbars .olToolbarsControl .olButton {
+.map-layout  #map-toolbars .olToolbarsControl .olButton, .olLikeButton {
     background-color: rgba(0, 0, 0, 0.3);
     cursor: pointer;
     display: inline-block;
@@ -116,7 +127,7 @@ div.olMapViewport {
     -moz-border-radius: 4px;
     border-radius: 4px;
 }
-.map-layout  #map-toolbars .olToolbarsControl .olButton span {
+.map-layout  #map-toolbars .olToolbarsControl .olButton span, .olLikeButton span {
     color: #FFFFFF;
     margin-left: 3px;
    

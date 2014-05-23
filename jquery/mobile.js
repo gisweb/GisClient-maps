@@ -242,8 +242,8 @@ var initMap = function(){
                 $('#DetailsWindow').modal('show');
             }
         },
-        searchButtonHander: function() {
-            var selectedFeatureType = $('select.olControlQueryMapSelect').val();
+        searchButtonHander: function(selectedFeatureType) {
+            var selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val();
             if(selectedFeatureType == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS ||
                 selectedFeatureType == OpenLayers.GisClient.queryToolbar.ALL_LAYERS) {
                 return alert('Seleziona un livello prima');
@@ -411,7 +411,22 @@ var initMap = function(){
     queryToolbar.defaultControl = queryToolbar.controls[0];
     map.addControl(queryToolbar);
 
-
+    //popolo la select nel footer per le ricerche veloci
+    var options = [];
+    for(var layerId in queryToolbar.wfsCache) {
+        var layer = queryToolbar.wfsCache[layerId];
+        for(var i = 0; i < layer.featureTypes.length; i++) {
+            var featureType = layer.featureTypes[i];
+            
+            if(featureType.searchable != 2) continue;
+            options.push('<option value="'+featureType.typeName+'">'+featureType.title+'</option>');
+        }
+    }
+    $('#map-fast-search select').html(options);
+    $('#map-fast-search a').click(function(event) {
+        queryToolbar.searchButtonHander.call(queryToolbar, [$('#map-fast-search select').val()]);
+    });
+    
     var measureToolbar = new OpenLayers.Control.Panel({
         createControlMarkup:customCreateControlMarkup,
         div:document.getElementById("map-toolbar-measure"),
