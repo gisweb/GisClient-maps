@@ -9,6 +9,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     selgroup:null,
     featureTypes:null,
     visibleLayers:[],
+    renderQueue: [],
     resultLayer:null,
     resultStyle:null,
     maxWfsFeatures:100,
@@ -270,7 +271,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             if(this.controls[i] instanceof OpenLayers.Control.QueryMap){
                 this.controls[i].resultLayer = this.resultLayer;
                 this.controls[i].events.register('startQueryMap', this, this.initResultPanel);
-                this.controls[i].events.register('featuresLoaded', this, this.writeResultPanel);
+                this.controls[i].events.register('featuresLoaded', this, this.handleFeatureResult);
                 this.controls[i].events.register('endQueryMap', this, this.writeAllResultPanel);
             }
         }
@@ -382,7 +383,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         this.map.addLayer(resultLayer);
 
         //Setto i controlli
-        //var selectControl = new OpenLayers.Control.SelectFeature(resultLayer);
+        var selectControl = new OpenLayers.Control.SelectFeature(resultLayer);
         //var modifyControl = new OpenLayers.Control.ModifyFeature(resultLayer);
         var highlightControl = new OpenLayers.Control.SelectFeature(resultLayer,
             {
@@ -394,14 +395,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             }
         );
         
-        highlightControl.events.register('featurehighlighted', this, this.handleFeatureHighlighted);
-        highlightControl.events.register('featureunhighlighted', this, this.handleFeatureUnHighlighted);
+        selectControl.events.register('featurehighlighted', this, this.handleFeatureSelected);
 
         //this.map.addControl(modifyControl);
-        //this.map.addControl(selectControl); 
+        this.map.addControl(selectControl); 
         this.map.addControl(highlightControl);
     
-        //this.selectControl = selectControl;
+        this.selectControl = selectControl;
         this.highlightControl = highlightControl;
         //this.modifyControl = modifyControl;
         
@@ -417,11 +417,11 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         if(resultIndex < maxIndex) this.map.raiseLayer(this.resultLayer, (maxIndex - resultIndex));
         
         this.highlightControl.activate();
-        //this.selectControl.activate();
+        this.selectControl.activate();
     },
     
     deactivateVectorControl: function(e){
-        //this.selectControl.deactivate();
+        this.selectControl.deactivate();
         this.highlightControl.deactivate();
     },
 
@@ -457,11 +457,12 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
         cssHeaders = '<style>' + cssHeaders + '</style>';
 
-        htmlTable = '<span>'+featureType.title;
+        var fLen = featureType.features.length;
+        htmlTable = '<span>'+featureType.title+ ' ('+fLen+')';
         //link a tutte le features disabilitato per adesso... vediamo prima se serve
         if(false) htmlTable += ' <a href="#" zoomFType="'+featureType.typeName+'">Zoom</a>';
         htmlTable += '</span><table class="featureTypeData"><thead><tr>' + htmlHeaders + '</tr><tbody>';
-        for (var j = 0; j < featureType.features.length; j++) {
+        for (var j = 0; j < fLen; j++) {
             values = '';
             for (var i = 0; i < aCols.length; i++) {
                 if(aCols[i] == 'gc_actions') {
@@ -490,6 +491,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
         htmlTable += '</tbody></table>';
 
+        return cssHeaders + htmlTable;
         var featureTypeDiv = document.createElement("div");
         OpenLayers.Element.addClass(featureTypeDiv, "featureTypeTitle");
         featureTypeDiv.innerHTML = cssHeaders + htmlTable;
@@ -510,8 +512,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         this.resultTarget.innerHTML =  '';
         this.events.triggerEvent('startQueryMap');
     },
+    
+    handleFeatureResult: function(e) {
+        this.renderQueue.push(e);
+    },
 
+    //questa per adesso non viene usata, proviamo a fare il rendering tutto insieme per vedere se le performance migliorano...
     writeResultPanel: function(e) {
+        
         var me = this;
         //opzioni tabella lista popup todo
         //attivare opzione scrivo anche se la lista dei risultati è vuota
@@ -563,6 +571,67 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
     },
     writeAllResultPanel: function(e) {
+        var me = this,
+            len = me.renderQueue.length, event, i,
+            divs = '', html, resultDiv;
+        
+        for(i = 0; i < len; i++) {
+            event = this.renderQueue[i];
+            
+            if(!event.properties) continue;
+            
+            html = me.writeDataTable(event);
+            if(!html) continue;
+            
+            divs += '<div class="featureTypeTitle">' + html + '</div>';
+        }
+        
+        resultDiv = document.createElement("div");
+        resultDiv.innerHTML = divs;
+        
+        me.resultTarget.appendChild(resultDiv);
+
+        var links = me.resultTarget.getElementsByTagName('a'),
+            len = links.length, link, i;
+        
+        for(i = 0; i < len; i++) {
+            link = links[i];
+            
+            if(!link.addEventListener) continue;
+            link.addEventListener('click', function(event) {
+                event.stopPropagation();
+                
+                var action = this.getAttribute('action');
+                var featureType = this.getAttribute('featureType');
+                var featureId = this.getAttribute('featureId');
+                if(action) {
+                    switch(action) {
+                        case 'zoom':
+                            if(featureId) {
+                                var feature = me.resultLayer.getFeatureById(featureId);
+                                if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
+                                me.map.zoomToExtent(feature.geometry.getBounds());
+                            }
+                        break;
+                        case 'viewDetails':
+                            if(featureId) {
+                                var relationName = this.getAttribute('relationName');
+                                var params = {
+                                    featureType: featureType
+                                };
+                                var feature = me.resultLayer.getFeatureById(featureId);
+                                if(!feature) return console.log('viewDetails: non trovo la feature ', featureType, featureId);
+                                params.feature = feature;
+                                
+                                me.getFeatureDetails(featureType, feature, relationName);
+                            }
+                        break;
+                    }
+                }
+                
+            }, false);
+        }
+        
         var loadingControl = this.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
         loadingControl.minimizeControl();
         //SCRIVO TUTTA LA TABELLA (???)
@@ -628,20 +697,11 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         });
     },
     
-    handleFeatureHighlighted: function(event) {
+    handleFeatureSelected: function(event) {
         var me = this,
             feature = event.feature;
         
-        if(me.featureHighlightedTimeout) clearTimeout(me.featureHighlightedTimeout);
-        
-        me.featureHighlightedTimeout = setTimeout(function() {
-            me.events.triggerEvent('featurehighlighted', {feature:feature});
-            delete me.featureHighlightedTimeout;
-        }, 500);
-    },
-    
-    handleFeatureUnHighlighted: function(event) {
-        if(this.featureHighlightedTimeout) clearTimeout(this.featureHighlightedTimeout);
+        me.events.triggerEvent('featurehighlighted', {feature:feature});
     },
 
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"

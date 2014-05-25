@@ -4,6 +4,7 @@ var mycontrol,ismousedown;
 
 var sidebarPanel = {
     closeTimeout: null,
+    isOpened: false,
     
     init: function(selector) {
         var self = this;
@@ -62,6 +63,8 @@ var sidebarPanel = {
         }
         $('div.panel-header', this.$element).show();
         $('#map-overlay-panel').css('right', '25px');
+        
+        this.isOpened = true;
     },
     
     close: function() {
@@ -77,6 +80,8 @@ var sidebarPanel = {
         $("#resultpanel").addClass("smalltable");
         $('div.panel-header', this.$element).hide();
         $('#map-overlay-panel').css('right', '0px');
+        
+        this.isOpened = false;
     },
     
     expand: function() {
@@ -155,10 +160,12 @@ var initMap = function(){
         autoActivate:false,
         saveState:true,
         eventListeners: {
-            'startQueryMap': function() { sidebarPanel.show('resultpanel');},
+            //'startQueryMap': function() { sidebarPanel.show('resultpanel');},
             'endQueryMap': function() {        //Aggiungo l'animazione (???? da spostare sulla pagina)
                 
-
+                if($(window).width() > 1000) {
+                    sidebarPanel.show('resultpanel');
+                }
                 $("#resultpanel .featureTypeTitle").on('click',function(){
                     $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
                 })
@@ -193,6 +200,10 @@ var initMap = function(){
                     setTimeout(function() {
                         element.css('background-color', previousBG);
                     }, 1000);
+                    
+                    if(!sidebarPanel.isOpened) {
+                        sidebarPanel.show('resultpanel');
+                    }
                 } else {
                     console.log('non trovo ', featureType, feature.id);
                 }
@@ -525,13 +536,16 @@ var initMap = function(){
         div:document.getElementById("map-sidebar"),
         createControlMarkup:customCreateControlMarkup
     });
+    
+    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
+    map.defaultControl = defaultControl;
 
     sideBar.addControls([
         //new OpenLayers.Control.ZoomIn({tbarpos:"first", iconclass:"glyphicon-white glyphicon-white glyphicon-plus", title:"Zoom avanti"}),
 
         new OpenLayers.Control.ZoomBox({tbarpos:"first", iconclass:"glyphicon-white glyphicon-zoom-in", title:"Zoom riquadro", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
         new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-zoom-out", title:"Zoom indietro"}),
-        new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
+        defaultControl,
         new OpenLayers.Control.ZoomToMaxExtent({iconclass:"glyphicon-white glyphicon-globe", title:"Zoom estensione"}),
         new OpenLayers.Control.Geolocate({tbarpos:"last", iconclass:"glyphicon-white glyphicon-map-marker", title:"La mia posizione"}),
 

@@ -265,7 +265,8 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
      * Parameters:
      * geometry - {Object} or {<OpenLayers.Geometry>}
 	 */
-    select: function(geometry) {		
+    select: function(geometry) {
+        this.map.defaultControl.activate();
         this._queue = function() {
 			var layer, featureTypes, geometryAttribute, filterId, params;
 			var selection = {};
