@@ -723,6 +723,15 @@ var initMap = function(){
     }
 
 
+    $('#mapset-title').html(GisClientMap.title);
+    
+    var onResize = function() {
+        if($(window).width() < 1000) $('#map-coordinates').hide();
+        var panelContentHeight = $(window).height() - $('div.panel-header').height() - $('#map-footer').height() - 35;
+        $('#sidebar-panel div.panel-content').height(panelContentHeight);
+    }
+    $(window).resize(onResize);
+    onResize.call();
 
 
     //queryToolbar.activate();
