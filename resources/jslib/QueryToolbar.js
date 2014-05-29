@@ -337,15 +337,15 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     fillOpacity: 0.4,
                     hoverFillColor: "white",
                     hoverFillOpacity: 0.8,
-                    strokeColor: "yellow",
+                    strokeColor: "blue",
                     strokeOpacity: 1,
-                    strokeWidth: 4,
+                    strokeWidth: 6,
                     strokeLinecap: "round",
                     strokeDashstyle: "solid",
                     hoverStrokeColor: "red",
                     hoverStrokeOpacity: 1,
-                    hoverStrokeWidth: 0.2,
-                    pointRadius: 6,
+                    hoverStrokeWidth: 0.4,
+                    pointRadius: 8,
                     hoverPointRadius: 1,
                     hoverPointUnit: "%",
                     pointerEvents: "visiblePainted",
@@ -360,12 +360,12 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     strokeColor: "#EEA652",
                     strokeOpacity: 1,
                     strokeLinecap: "round",
-                    strokeWidth: 40,
+                    strokeWidth: 4,
                     strokeDashstyle: "solid",
                     hoverStrokeColor: "red",
                     hoverStrokeOpacity: 1,
                     hoverStrokeWidth: 0.2,
-                    pointRadius: 60,
+                    pointRadius: 6,
                     hoverPointRadius: 1,
                     hoverPointUnit: "%",
                     pointerEvents: "visiblePainted",
@@ -376,7 +376,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
         var resultLayer = new OpenLayers.Layer.Vector('wfsResults', {
             visibility:false,
-            styleMap: this.resultLayerStyle,
+            styleMap: this.resultStyle,
             displayInLayerSwitcher: true
         });
         
@@ -396,6 +396,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         );
         
         selectControl.events.register('featurehighlighted', this, this.handleFeatureSelected);
+        selectControl.events.register('featureunhighlighted', this, this.handleFeatureUnSelected);
 
         //this.map.addControl(modifyControl);
         this.map.addControl(selectControl); 
@@ -610,6 +611,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                             if(featureId) {
                                 var feature = me.resultLayer.getFeatureById(featureId);
                                 if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
+                                me.selectControl.select(feature);
                                 me.map.zoomToExtent(feature.geometry.getBounds());
                             }
                         break;
@@ -702,6 +704,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             feature = event.feature;
         
         me.events.triggerEvent('featurehighlighted', {feature:feature});
+    },
+    
+    handleFeatureUnSelected: function(event) {
+        var me = this,
+            feature = event.feature;
+        
+        me.events.triggerEvent('featureunhighlighted', {feature:feature});
     },
 
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"

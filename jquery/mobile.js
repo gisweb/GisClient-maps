@@ -195,11 +195,7 @@ var initMap = function(){
                     } else if (elemBottom > containerBottom) {
                         container.scrollTop(elemBottom - container.height());
                     }
-                    var previousBG = element.css('background-color');
                     element.css('background-color', 'yellow');
-                    setTimeout(function() {
-                        element.css('background-color', previousBG);
-                    }, 1000);
                     
                     if(!sidebarPanel.isOpened) {
                         sidebarPanel.show('resultpanel');
@@ -207,6 +203,12 @@ var initMap = function(){
                 } else {
                     console.log('non trovo ', featureType, feature.id);
                 }
+            },
+            'featureunhighlighted': function(event) {
+                var feature = event.feature,
+                    featureType = feature.featureTypeName;
+
+                $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]').css('background-color', 'white');
             },
             'viewdetails': function(event) {
                 var featureType = event.featureType,
