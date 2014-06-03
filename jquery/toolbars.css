@@ -48,11 +48,18 @@
 #map-select-scale {
     font-size: 12px;
     height: 20px;
-    width: 15em;
+    width: 10em;
     margin-right: 5px;
     float: right;
     bottom:0px;
     color:#000;
+}
+#map-current-scale {
+    width: 50px;
+    margin-right: 10px;
+    float: right;
+    bottom:0px;
+    color:#ffffff;
 }
 #map-coordinates {
     height: 20px;

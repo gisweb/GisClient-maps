@@ -87,24 +87,24 @@
 #sidebar-panel .panel-header .panel-title{
   float: left;
   margin-left: 25px;
-  color:#000000;  
+  color:#ffffff;  
 }
 
 #sidebar-panel .panel-header .panel-close{
   float:right;
-  width:80px;
+  width:30px;
   color:#fff;  
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-expand{
   float:right;
-  width:80px;
+  width:30px;
   color:#fff;  
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-collapse{
   float:right;
-  width:80px;
+  width:30px;
   color:#fff;  
   cursor: pointer;
   display:none;

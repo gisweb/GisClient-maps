@@ -54,6 +54,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
 	//NUMERO COMPESSIVO DI ELEMENTI VETTORIALI DA AGGIUNGERE AL LIVELLO VETTORIALE DEI RISULTATI
 	maxVectorFeatures: 500,
+    
+    //Features che non sono state renderizzate su mappa a causa del limite sopra
+    vectorFeaturesOverLimit: [],
 
 	 
 	selectionSymbolizer: {
@@ -280,12 +283,12 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 					//dato il layername inserisco in cache solo le feturetupes con typeName che comincia con layername + 
 					var scale = layer.map.getScale()
 					var node,layerName;
-					console.log(scale)
+					//console.log(scale)
 					featureTypes=[];
 					for(var j=0, lenj=layer.nodes.length; j<lenj; j++) {
 						node = layer.nodes[j];
 						if(!(node.minScale && node.minScale < scale) && !(node.maxScale && node.maxScale > scale)){
-							console.log(node.layer)
+							//console.log(node.layer)
 							for(k in this.wfsCache[layer.id].featureTypes){
 								if(this.wfsCache[layer.id].featureTypes[k].typeName.indexOf(node.layer + '.') != -1) featureTypes.push(this.wfsCache[layer.id].featureTypes[k])
 							}
@@ -463,7 +466,10 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 		
 		*/
 		if(this.nquery == 0){
-			this.resultLayer.removeAllFeatures();
+            if(this.resultLayer.features.length > 0) {
+                this.resultLayer.hasPreviousResults = true;
+            }
+			//this.resultLayer.removeAllFeatures();
 			this.events.triggerEvent('startQueryMap');
 		}
 
@@ -501,8 +507,15 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                 for(var i = 0; i < features.length; i++) {
                     features[i].featureTypeName = featureType.typeName;
                 }
-                
-                this.resultLayer.addFeatures(features);
+                if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) {
+                    if(features.length && this.resultLayer.hasPreviousResults) {
+                        this.resultLayer.removeAllFeatures();
+                        delete this.resultLayer.hasPreviousResults;
+                    }
+                    this.resultLayer.addFeatures(features);
+                } else {
+                    this.vectorFeaturesOverLimit.push(features);
+                }
 				
 
 				if(features.length>0){
@@ -520,18 +533,25 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				}
 				if(this.nquery == this.nresponse){
 					this.nquery = this.nresponse = 0;
-					this.events.triggerEvent('endQueryMap');
+                    var event = {
+                        layer: this.resultLayer
+                    };
+                    if(this.vectorFeaturesOverLimit.length) {
+                        event.vectorFeaturesOverLimit = this.vectorFeaturesOverLimit.slice(0);
+                        this.vectorFeaturesOverLimit = [];
+                    }
+					this.events.triggerEvent('endQueryMap', event);
 				}
 
-				var resp=format.read(doc);
-				if(resp.length>0){
+				//var resp=format.read(doc);
+				//if(resp.length>0){
 
 				
 
 					
 					//this.map.getControlsByClass("OpenLayers.Control.LoadingPanel")[0].minimizeControl();
 					
-				}
+				//}
             },
 
             scope: this

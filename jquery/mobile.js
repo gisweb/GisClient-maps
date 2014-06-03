@@ -161,21 +161,27 @@ var initMap = function(){
         saveState:true,
         eventListeners: {
             //'startQueryMap': function() { sidebarPanel.show('resultpanel');},
-            'endQueryMap': function() {        //Aggiungo l'animazione (???? da spostare sulla pagina)
-                
-                if($(window).width() > 1000) {
-                    sidebarPanel.show('resultpanel');
+            'endQueryMap': function(event) {        //Aggiungo l'animazione (???? da spostare sulla pagina)
+                if(event.layer.features && event.layer.features.length) {
+                    if($(window).width() > 1000) {
+                        sidebarPanel.show('resultpanel');
+                    }
+                    $("#resultpanel .featureTypeTitle").on('click',function(){
+                        $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
+                    });
+                    if(event.vectorFeaturesOverLimit) {
+                        alert('I risultati dell\'interrogazione sono troppi: alcuni oggetti non sono stati disegnati su mappa ');
+                    }
+                } else {
+                    alert('Nessun risultato');
                 }
-                $("#resultpanel .featureTypeTitle").on('click',function(){
-                    $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
-                })
             },
             'featureTypeSelected': function(fType) {
                 if(ConditionBuilder) {
                     ConditionBuilder.setFeatureType(fType);
                 }
             },
-            'featurehighlighted': function(event) {
+            'featureselected': function(event) {
                 var feature = event.feature,
                     featureType = feature.featureTypeName;
 
@@ -204,11 +210,23 @@ var initMap = function(){
                     console.log('non trovo ', featureType, feature.id);
                 }
             },
-            'featureunhighlighted': function(event) {
+            'featureunselected': function(event) {
                 var feature = event.feature,
                     featureType = feature.featureTypeName;
 
                 $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]').css('background-color', 'white');
+            },
+            'featurehighlighted': function(event) {
+                var feature = event.feature,
+                    featureTypeName = feature.featureTypeName,
+                    featureType = GisClientMap.getFeatureType(featureTypeName);
+                console.log(event, featureTypeName, featureType);
+                if(featureType && featureType.title) {
+                    $('#sidebar-panel div.panel-title').html(featureType.title);
+                }
+            },
+            'featureunhighlighted': function(event) {
+                $('#sidebar-panel div.panel-title').empty();
             },
             'viewdetails': function(event) {
                 var featureType = event.featureType,
@@ -541,6 +559,35 @@ var initMap = function(){
     
     var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
     map.defaultControl = defaultControl;
+    
+    var geolocateControl = new OpenLayers.Control.Geolocate({
+        tbarpos:"last", 
+        iconclass:"glyphicon-white glyphicon-map-marker", 
+        title:"La mia posizione",
+        watch:false,
+        bind:false,
+        geolocationOptions: {
+            enableHighAccuracy: true, // required to turn on gps requests!
+            maximumAge: 3000,
+            timeout: 50000
+        }
+    });
+    geolocateControl.events.register('locationfailed', self, function() {
+        alert('Impossibile ottenere la posizione dal GPS');
+    });
+    geolocateControl.events.register('locationuncapable', self, function() {
+        alert('Impossibile ottenere la posizione dal GPS');
+    });
+    geolocateControl.events.register('locationupdated', self, function(event) {
+        var point = event.point;
+        //alert('Found position X:' + point.x + ', Y:' + point.y);
+        var lonLat = new OpenLayers.LonLat(point.x, point.y);
+        if(!map.isValidLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' non valida');
+        if(!map.getMaxExtent().containsLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' fuori extent');
+        map.setCenter(lonLat);
+        map.zoomToScale(1000, true);
+    });
+    
 
     sideBar.addControls([
         //new OpenLayers.Control.ZoomIn({tbarpos:"first", iconclass:"glyphicon-white glyphicon-white glyphicon-plus", title:"Zoom avanti"}),
@@ -549,7 +596,7 @@ var initMap = function(){
         new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-zoom-out", title:"Zoom indietro"}),
         defaultControl,
         new OpenLayers.Control.ZoomToMaxExtent({iconclass:"glyphicon-white glyphicon-globe", title:"Zoom estensione"}),
-        new OpenLayers.Control.Geolocate({tbarpos:"last", iconclass:"glyphicon-white glyphicon-map-marker", title:"La mia posizione"}),
+        geolocateControl,
 
 
 
@@ -732,6 +779,15 @@ var initMap = function(){
     }
     $(window).resize(onResize);
     onResize.call();
+    
+    var showCurrentScale = function() {
+        var currentRes = map.getResolution();
+        var currentScale = Math.round(OpenLayers.Util.getScaleFromResolution(currentRes, map.units));
+        $('#map-current-scale').html('1:'+currentScale);
+    };
+    showCurrentScale.call(null);
+    
+    map.events.register('zoomend', null, showCurrentScale);
 
 
     //queryToolbar.activate();

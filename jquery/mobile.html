@@ -185,9 +185,9 @@
       <div id="sidebar-panel" >
         <div class="panel-header" style="display:none;">
             <div class="panel-title"></div>
-            <div class="panel-close">chiudi X</div>
-            <div class="panel-expand">Espandi</div>
-            <div class="panel-collapse">Restringi</div>
+            <div class="panel-close"><span class="glyphicon-white glyphicon-remove"></span><span></span></div>
+            <div class="panel-expand"><span class="glyphicon-white glyphicon-arrow-left"></span><span></span></div>
+            <div class="panel-collapse"><span class="glyphicon-white glyphicon-arrow-right"></span><span></span></div>
         </div>
         <div class="panel-content" style="overflow:auto;height:100%">
             <div id="layertree" style="display:none"></div>
@@ -260,7 +260,8 @@
   <select name="featureType"></select>
   <a class="olControlButtonItemInactive olButton olLikeButton" title="Ricerca"><span class="glyphicon-white glyphicon-search"></span><span>Ricerca</span></a>
   </span>
-  <select id="map-select-scale"><option>ELENCO DELLE SCALE</option></select>
+  <select id="map-select-scale"><option>ELENCO SCALE</option></select>
+  <span id="map-current-scale"></span>
   <span id="map-coordinates"></span>
   <!--<span id="map-footer-info"></span>-->
 </div>

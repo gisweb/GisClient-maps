@@ -20,6 +20,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     resultTarget:null,
     resultLayout:'TABLE',//LIST POPUP
     searchButtonHander: null,
+    
+    vectorFeaturesOverLimit: [], //oggetti non renderizzati per il maxVectorFeatures
 
     initialize: function(options) {
         OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
@@ -398,6 +400,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         selectControl.events.register('featurehighlighted', this, this.handleFeatureSelected);
         selectControl.events.register('featureunhighlighted', this, this.handleFeatureUnSelected);
 
+        highlightControl.events.register('featurehighlighted', this, this.handleFeatureHighlighted);
+        highlightControl.events.register('featureunhighlighted', this, this.handleFeatureUnHighlighted);
+
         //this.map.addControl(modifyControl);
         this.map.addControl(selectControl); 
         this.map.addControl(highlightControl);
@@ -510,7 +515,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     initResultPanel: function(e) {
         var loadingControl = this.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
         loadingControl.maximizeControl();
-        this.resultTarget.innerHTML =  '';
+        //this.resultTarget.innerHTML =  '';
         this.events.triggerEvent('startQueryMap');
     },
     
@@ -545,6 +550,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                         switch(action) {
                             case 'zoom':
                                 if(featureId) {
+                                    //var feature = me.findFeature(featureId);
                                     var feature = me.resultLayer.getFeatureById(featureId);
                                     if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
                                     me.map.zoomToExtent(feature.geometry.getBounds());
@@ -587,57 +593,96 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             divs += '<div class="featureTypeTitle">' + html + '</div>';
         }
         
-        resultDiv = document.createElement("div");
-        resultDiv.innerHTML = divs;
+        if(divs.length) {
+            if(me.resultTarget.firstChild) {
+                console.log('removeChild...');
+                me.resultTarget.removeChild(me.resultTarget.firstChild);
+            }
         
-        me.resultTarget.appendChild(resultDiv);
-
-        var links = me.resultTarget.getElementsByTagName('a'),
-            len = links.length, link, i;
-        
-        for(i = 0; i < len; i++) {
-            link = links[i];
+            resultDiv = document.createElement("div");
+            resultDiv.innerHTML = divs;
             
-            if(!link.addEventListener) continue;
-            link.addEventListener('click', function(event) {
-                event.stopPropagation();
+            me.resultTarget.appendChild(resultDiv);
+
+            var links = me.resultTarget.getElementsByTagName('a'),
+                len = links.length, link, i;
+            
+            for(i = 0; i < len; i++) {
+                link = links[i];
                 
-                var action = this.getAttribute('action');
-                var featureType = this.getAttribute('featureType');
-                var featureId = this.getAttribute('featureId');
-                if(action) {
-                    switch(action) {
-                        case 'zoom':
-                            if(featureId) {
-                                var feature = me.resultLayer.getFeatureById(featureId);
-                                if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
-                                me.selectControl.select(feature);
-                                me.map.zoomToExtent(feature.geometry.getBounds());
-                            }
-                        break;
-                        case 'viewDetails':
-                            if(featureId) {
-                                var relationName = this.getAttribute('relationName');
-                                var params = {
-                                    featureType: featureType
-                                };
-                                var feature = me.resultLayer.getFeatureById(featureId);
-                                if(!feature) return console.log('viewDetails: non trovo la feature ', featureType, featureId);
-                                params.feature = feature;
-                                
-                                me.getFeatureDetails(featureType, feature, relationName);
-                            }
-                        break;
+                if(!link.addEventListener) continue;
+                link.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    
+                    var action = this.getAttribute('action');
+                    var featureType = this.getAttribute('featureType');
+                    var featureId = this.getAttribute('featureId');
+                    if(action) {
+                        switch(action) {
+                            case 'zoom':
+                                if(featureId) {
+                                    var feature = me.findFeature(featureId);
+                                    if(!feature) {
+                                        return console.log('zoom: non trovo la feature ', featureType, featureId);
+                                    }
+                                    me.selectControl.select(feature);
+                                    me.map.zoomToExtent(feature.geometry.getBounds());
+                                }
+                            break;
+                            case 'viewDetails':
+                                if(featureId) {
+                                    var relationName = this.getAttribute('relationName');
+                                    var params = {
+                                        featureType: featureType
+                                    };
+                                    var feature = me.resultLayer.getFeatureById(featureId);
+                                    if(!feature) return console.log('viewDetails: non trovo la feature ', featureType, featureId);
+                                    params.feature = feature;
+                                    
+                                    me.getFeatureDetails(featureType, feature, relationName);
+                                }
+                            break;
+                        }
                     }
-                }
-                
-            }, false);
+                    
+                }, false);
+            }
         }
         
         var loadingControl = this.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
         loadingControl.minimizeControl();
-        //SCRIVO TUTTA LA TABELLA (???)
-        this.events.triggerEvent('endQueryMap');
+
+        var event = {
+            layer: me.resultLayer
+        };
+        if(e.vectorFeaturesOverLimit) {
+            for(var i = 0; i < e.vectorFeaturesOverLimit.length; i++) {
+                for(var j = 0; j < e.vectorFeaturesOverLimit[i].length; j++) {
+                    this.vectorFeaturesOverLimit.push(e.vectorFeaturesOverLimit[i][j]);
+                }
+            }
+            event.vectorFeaturesOverLimit = true;
+        }
+        this.events.triggerEvent('endQueryMap', event);
+    },
+    
+    findFeature: function(featureId) {
+        var feature = this.resultLayer.getFeatureById(featureId);
+        if(feature) return feature;
+        
+        var len = this.vectorFeaturesOverLimit.length, i,
+            feature = null;
+
+        for(i = 0; i < len; i++) {
+            if(this.vectorFeaturesOverLimit[i].id == featureId) {
+                feature = this.vectorFeaturesOverLimit[i];
+            }
+        }
+        
+        if(feature) {
+            this.resultLayer.addFeatures([feature]);
+        }
+        return feature;
     },
     
     getFeatureDetails: function(featureType, feature, relation) {
@@ -703,10 +748,24 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var me = this,
             feature = event.feature;
         
-        me.events.triggerEvent('featurehighlighted', {feature:feature});
+        me.events.triggerEvent('featureselected', {feature:feature});
     },
     
     handleFeatureUnSelected: function(event) {
+        var me = this,
+            feature = event.feature;
+        
+        me.events.triggerEvent('featureunselected', {feature:feature});
+    },
+    
+    handleFeatureHighlighted: function(event) {
+        var me = this,
+            feature = event.feature;
+
+        me.events.triggerEvent('featurehighlighted', {feature:feature});
+    },
+    
+    handleFeatureUnHighlighted: function(event) {
         var me = this,
             feature = event.feature;
         
