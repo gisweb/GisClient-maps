@@ -273,8 +273,16 @@ var initMap = function(){
                 $('#DetailsWindow').modal('show');
             }
         },
-        searchButtonHander: function(selectedFeatureType) {
-            var selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val();
+        searchButtonHander: function(selectedFeatureType, mode) {
+            var mode = mode || 'default',
+                selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val();
+
+            if(mode == 'default') {
+                $('li[role="advanced-search"]').show();
+            } else {
+                $('li[role="advanced-search"]').hide();
+            }
+                
             if(selectedFeatureType == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS ||
                 selectedFeatureType == OpenLayers.GisClient.queryToolbar.ALL_LAYERS) {
                 return alert('Seleziona un livello prima');
@@ -343,8 +351,10 @@ var initMap = function(){
             }
             form += '</table>';
             
-            form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>'+
-                '<button type="submit" class="btn btn-default">Cerca</button>'+
+            if(mode == 'default') {
+                form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>';
+            }
+            form += '<button type="submit" class="btn btn-default">Cerca</button>'+
                 '</form>';
             
             $('#ricerca').empty().append(form);
@@ -455,7 +465,7 @@ var initMap = function(){
     }
     $('#map-fast-search select').html(options);
     $('#map-fast-search a').click(function(event) {
-        queryToolbar.searchButtonHander.call(queryToolbar, [$('#map-fast-search select').val()]);
+        queryToolbar.searchButtonHander.call(queryToolbar, $('#map-fast-search select').val(), 'fast');
     });
     
     var measureToolbar = new OpenLayers.Control.Panel({
