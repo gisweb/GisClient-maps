@@ -738,22 +738,28 @@ var initMap = function(){
 
 
     //ELENCO DELLE SCALE
-    var scale, zoomLevel, option;
+    var scale, zoomLevel = 0, option;
 
+    //lo zoomLevel non parte da minZoomLevel ma sempre da 0, quindi lo zoomLevel 0 è sempre = al minZoomLevel
     for(var i=this.mapOptions.minZoomLevel;i<this.mapOptions.maxZoomLevel;i++){
         scale = OpenLayers.Util.getScaleFromResolution (this.mapOptions.serverResolutions[i],this.mapOptions.units);
         option = $("<option></option>");
-        option.val(i);
+        option.val(zoomLevel);
+        zoomLevel += 1;
         option.text('Scala 1:'+ parseInt(scale));
         $('#map-select-scale').append(option);
     }
     $('#map-select-scale').change(function(){
-
         map.zoomTo(this.value);
-        console.log(this.value);//?????????????????????????????????
-
-    })
-
+    });
+    var showCurrentScale = function() {
+        var currentZoom = map.getZoom();
+        console.log('currentZoom', currentZoom);
+        $('#map-select-scale').val(currentZoom);
+    };
+    showCurrentScale.call(null);
+    
+    map.events.register('zoomend', null, showCurrentScale);
 
 
 
@@ -779,15 +785,6 @@ var initMap = function(){
     }
     $(window).resize(onResize);
     onResize.call();
-    
-    var showCurrentScale = function() {
-        var currentRes = map.getResolution();
-        var currentScale = Math.round(OpenLayers.Util.getScaleFromResolution(currentRes, map.units));
-        $('#map-current-scale').html('1:'+currentScale);
-    };
-    showCurrentScale.call(null);
-    
-    map.events.register('zoomend', null, showCurrentScale);
 
 
     //queryToolbar.activate();
