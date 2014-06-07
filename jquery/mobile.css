@@ -483,7 +483,6 @@ div.olMapViewport {
     height: auto;
     overflow: hidden;
     position: absolute;
-    z-index: 1000;
 }
 
 
