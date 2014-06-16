@@ -442,6 +442,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 chNode.attributes.featureTypes = fTypes;
             }
         }
+        
+        if(!chNode.children) {
+            chNode.state = 'open';
+        }
+
         thNode.children.push(chNode);    
 
     },
