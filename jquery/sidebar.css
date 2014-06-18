@@ -86,10 +86,17 @@
 
 #sidebar-panel .panel-header .panel-title{
   float: left;
-  margin-left: 25px;
+  margin-left: 5px;
+  width: 170px;
   color:#ffffff;  
 }
 
+#sidebar-panel .panel-header .panel-clearresults{
+  float:right;
+  width:30px;
+  color:#fff;  
+  cursor: pointer;
+}
 #sidebar-panel .panel-header .panel-close{
   float:right;
   width:30px;

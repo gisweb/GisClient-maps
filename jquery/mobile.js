@@ -140,7 +140,7 @@ var initMap = function(){
 
     sidebarPanel.init('#sidebar-panel');
 
-   var vectorEditor = new OpenLayers.Editor(map, {
+    var vectorEditor = new OpenLayers.Editor(map, {
         activeControls: ['Navigation', 'SnappingSettings', 'CADTools', 'TransformFeature', 'Separator', 'DeleteFeature', 'DragFeature', 'SelectFeature', 'Separator', 'DrawHole', 'ModifyFeature', 'Separator'],
         featureTypes: ['regular', 'polygon', 'path', 'point']
     });
@@ -451,6 +451,14 @@ var initMap = function(){
     });
     queryToolbar.defaultControl = queryToolbar.controls[0];
     map.addControl(queryToolbar);
+    
+    $('.panel-clearresults').click(function(event) {
+        event.preventDefault();
+        
+        queryToolbar.clearResults();
+        
+        sidebarPanel.close();
+    });
 
     //popolo la select nel footer per le ricerche veloci
     var options = [];
@@ -605,7 +613,15 @@ var initMap = function(){
         new OpenLayers.Control.ZoomBox({tbarpos:"first", iconclass:"glyphicon-white glyphicon-zoom-in", title:"Zoom riquadro", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
         new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-zoom-out", title:"Zoom indietro"}),
         defaultControl,
-        new OpenLayers.Control.ZoomToMaxExtent({iconclass:"glyphicon-white glyphicon-globe", title:"Zoom estensione"}),
+        new OpenLayers.Control.Button({
+            trigger: function() {
+                if (this.map) {
+                    this.map.zoomToExtent(this.map.maxExtent);
+                }    
+            },
+            iconclass:"glyphicon-white glyphicon-globe", 
+            title:"Zoom estensione"
+        }),
         geolocateControl,
 
 

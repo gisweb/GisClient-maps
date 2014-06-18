@@ -10,7 +10,6 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     featureTypes:null,
     visibleLayers:[],
     renderQueue: [],
-    resultLayer:null,
     resultStyle:null,
     maxWfsFeatures:100,
     maxVectorFeatures:500,
@@ -98,6 +97,17 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         }
 
         this.addControls(controls);
+    },
+    
+    deactivate: function() {
+        var result = OpenLayers.Control.Panel.prototype.deactivate.apply(this);
+        
+        if(result) {
+            this.map.defaultControl.activate();
+            this.map.currentControl = this.map.defaultControl;
+        } else {
+            return false;
+        }
     },
 
     //boh non so se inizializzare qui oppure passare la wfscache già pronta ...  da vedere per ora scelgo la 2
@@ -284,9 +294,10 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     redraw: function() {
 
         OpenLayers.Control.Panel.prototype.redraw.apply(this);
-        this.resultLayer.setVisibility(this.active);
+        //this.resultLayer.setVisibility(this.active);
         var currentHeight = this.div.style.height;
         if (this.active) {
+            this.resultLayer.setVisibility(true);
             this.setQueryLayers(this.featuresCombo.value);
             for(var i=0;i<this.map.layers.length;i++) if(this.wfsCache[this.map.layers[i].id]) this.updateFeatureCombo(this.map.layers[i]);
             this.activateVectorControl();
@@ -299,12 +310,20 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 this.map.div.appendChild(this.featuresCombo);
         }
         else{
-            this.deactivateVectorControl();
+            //this.deactivateVectorControl();
             this.map.events.unregister('changelayer',this,this.updateVisibleLayers);
             this.div.style.height="0px";   
            // this.featuresCombo.parentNode.removeChild(this.featuresCombo);
         }
 
+    },
+    
+    clearResults: function() {
+        this.resultLayer.removeAllFeatures();
+        this.resultLayer.setVisibility(false);
+        this.deactivateVectorControl();
+        this.resultTarget.innerHTML = '';
+        this.events.triggerEvent('clearresults');
     },
 
     //INIZIALIZZA IL LAYER VETTORIALE PER I RISULTATI
