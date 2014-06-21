@@ -200,7 +200,7 @@ OpenLayers.GisClient = OpenLayers.Class({
 					if(cfgLayer.nodes){
                         //SE MAPPROXY AGGIUNGO IL LAYER WMTS
                         oLayer.nodes = cfgLayer.nodes;
-                        if(this.useMapproxy) this.addWMTSLayer(oLayer);
+                        if(this.useMapproxy && cfgLayer.theme_single) this.addWMTSLayer(oLayer);
                     } 
 
 				break;
