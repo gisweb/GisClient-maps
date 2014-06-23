@@ -491,8 +491,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             values = '';
             for (var i = 0; i < aCols.length; i++) {
                 if(aCols[i] == 'gc_actions') {
-                    values += '<td><a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom">Zoom</a>';
-                    
+                    values += '<td><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
                     if(featureType.relations) {
                         for(var f = 0; f < featureType.relations.length; f++) {
                             relation = featureType.relations[f];
