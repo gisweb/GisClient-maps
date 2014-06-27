@@ -140,6 +140,7 @@ OpenLayers.GisClient = OpenLayers.Class({
 			for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
 				this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
 			};
+
 			this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
 
 		    if (this.mapProviders && this.mapProviders.length>0) {
@@ -251,6 +252,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
             "visibility":false,
+            "serverResolutions":this.mapOptions.serverResolutions,
             "isBaseLayer":oLayer.isBaseLayer
         };
         var ll = new OpenLayers.Layer.WMTS(layerParams);

@@ -200,6 +200,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var self = this;
         var inRange;
         var node = self.overlayTree.tree('find',layer.id);
+
         if(node){
             inRange = layer.inRange;
             self.changeNodeState(node,inRange);
@@ -407,7 +408,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
     //build baselayerData and overlayData
     initTreeData: function(oLayer){
-        var oLayer,thNode,chNode,leafNode,layerParam;
+        var oLayer,thNode,chNode,leafNode,leaf_leafNode,layerParam;
 
         var layerTree = oLayer.isBaseLayer? this.baselayerData  :this.overlayData;
         var fTypes = [];
@@ -422,6 +423,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             chNode.children = [];
             for (var j = 0; j < oLayer.nodes.length; j++) {
                 layerParam = oLayer.nodes[j].layer;
+
+
                 leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam}}
                 if(typeof(oLayer.nodes[j].visibility)) leafNode.checked = oLayer.nodes[j].visibility;
                 if(oLayer.theme == oLayer.title) fTypes = this.getFetureTypes(layerParam);  //SINGOLO TEMA
@@ -429,6 +432,14 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     leafNode.queryable = true;
                     leafNode.iconCls = "queryable";
                     leafNode.attributes.featureTypes = fTypes;
+                }
+                if(oLayer.nodes[j].nodes){ //3 livelli su tema unico
+                    leafNode.iconCls = "overlay";
+                    leafNode.children = [];
+                    for (var k = 0; k < oLayer.nodes[j].nodes.length; k++) {
+                        leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}}
+                        leafNode.children.push(leaf_leafNode);
+                    }
                 }
                 chNode.children.push(leafNode);
             };                          

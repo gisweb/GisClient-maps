@@ -828,7 +828,7 @@ var initMap = function(){
 	OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
 	GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:"http://gisclient.rr.nu/ows",
+        mapProxyBaseUrl:"/ows",
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),
