@@ -424,10 +424,14 @@ var initMap = function(){
                     geometry = GisClientMap.map.getMaxExtent();
                 }
                 
-                var filter = new OpenLayers.Filter.Logical({
-                    type: OpenLayers.Filter.Logical.AND,
-                    filters: filters
-                });
+                if(filters.length > 1) {
+                    var filter = new OpenLayers.Filter.Logical({
+                        type: OpenLayers.Filter.Logical.AND,
+                        filters: filters
+                    });
+                } else {
+                    var filter = filters[0];
+                }
                 
                 var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
                 var oldQueryFilters = control.queryFilters[fType.typeName];
