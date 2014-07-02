@@ -108,7 +108,7 @@
                 }
                 
                 var features = [],
-                    len = response.length, result, i, geometry;
+                    len = response.length, result, i, geometry, feature;
                 
                 for(i = 0; i < len; i++) {
                     result = response[i];
@@ -117,7 +117,10 @@
                     if(!geometry) continue;
                     delete result.gc_geom;
                     
-                    features.push(new OpenLayers.Feature.Vector(geometry, result));
+                    feature = new OpenLayers.Feature.Vector(geometry, result);
+                    feature.featureTypeName = selectedFeatureType;
+                    
+                    features.push(feature);
                 }
                 
 				fType.features = features;
