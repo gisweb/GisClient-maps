@@ -599,17 +599,20 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var me = this,
             len = me.renderQueue.length, event, i,
             divs = '', html, resultDiv;
-        
+
         for(i = 0; i < len; i++) {
             event = this.renderQueue[i];
             
-            if(!event.properties) continue;
+            if(!event || !event.properties) continue;
             
             html = me.writeDataTable(event);
+            
             if(!html) continue;
             
             divs += '<div class="featureTypeTitle">' + html + '</div>';
         }
+        
+        this.renderQueue = [];
         
         if(divs.length) {
             if(me.resultTarget.firstChild) {
