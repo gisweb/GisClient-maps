@@ -461,7 +461,7 @@ var initMap = function(){
         
         queryToolbar.clearResults();
         
-        sidebarPanel.close();
+        //sidebarPanel.close();
     });
 
     //popolo la select nel footer per le ricerche veloci
@@ -784,7 +784,7 @@ var initMap = function(){
     });
     var showCurrentScale = function() {
         var currentZoom = map.getZoom();
-        console.log('currentZoom', currentZoom);
+        
         $('#map-select-scale').val(currentZoom);
     };
     showCurrentScale.call(null);
