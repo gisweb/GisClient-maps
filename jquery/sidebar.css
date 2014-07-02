@@ -88,7 +88,10 @@
   float: left;
   margin-left: 5px;
   width: 170px;
-  color:#ffffff;  
+  color:#ffffff;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 #sidebar-panel .panel-header .panel-clearresults{
