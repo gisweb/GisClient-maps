@@ -14,27 +14,29 @@ var ConditionBuilder = {
             label: 'Diverso'
         },
         contains: {
-            operator: 'LIKE',
+            operator: 'ILIKE',
             label: 'Contiene',
             wildchar: 'both'
         },
         startswith: {
-            operator: 'LIKE',
+            operator: 'ILIKE',
             label: 'Inizia con',
             wildchar: 'right'
         },
         endswith: {
-            operator: 'LIKE',
+            operator: 'ILIKE',
             label: 'Finisce con',
             wildchar: 'left'
         },
         isnull: {
             operator: 'is null',
-            label: 'E\' nullo'
+            label: 'E\' nullo',
+            noValue: true
         },
         isnotnull: {
             operator: 'is not null',
-            label: 'Non è nullo'
+            label: 'Non è nullo',
+            noValue: true
         },
         lessthan: {
             operator: '<',
@@ -239,8 +241,27 @@ var ConditionBuilder = {
             var expr = condition.expressions[i];
             var operator = this.operators[expr.opval].operator;
             var placeholder = ':param_' + this.placeHolderCount;
-            values['param_' +  this.placeHolderCount] = expr.val;
-            this.placeHolderCount++;
+            var value = expr.val;
+            if(this.operators[expr.opval].wildchar) {
+                switch(this.operators[expr.opval].wildchar) {
+                    case 'both':
+                        value = '%'+value+'%';
+                    break;
+                    case 'left':
+                        value = '%'+value;
+                    break;
+                    case 'right':
+                        value = value+'%';
+                    break;
+                }
+            }
+            if(this.operators[expr.opval].noValue) {
+                value = '';
+                placeholder = '';
+            } else {
+                values['param_' +  this.placeHolderCount] = value;
+                this.placeHolderCount++;
+            }
             e.push(expr.colval + ' ' + operator + ' ' + placeholder);
         }
 
