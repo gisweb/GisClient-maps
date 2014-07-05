@@ -13,6 +13,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     resultStyle:null,
     maxWfsFeatures:100,
     maxVectorFeatures:500,
+    pointZoomLevel:8,
     selectControl:null,
     highlightControl:null,
     modifyControl:null,
@@ -114,7 +115,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     initWfsCache:function(){//NON USATA INIZIALIZZO FUORI
         var layer;
         for (var i = 0; i < this.map.config.featureTypes.length; i++) {
+            //console.log(this.map.config.featureTypes[i].WMSLayerName, this.map.config.featureTypes);
             layer =  this.map.getLayersByName(this.map.config.featureTypes[i].WMSLayerName)[0];
+            //console.log(layer);
             if(typeof(this.wfsCache[layer.id])=='undefined') this.wfsCache[layer.id] = {featureTypes:[]};
             this.wfsCache[layer.id].featureTypes.push(this.map.config.featureTypes[i]);
         };
@@ -571,6 +574,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                                     //var feature = me.findFeature(featureId);
                                     var feature = me.resultLayer.getFeatureById(featureId);
                                     if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
+                                    console.log(feature.geometry)
                                     me.map.zoomToExtent(feature.geometry.getBounds());
                                 }
                             break;
@@ -648,7 +652,12 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                                     }
                                     me.selectControl.unselectAll();
                                     me.selectControl.select(feature);
-                                    me.map.zoomToExtent(feature.geometry.getBounds());
+                                    if (feature.geometry instanceof OpenLayers.Geometry.Point){
+                                        me.map.setCenter(new OpenLayers.LonLat(feature.geometry.x,feature.geometry.y),8);
+
+                                    }
+                                    else                                
+                                        me.map.zoomToExtent(feature.geometry.getBounds());
                                 }
                             break;
                             case 'viewDetails':
@@ -675,7 +684,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         loadingControl.minimizeControl();
 
         var event = {
-            layer: me.resultLayer
+            layer: me.resultLayer,
+            mode: e.mode
         };
         if(e.vectorFeaturesOverLimit) {
             for(var i = 0; i < e.vectorFeaturesOverLimit.length; i++) {

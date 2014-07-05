@@ -31,3 +31,15 @@ header h1 {
 header h1 a {
     color: #000000;
 }
+
+#mapset-title {
+    margin-left:10px;
+    font-size: 12px;
+}
+
+#mapset-login {
+    margin-right:5px;
+    font-size: 12px;
+    float: right;
+}
+

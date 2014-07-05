@@ -127,25 +127,29 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
+    document.title = this.title;
 
-        //SETTO IL BASE LAYER SE IMPOSTATO
+    //SETTO IL BASE LAYER SE IMPOSTATO
+    /*
     if(this.baseLayerName) {
         var ret = map.getLayersByName(this.baseLayerName);
         if(ret.length > 0) map.setBaseLayer(ret[0]);
     }
-
+*/
     //setto osm come base... vedere perché non va da author
 /*     var ret = map.getLayersByName("osm");
     if(ret.length > 0) map.setBaseLayer(ret[0]); */
 
     sidebarPanel.init('#sidebar-panel');
 
+
+/*
     var vectorEditor = new OpenLayers.Editor(map, {
         activeControls: ['Navigation', 'SnappingSettings', 'CADTools', 'TransformFeature', 'Separator', 'DeleteFeature', 'DragFeature', 'SelectFeature', 'Separator', 'DrawHole', 'ModifyFeature', 'Separator'],
         featureTypes: ['regular', 'polygon', 'path', 'point']
     });
 
-
+*/
     //******************** TOOLBARS STRUMENTI (IN ALTO A SX) *****************************************
 
     //
@@ -171,6 +175,11 @@ var initMap = function(){
                     });
                     if(event.vectorFeaturesOverLimit) {
                         alert('I risultati dell\'interrogazione sono troppi: alcuni oggetti non sono stati disegnati su mappa ');
+                    }
+                    console.log(event.mode);
+                    console.log(event.layer.getDataExtent());
+                    if(event.mode == 'fast') {
+                        GisClientMap.map.zoomToExtent(event.layer.getDataExtent());
                     }
                 } else {
                     alert('Nessun risultato');
@@ -275,7 +284,9 @@ var initMap = function(){
         },
         searchButtonHander: function(selectedFeatureType, mode) {
             var mode = mode || 'default',
-                selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val();
+                selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val(),
+                queryToolbar = this,
+                fType;
 
             if(mode == 'default') {
                 $('li[role="advanced-search"]').show();
@@ -288,17 +299,7 @@ var initMap = function(){
                 return alert('Seleziona un livello prima');
             }
             
-            var featureTypes = GisClientMap.featureTypes,
-                len = featureTypes.length, fType, i,
-                form = '';
-             
-            for(i = 0; i < len; i++) {
-                if(featureTypes[i].typeName == selectedFeatureType) {
-                    fType = featureTypes[i];
-                    break;
-                }
-            }
-            
+            fType = GisClientMap.getFeatureType(selectedFeatureType);
             if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
             
             var form = '',
@@ -434,12 +435,15 @@ var initMap = function(){
                 }
                 
                 var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
+                if(mode == 'fast') {
+                    control.layers = [queryToolbar.getLayerFromFeature(fType.typeName)];
+                }
                 var oldQueryFilters = control.queryFilters[fType.typeName];
                 control.queryFilters[fType.typeName] = filter;
                 var oldHighlight = control.highLight;
                 control.highLight = true;
-                
-                control.select(geometry);
+
+                control.select(geometry, mode);
                 
                 control.queryFilters[fType.typeName] = oldQueryFilters;
                 control.highLight = oldHighlight;
@@ -807,6 +811,33 @@ var initMap = function(){
 
 
     $('#mapset-title').html(GisClientMap.title);
+
+    $('#mapset-login').html("<a href='#'>Accedi</a>");
+
+
+    $('#LoginWindow button').on('click',function(e){
+            e.preventDefault();
+
+            console.log('asdsdas')
+
+    });
+
+    $('#mapset-login a').on('click',function(){
+
+        //$('#LoginWindow div.modal-body').html('sdfsdf');
+        //$('#LoginWindow h4.modal-title').html("dsffsdfsdfsdfsdf");
+        $('#LoginWindow').modal('show');
+
+
+
+
+
+
+    })
+    /*
+
+
+*/
     
     var onResize = function() {
         if($(window).width() < 1000) $('#map-coordinates').hide();
@@ -850,9 +881,9 @@ var initMap = function(){
                     emptyTitle:'Base vuota', 
                     div:OpenLayers.Util.getElement('layertree')
                 })
-            ],
-            scale:2000,
-            center:[8.92811, 44.41320]
+            ]
+            //scale:2000,
+            //center:[8.92811, 44.41320]
         },
         callback:initMap
     })

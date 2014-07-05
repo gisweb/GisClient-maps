@@ -19,7 +19,6 @@
     <script src="../resources/jslib/gcOloverride.js"></script>    
     <script src="../resources/jslib/QueryMap.js"></script>
     <script src="../resources/jslib/GisClientMap.js"></script>   
-    <script src="../resources/jslib/OverviewMap.js"></script>   
   <script src="../resources/jslib/LayerTree.js"></script>
     <script src="../resources/jslib/LoadingPanel.js"></script>
     <script src="../resources/jslib/PrintMap.js"></script>
@@ -35,10 +34,10 @@
    <script src="../resources/jslib/bootstrap.min.js"></script>
 
 
-<!--
+
     <script type="text/javascript" src="../resources/jslib/ole/loader.js"></script>
     <link rel="stylesheet" href="../resources/themes/ole/geosilk.css" type="text/css" />
--->
+
 
 
 	<script type="text/javascript">
@@ -109,7 +108,7 @@
                 }
                 
                 var features = [],
-                    len = response.length, result, i, geometry, feature;
+                    len = response.length, result, i, geometry;
                 
                 for(i = 0; i < len; i++) {
                     result = response[i];
@@ -118,10 +117,7 @@
                     if(!geometry) continue;
                     delete result.gc_geom;
                     
-                    feature = new OpenLayers.Feature.Vector(geometry, result);
-                    feature.featureTypeName = selectedFeatureType;
-                    
-                    features.push(feature);
+                    features.push(new OpenLayers.Feature.Vector(geometry, result));
                 }
                 
 				fType.features = features;
@@ -167,7 +163,6 @@
 
 <div id="map-header">
     <span id="mapset-title"></span>
-    <span id="mapset-login"></span>
 </div>
 
   <div id="content">
@@ -185,7 +180,6 @@
       <div id="sidebar-panel" >
         <div class="panel-header" style="display:none;">
             <div class="panel-title"></div>
-            <div class="panel-clearresults"><span class="glyphicon-white glyphicon-ban-circle"></span><span></span></div>
             <div class="panel-close"><span class="glyphicon-white glyphicon-remove"></span><span></span></div>
             <div class="panel-expand"><span class="glyphicon-white glyphicon-arrow-left"></span><span></span></div>
             <div class="panel-collapse"><span class="glyphicon-white glyphicon-arrow-right"></span><span></span></div>
@@ -255,26 +249,6 @@
   </div>
 </div>
 
-<div id="LoginWindow" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="max-width:400px">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-      <h4 class="modal-title">Accedi:</h4>
-    </div>
-    <div class="modal-body" style="overflow:auto;">
-      <form >
-            <p><label class="control-label" for="inputEmail">Utente</label><br />
-            <input type="text" id="inputEmail" placeholder="Utente"></p>
-            <p><label class="control-label" for="inputPassword">Password</label><br />
-            <input type="password" id="inputPassword" placeholder="Password"></p>
-            <button id="LoginButton">Invia</button>
-      </form>
-
-    </div>
-    </div>
-  </div>
-</div>
 
 <div id="map-footer">
   <span id="map-fast-search">

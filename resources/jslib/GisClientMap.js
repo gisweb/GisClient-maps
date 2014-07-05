@@ -136,10 +136,11 @@ OpenLayers.GisClient = OpenLayers.Class({
         	OpenLayers.Util.extend(responseJSON.mapOptions, this.mapOptions);
         	OpenLayers.Util.extend(this, responseJSON);
 
-        	//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
+        	/*//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
 			for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
 				this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
 			};
+            */
 
 			this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
 
@@ -168,31 +169,48 @@ OpenLayers.GisClient = OpenLayers.Class({
 			var controls = this.mapOptions.controls;
 			this.mapOptions.controls = [];
 		}
-       // this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel,this.mapOptions.maxZoomLevel);
+       // this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel,this.mapOptions.maxZoomLevel);       
 		this.map = new OpenLayers.Map(this.mapDiv, this.mapOptions);
 		this.map.config = this;
-		this.map.addLayer(new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{maxResolution:this.map.resolutions[0],  resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true}));
+        this.emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{maxResolution:this.map.resolutions[0],  resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true});
+		this.map.addLayer(this.emptyBaseLayer);
 		this.map.zoomToMaxExtent ({restricted:true});
+
+
 		this.initLayers();
 
-		//SETTO IL BASE LAYER SE IMPOSTATO
-		if(this.baseLayerName) {
-			var ret = this.map.getLayersByName(this.baseLayerName);
-			if(ret.length > 0) this.map.setBaseLayer(ret[0]);
-		}	
+        var overviewMap = new OpenLayers.GisClient.OverviewMap({
+            layers: this.overviewLayers
+        });
+        this.map.addControl(overviewMap);
+
+
+
+
 
 
 		if(controls) this.map.addControls(controls);
 		//if(this.mapOptions.center) this.map.setCenter(this.mapOptions.center);
 		//if(this.mapOptions.zoom) this.map.zoomTo(this.mapOptions.zoom);
 		//console.log(this)
+
+        //SETTO IL BASE LAYER SE IMPOSTATO
+        if(this.baseLayerName) {
+            var ret = this.map.getLayersByName(this.baseLayerName);
+            if(ret.length > 0) this.map.setBaseLayer(ret[0]);
+        }   
+
+
 		if(this.callback) this.callback.call(this);
+
+
 
 	},
 	
 	initLayers: function(){
-		var cfgLayer,oLayer;
-		// baselayer finto
+		var cfgLayer,oLayer,owLayer,
+            overviewLayers = [];
+        
 		for (var i = 0, len = this.layers.length; i < len; i++) {
 			cfgLayer =  this.layers[i];
 			switch(cfgLayer.type){
@@ -235,7 +253,16 @@ OpenLayers.GisClient = OpenLayers.Class({
             //var theme_id = (cfgLayer.parameters && cfgLayer.parameters.theme_id) || cfgLayer.options.theme_id;
             //oLayer.id = theme_id+"_"+cfgLayer.name;
 			this.map.addLayer(oLayer);
+            
+            if(cfgLayer.options && cfgLayer.options.refmap) {
+                owLayer = oLayer.clone();
+                owLayer.setVisibility(true);
+                console.log(owLayer.name, owLayer.getVisibility());
+                overviewLayers.push(owLayer);
+            }
 		}
+        
+        this.overviewLayers = overviewLayers;
 	},
     
 

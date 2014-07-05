@@ -268,7 +268,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
      * Parameters:
      * geometry - {Object} or {<OpenLayers.Geometry>}
 	 */
-    select: function(geometry) {
+    select: function(geometry, mode) {
+        var mode = mode || 'default';
+console.log(mode);        
         this.map.defaultControl.activate();
         this._queue = function() {
 			var layer, featureTypes, geometryAttribute, filterId, params;
@@ -378,7 +380,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 							if(featureType.symbolizer) geometryAttribute.symbolizer = featureType.symbolizer;
 							selection[filterId]["geometryAttributes"].push(geometryAttribute);
 							
-							this.getFeatures(layer,featureType,filter);//query wfs
+							this.getFeatures(layer,featureType,filter,mode);//query wfs
 
 							//this.events.triggerEvent("selected",{layer:layer,featureType:featureType,filter:filter})
 
@@ -420,7 +422,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
         this.applySelection();
     },
     
-	getFeatures: function(layer,featureType,filter){
+	getFeatures: function(layer,featureType,filter,mode){
 
 		//CONTROLLARE LA GESTIONE DELLE ECCEZIONI
 		//PREVEDERE PROXY!!!!
@@ -533,8 +535,10 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				}
 				if(this.nquery == this.nresponse){
 					this.nquery = this.nresponse = 0;
+                    
                     var event = {
-                        layer: this.resultLayer
+                        layer: this.resultLayer,
+                        mode: mode
                     };
                     if(this.vectorFeaturesOverLimit.length) {
                         event.vectorFeaturesOverLimit = this.vectorFeaturesOverLimit.slice(0);

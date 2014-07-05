@@ -56,6 +56,7 @@ OpenLayers.Control.LoadingPanel = OpenLayers.Class(OpenLayers.Control, {
      * visible - {Boolean} should the control be visible or not?
     */
     setVisible: function(visible) {
+        console.log('asdsa')
         this.visible = visible;
         if (visible) {
             OpenLayers.Element.show(this.div);
@@ -164,6 +165,7 @@ OpenLayers.Control.LoadingPanel = OpenLayers.Class(OpenLayers.Control, {
      */
     draw: function () {
         OpenLayers.Control.prototype.draw.apply(this, arguments);
+        this.div.style.display = "none"; 
         return this.div;
     },
      

@@ -603,3 +603,8 @@ div.olMapViewport {
     color:#FFFFFF;
 }
 
+#mapset-login {
+    width:200px;
+    margin-right:5px;
+    float: right;
+}
