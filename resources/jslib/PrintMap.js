@@ -64,6 +64,9 @@ function getConfigParams() {
         copyrightString = searchControl[0].div.innerText;
     }
     
+    var srid = GisClientMap.map.getProjection();
+    if(srid == 'ESPG:900913') srid = 'EPSG:3857';
+    
     var params = {
         viewport_size: [size.w, size.h],
         center: [center.lon, center.lat],
@@ -77,7 +80,7 @@ function getConfigParams() {
         extent: GisClientMap.map.calculateBounds().toBBOX(),
         date: $('#printpanel input[name="date"]').val(),
         dpi: $('#print_panel_resolution').val(),
-        srid: GisClientMap.map.getProjection(),
+        srid: srid,
         pixels_distance: pixelsDistance,
         copyrightString: copyrightString
     };
@@ -111,15 +114,42 @@ function getParams() {
                     version: '1.1.1',
                     format: 'image/png'
                 },
+                type: 'WMS',
                 opacity: layer.opacity ? (layer.opacity * 100) : 100
             };
         } else if(layer.CLASS_NAME == 'OpenLayers.Layer.WMS') {
             tile = {
                 url: layer.url,
+                type: 'WMS',
                 parameters: layer.params,
                 opacity: layer.opacity ? (layer.opacity * 100) : 100
             };
-        }
+        } else if(layer.CLASS_NAME == 'OpenLayers.Layer.WMTS') {
+            var params = {
+                LAYERS: [layer.name],
+                FORMAT: 'image/png',
+                SRS: layer.projection.projCode,
+                TRANSPARENT: true,
+                SERVICE: 'WMS',
+                VERSION: '1.1.1'
+            };
+            tile = {
+                url: GisClientMap.mapProxyBaseUrl+'/'+GisClientMap.name+'/service?',
+                type: 'WMS',
+                parameters: params,
+                opacity: layer.opacity ? (layer.opacity * 100) : 100
+            };
+        } else if(layer.CLASS_NAME == 'OpenLayers.Layer.OSM' ||
+            layer.CLASS_NAME == 'OpenLayers.Layer.Google') {
+
+            tile = {
+                type: 'external_provider',
+                externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
+                name: layer.name,
+                project: GisClientMap.projectName,
+                map: GisClientMap.name
+            };
+        } else console.log(layer.name+' '+layer.CLASS_NAME+' non riconosciuto per stampa');
         if(tile) {
             if(layer.options.theme_id) {
                 tile.options = {
@@ -135,7 +165,7 @@ function getParams() {
         params.legend = 'yes';
         
     }
-    
+    tiles.reverse();
     params.tiles = tiles;
 
 
