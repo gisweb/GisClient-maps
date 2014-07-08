@@ -812,32 +812,60 @@ var initMap = function(){
 
     $('#mapset-title').html(GisClientMap.title);
 
-    $('#mapset-login').html("<a href='#'>Accedi</a>");
+    if(!GisClientMap.logged_username) {
+        $('#mapset-login').html("<a action='login' href='#'>Accedi</a>");
 
-
-    $('#LoginWindow button').on('click',function(e){
+        $('#LoginWindow button').on('click',function(e){
             e.preventDefault();
 
-            console.log('asdsdas')
+            $.ajax({
+                url: '/gisclient/login.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    username: $('#LoginWindow input[name="username"]').val(),
+                    password: $('#LoginWindow input[name="password"]').val()
+                },
+                success: function(response) {
+                    if(response && typeof(response) == 'object' && response.result == 'ok') {
+                        window.location.reload();
+                    } else {
+                        alert('Username e/o password errati');
+                    }
+                },
+                failure: function() {
+                    alert('Errore di sistema');
+                }
+            });
+        });
+    } else {
+        $('#mapset-login').html(GisClientMap.logged_username+', <a href="#" action="logout">Logout</a>');
+    }
 
-    });
-
-    $('#mapset-login a').on('click',function(){
-
-        //$('#LoginWindow div.modal-body').html('sdfsdf');
-        //$('#LoginWindow h4.modal-title').html("dsffsdfsdfsdfsdf");
+    $('#mapset-login a[action="login"]').on('click',function(event){
+        event.preventDefault();
         $('#LoginWindow').modal('show');
-
-
-
-
-
-
-    })
-    /*
-
-
-*/
+    });
+    $('#mapset-login a[action="logout"]').on('click',function(event){
+        event.preventDefault();
+        
+        $.ajax({
+            url: '/gisclient/logout.php',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if(response && typeof(response) == 'object' && response.result == 'ok') {
+                    window.location.reload();
+                } else {
+                    alert('Errore di sistema');
+                }
+            },
+            failure: function() {
+                alert('Errore di sistema');
+            }
+        });
+    });
+    
     
     var onResize = function() {
         if($(window).width() < 1000) $('#map-coordinates').hide();
