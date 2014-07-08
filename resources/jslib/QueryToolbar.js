@@ -494,7 +494,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             values = '';
             for (var i = 0; i < aCols.length; i++) {
                 if(aCols[i] == 'gc_actions') {
-                    values += '<td><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
+                    values += '<td><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+featureType.zoomBuffer+'" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
                     if(featureType.relations) {
                         for(var f = 0; f < featureType.relations.length; f++) {
                             relation = featureType.relations[f];
@@ -646,18 +646,25 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                         switch(action) {
                             case 'zoom':
                                 if(featureId) {
+                                    var buffer = this.getAttribute('buffer');
                                     var feature = me.findFeature(featureId);
                                     if(!feature) {
                                         return console.log('zoom: non trovo la feature ', featureType, featureId);
                                     }
+                                    console.log(buffer);
                                     me.selectControl.unselectAll();
                                     me.selectControl.select(feature);
-                                    if (feature.geometry instanceof OpenLayers.Geometry.Point){
-                                        me.map.setCenter(new OpenLayers.LonLat(feature.geometry.x,feature.geometry.y),8);
-
+                                    var bounds = feature.geometry.getBounds();
+                                    if(buffer){
+                                        buffer = parseFloat(buffer);
+                                        var bArr = bounds.toArray();
+                                        bArr[0] = bArr[0] - buffer;
+                                        bArr[1] = bArr[1] - buffer;
+                                        bArr[2] = bArr[2] + buffer;
+                                        bArr[3] = bArr[3] + buffer;
+                                        bounds = new OpenLayers.Bounds.fromArray(bArr);
                                     }
-                                    else                                
-                                        me.map.zoomToExtent(feature.geometry.getBounds());
+                                    me.map.zoomToExtent(bounds);
                                 }
                             break;
                             case 'viewDetails':
