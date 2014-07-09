@@ -157,6 +157,9 @@ OpenLayers.GisClient = OpenLayers.Class({
 					document.getElementsByTagName('head')[0].appendChild(script);
 				}	
             }
+
+            if(this.projdefs) Proj4js.defs = this.projdefs;
+
 			if(!googleCallback)	this.initGCMap();	
         }
 	},
