@@ -158,8 +158,12 @@ OpenLayers.GisClient = OpenLayers.Class({
 				}	
             }
 
-            if(this.projdefs) Proj4js.defs = this.projdefs;
 
+            if(this.projdefs){
+                for (key in this.projdefs){
+                    if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
+                }
+            }
 			if(!googleCallback)	this.initGCMap();	
         }
 	},
