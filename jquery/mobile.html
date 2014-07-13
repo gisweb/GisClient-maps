@@ -21,6 +21,7 @@
     <script src="../resources/jslib/GisClientMap.js"></script>   
     <script src="../resources/jslib/OverviewMap.js"></script>   
   <script src="../resources/jslib/LayerTree.js"></script>
+  <script src="../resources/jslib/LayerLegend.js"></script>
     <script src="../resources/jslib/LoadingPanel.js"></script>
     <script src="../resources/jslib/PrintMap.js"></script>
     <script src="../resources/jslib/PipeSelect.js"></script>
@@ -191,7 +192,16 @@
             <div class="panel-collapse"><span class="glyphicon-white glyphicon-arrow-right"></span><span></span></div>
         </div>
         <div class="panel-content" style="overflow:auto;height:100%">
-            <div id="layertree" style="display:none"></div>
+            <div id="layertree" style="display:none">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#layertree-tree" data-toggle="tab">Layer</a></li>
+                    <li><a href="#layerlegend" data-toggle="tab">Legenda</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="layertree-tree"></div>
+                    <div class="tab-pane" id="layerlegend"></div>
+                </div>
+            </div>
             <div id="resultpanel" style="display:none"></div>
             <div id="printpanel" style="display:none"></div>
         </div>

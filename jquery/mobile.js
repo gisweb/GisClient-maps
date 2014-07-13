@@ -907,7 +907,10 @@ var initMap = function(){
                 //new OpenLayers.Control.PinchZoom(),
                 new OpenLayers.Control.LayerTree({
                     emptyTitle:'Base vuota', 
-                    div:OpenLayers.Util.getElement('layertree')
+                    div:OpenLayers.Util.getElement('layertree-tree')
+                }),
+                new OpenLayers.Control.LayerLegend({
+                    div:OpenLayers.Util.getElement('layerlegend')
                 })
             ]
             //scale:2000,
