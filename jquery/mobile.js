@@ -229,7 +229,7 @@ var initMap = function(){
                 var feature = event.feature,
                     featureTypeName = feature.featureTypeName,
                     featureType = GisClientMap.getFeatureType(featureTypeName);
-                console.log(event, featureTypeName, featureType);
+
                 if(featureType && featureType.title) {
                     $('#sidebar-panel div.panel-title').html(featureType.title);
                 }
@@ -574,8 +574,6 @@ var initMap = function(){
     //toolsToolbar.activate();
 
 
-
-
     //******************** TOOLBAR VERTICALE *****************************************
 
     var sideBar = new OpenLayers.GisClient.Toolbar({
@@ -631,8 +629,17 @@ var initMap = function(){
             title:"Zoom estensione"
         }),
         geolocateControl,
-
-
+        
+        new OpenLayers.Control.Button({
+            type: OpenLayers.Control.TYPE_TOGGLE, 
+            iconclass:"glyphicon-white  glyphicon-eye-open", 
+            title:"Mappa di riferimento",
+            tbarpos:"first",
+            eventListeners: {
+                'activate': function(){GisClientMap.overviewMap.show();},
+                'deactivate': function(){GisClientMap.overviewMap.hide();}
+            }
+        }),
 
         btnSearch = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE, 
