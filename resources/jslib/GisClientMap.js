@@ -187,7 +187,7 @@ OpenLayers.GisClient = OpenLayers.Class({
 		this.initLayers();
 
         this.overviewMap = new OpenLayers.GisClient.OverviewMap({
-            layers: this.overviewLayers
+            layers: this.layers
         });
         this.map.addControl(this.overviewMap);
 
@@ -215,11 +215,11 @@ OpenLayers.GisClient = OpenLayers.Class({
 	},
 	
 	initLayers: function(){
-		var cfgLayer,oLayer,owLayer,
-            overviewLayers = [];
+		var cfgLayer,oLayer,owLayer;
         
 		for (var i = 0, len = this.layers.length; i < len; i++) {
 			cfgLayer =  this.layers[i];
+            
 			switch(cfgLayer.typeId){
 				case 1:
 					oLayer = new OpenLayers.Layer.WMS(cfgLayer.name,cfgLayer.url,cfgLayer.parameters,cfgLayer.options);
@@ -228,7 +228,6 @@ OpenLayers.GisClient = OpenLayers.Class({
                         oLayer.nodes = cfgLayer.nodes;
                         if(this.useMapproxy && cfgLayer.theme_single) this.addWMTSLayer(oLayer);
                     } 
-
 				break;
 				case 2:
 					oLayer = new OpenLayers.Layer.WMTS(cfgLayer.parameters);
@@ -259,17 +258,10 @@ OpenLayers.GisClient = OpenLayers.Class({
 			}
             //var theme_id = (cfgLayer.parameters && cfgLayer.parameters.theme_id) || cfgLayer.options.theme_id;
             //oLayer.id = theme_id+"_"+cfgLayer.name;
-			this.map.addLayer(oLayer);
             
-            if(cfgLayer.options && cfgLayer.options.refmap) {
-                owLayer = oLayer.clone();
-                owLayer.setVisibility(true);
-                //console.log(owLayer.name, owLayer.getVisibility());
-                overviewLayers.push(owLayer);
-            }
+            this.map.addLayer(oLayer);
 		}
-        
-        this.overviewLayers = overviewLayers;
+
 	},
     
 

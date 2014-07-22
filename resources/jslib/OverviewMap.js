@@ -51,15 +51,27 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
     createMap: function() {
         // create the overview map
 
-        var options = OpenLayers.Util.extend(
-                        {controls: [], maxResolution: 'auto', theme:null,
-                         fallThrough: false}, this.mapOptions);
+        var options = {};
+        OpenLayers.Util.extend(options, GisClientMap.mapOptions);
+        OpenLayers.Util.extend(options, {
+            controls: [],
+            maxResolution: 'auto',
+            fallThrough: false,
+            minZoomLevel: 0,
+            resolutions: GisClientMap.mapOptions.serverResolutions,
+            projection: this.map.projection
+        });
+
         var layers = [],
-            len = this.layers.length, layer, i;
+            len = this.layers.length, layer, i, olLayer, refMapOptions;
         
         var emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER_OV',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{
-            maxResolution:this.map.resolutions[0]*6,
-            numZoomLevels:this.map.resolutions.length+3, 
+            //maxResolution:this.map.resolutions[0]*8,
+            //numZoomLevels:this.map.resolutions.length+4,
+            minZoomLevel: 0,
+            maxZoomLevel: 22,
+            resolutions: this.map.serverResolutions,
+            //passare le serverResolutions
             displayInLayerSwitcher:true, 
             isBaseLayer:true
         });
@@ -67,11 +79,74 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         
         for(i = 0; i < len; i++) {
             layer = this.layers[i];
+            olLayer = null;
+            if(!layer.options || !layer.options.refmap) continue;
             
-            layers.push(layer); //if momentaneo...
+			switch(layer.typeId){
+				case 1:
+					olLayer = new OpenLayers.Layer.WMS(layer.name,layer.url,layer.parameters,layer.options);
+				break;
+				case 2:
+                    refMapOptions = {};
+                    OpenLayers.Util.extend(refMapOptions, layer.parameters);
+                    OpenLayers.Util.extend(refMapOptions, {
+                        zoomOffset: 0
+                    });
+                    olLayer = new OpenLayers.Layer.WMTS(refMapOptions);
+				break;
+				case 6:
+                    console.log('not implemented TMS for overview map');
+                    if(false) {
+                        //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
+                        cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
+                        cfgLayer.options.resolutions = this.map.resolutions;
+                        oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
+                        if(refMap) {
+                            refMapOptions = OpenLayers.Util.extend({
+                                resolutions: this.map.serverResolutions
+                            }, cfgLayer.options);
+                            overviewLayers.push(new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,refMapOptions));
+                        }
+                    }
+				break;
+				case 5:
+                    refMapOptions = {};
+                    OpenLayers.Util.extend(refMapOptions, layer.options);
+                    OpenLayers.Util.extend(refMapOptions, {
+                        resolutions: this.map.serverResolutions,
+                        zoomOffset: 0,
+                        visibility: true,
+                        isBaseLayer: false
+                    });
+                    olLayer = new OpenLayers.Layer.OSM(layer.name,null,refMapOptions);
+				break;	
+				case 7:
+                    refMapOptions = OpenLayers.Util.extend({
+                        resolutions: this.map.serverResolutions
+                    }, layer.options);
+                    olLayer = new OpenLayers.Layer.Google(layer.name,refMapOptions);
+				break;			
+				case 8:
+                    refMapOptions = OpenLayers.Util.extend({
+                        resolutions: this.map.serverResolutions
+                    }, layer.options);
+                    olLayer = new OpenLayers.Layer.Bing(layer.name,refMapOptions);
+				break;	
+				case 4:
+                    refMapOptions = OpenLayers.Util.extend({
+                        resolutions: this.map.serverResolutions
+                    }, layer.options);
+                    olLayer = new OpenLayers.Layer.Yahoo(layer.name,refMapOptions);
+				break;
+
+			}
+            
+            if(olLayer) {                
+                olLayer.setVisibility(true);
+                layers.push(olLayer);
+            }
         }   
 
-        options.projection = this.map.projection;
         this.ovmap = new OpenLayers.Map(this.mapDiv, options);
         this.ovmap.viewPortDiv.appendChild(this.extentRectangle);
         
@@ -79,7 +154,8 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         // the OverviewMap control has to do this (and does it).
         OpenLayers.Event.stopObserving(window, 'unload', this.ovmap.unloadDestroy);
 
-        this.ovmap.addLayers(layers);
+        this.ovmap.addLayers(layers.reverse());
+        
         this.ovmap.zoomToMaxExtent();
         // check extent rectangle border width
         this.wComp = parseInt(OpenLayers.Element.getStyle(this.extentRectangle,
@@ -166,11 +242,13 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         
         var lockExtent = document.createElement('a');
         lockExtent.href = '#';
-        lockExtent.innerHTML = 'Lock Extent';
+        lockExtent.className = 'olControlButtonItemInactive olButton olLikeButton';
+        lockExtent.innerHTML = '<span>Lock Extent</span>';
         
         var maxExtent = document.createElement('a');
         maxExtent.href = '#';
-        maxExtent.innerHTML = 'Max Extent';
+        maxExtent.className = 'olControlButtonItemInactive olButton olLikeButton';
+        maxExtent.innerHTML = '<span>Max Extent</span>';
         
         var separator = document.createElement('span');
         separator.innerHTML = ' | ';
