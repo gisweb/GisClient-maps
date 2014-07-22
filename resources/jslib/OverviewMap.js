@@ -1,14 +1,32 @@
-
 OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewMap, {
 
 
     initialize: function(options) {
-        OpenLayers.Control.OverviewMap.prototype.initialize.apply(this, [options]);
+        //OpenLayers.Control.OverviewMap.prototype.initialize.apply(this, [options]);
+        this.layers = [];
+        this.handlers = {};
+        OpenLayers.Control.prototype.initialize.apply(this, [options]);
         this.displayClass = 'gcOverviewMap';
     },
     
+    show: function(e) {
+        this.element.style.display = '';
+        this.showToggle(false);
+        if (e != null) {
+            OpenLayers.Event.stop(e);                                            
+        }
+    },
+    
+    hide: function(e) {
+        this.element.style.display = 'none';
+        this.showToggle(true);
+        if (e != null) {
+            OpenLayers.Event.stop(e);                                            
+        }
+    },
+    
     updateOverview: function() {
-        var mapRes = this.map.getResolution();
+/*         var mapRes = this.map.getResolution();
         var targetRes = this.ovmap.getResolution();
         var resRatio = targetRes / mapRes;
         if(resRatio > this.maxRatio) {
@@ -25,16 +43,14 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                 this.ovmap.getProjectionObject() );
         } else {
             center = this.map.center;
-        }
-        /*
-        this.ovmap.setCenter(center, this.ovmap.getZoomForResolution(
-            targetRes * this.resolutionFactor));*/
-            
+        } */
+
         this.updateRectToMap();
     },
     
     createMap: function() {
         // create the overview map
+
         var options = OpenLayers.Util.extend(
                         {controls: [], maxResolution: 'auto', theme:null,
                          fallThrough: false}, this.mapOptions);
@@ -62,7 +78,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         // prevent ovmap from being destroyed when the page unloads, because
         // the OverviewMap control has to do this (and does it).
         OpenLayers.Event.stopObserving(window, 'unload', this.ovmap.unloadDestroy);
-        
+
         this.ovmap.addLayers(layers);
         this.ovmap.zoomToMaxExtent();
         // check extent rectangle border width
@@ -184,42 +200,8 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
 
         // Optionally add min/max buttons if the control will go in the
         // map viewport.
-        if(!this.outsideViewport) {
-            this.div.className += " " + this.displayClass + 'Container';
-            // maximize button div
-            var img = OpenLayers.Util.getImageLocation('layer-switcher-maximize.png');
-            this.maximizeDiv = OpenLayers.Util.createAlphaImageDiv(
-                                        this.displayClass + 'MaximizeButton', 
-                                        null, 
-                                        null, 
-                                        img, 
-                                        'absolute');
-            this.maximizeDiv.style.display = 'none';
-            this.maximizeDiv.className = this.displayClass + 'MaximizeButton olButton';
-            if (this.maximizeTitle) {
-                this.maximizeDiv.title = this.maximizeTitle;
-            }
-            this.div.appendChild(this.maximizeDiv);
-    
-            // minimize button div
-            var img = OpenLayers.Util.getImageLocation('layer-switcher-minimize.png');
-            this.minimizeDiv = OpenLayers.Util.createAlphaImageDiv(
-                                        'OpenLayers_Control_minimizeDiv', 
-                                        null, 
-                                        null, 
-                                        img, 
-                                        'absolute');
-            this.minimizeDiv.style.display = 'none';
-            this.minimizeDiv.className = this.displayClass + 'MinimizeButton olButton';
-            if (this.minimizeTitle) {
-                this.minimizeDiv.title = this.minimizeTitle;
-            }
-            this.div.appendChild(this.minimizeDiv);            
-            this.minimizeControl();
-        } else {
-            // show the overview map
-            this.element.style.display = '';
-        }
+        this.div.className += " " + this.displayClass + 'Container';
+        
         if(this.map.getExtent()) {
             this.update();
         }
