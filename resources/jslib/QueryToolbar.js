@@ -134,7 +134,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             span.innerHTML = "Nessun livello interrogabile";
             this.featuresCombo = span;
             return;
-        } 
+        }
 
         var option, options, list = document.createElement("select");
         list.add(this.getOption("LIVELLI VISIBILI",OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS));
@@ -156,12 +156,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 }
             }
 
-            if(options.length>0 && group != featureTypes[0].group){
-                group=featureTypes[0].group;
-                option = document.createElement("optgroup");
-                option.label="Tema: " + group;
-                list.add(option);
-                for(var i=0;i<options.length;i++)  list.add(options[i])
+            if(options.length > 0) {
+                if(group != featureTypes[0].group) {
+                    group = featureTypes[0].group;
+                    option = document.createElement("optgroup");
+                    option.label="Tema: " + group;
+                    list.add(option);
+                }
+                for(var i=0;i<options.length;i++)  list.add(options[i]);
             }
 
         };
@@ -169,6 +171,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         list.add(this.getOption("--------",""));
         list.add(this.getOption("TUTTI I LIVELLI INTERROGABILI",OpenLayers.GisClient.queryToolbar.ALL_LAYERS));
         var self=this;
+        console.log(list);
         list.onchange = function(e){self.setQueryLayers(e.target.value)};//VEDERE SE VA SENZA JQUERY
         OpenLayers.Element.addClass(list, "olControlQueryMapSelect");
         this.featuresCombo = list;

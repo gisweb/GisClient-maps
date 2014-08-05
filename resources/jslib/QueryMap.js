@@ -270,7 +270,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	 */
     select: function(geometry, mode) {
         var mode = mode || 'default';
-console.log(mode);        
+     
         this.map.defaultControl.activate();
         this._queue = function() {
 			var layer, featureTypes, geometryAttribute, filterId, params;
@@ -279,6 +279,9 @@ console.log(mode);
 			this.nresponse=0;
 			for(var i=0, leni=this.layers.length; i<leni; i++) {
 				layer = this.layers[i];
+                
+                if(!this.wfsCache[layer.id]) continue;
+                
 				//SE DEVO INTERROGARE SOLO I VISIBILI METTO LE FATURE DEI SOLI VISIBILI ALTRIMENTI LE METTO TUTTE
 				if(layer.nodes && this.onlyVisibleLayers){
 					//per ogni nodo prendo solo il layername (stringa con il nome) che risulta visibile e in range
