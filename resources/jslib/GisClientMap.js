@@ -267,8 +267,9 @@ OpenLayers.GisClient = OpenLayers.Class({
 
     addWMTSLayer: function(oLayer){
         var baseUrl;
+        console.log(this)
         if(this.mapProxyBaseUrl)
-            baseUrl = this.mapProxyBaseUrl + "/" + this.name +"/wmts/";
+            baseUrl = this.mapProxyBaseUrl + "/" + this.projectName +"/wmts/";
         else
             baseUrl = this.mapProxyBaseUrl + oLayer.url.replace('service','wmts');
 

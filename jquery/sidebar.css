@@ -125,8 +125,9 @@
   cursor: col-resize;
   top:0px;
   left:35px;
-  width:20px;
+  width:2px;
   height:100%;
+  display:none;
 }
 
 
