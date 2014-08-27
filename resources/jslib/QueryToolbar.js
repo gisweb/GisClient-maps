@@ -171,7 +171,6 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         list.add(this.getOption("--------",""));
         list.add(this.getOption("TUTTI I LIVELLI INTERROGABILI",OpenLayers.GisClient.queryToolbar.ALL_LAYERS));
         var self=this;
-        console.log(list);
         list.onchange = function(e){self.setQueryLayers(e.target.value)};//VEDERE SE VA SENZA JQUERY
         OpenLayers.Element.addClass(list, "olControlQueryMapSelect");
         this.featuresCombo = list;

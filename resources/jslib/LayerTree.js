@@ -185,7 +185,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             }
             else{
                 if(tileLayer) tileLayer.setVisibility(false);
-                if(layer.params["LAYERS"] != layers) layer.mergeNewParams({layers:layers});
+                if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
                 layer.setVisibility(layers.length > 0);
             } 
         }
@@ -412,7 +412,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         var layerTree = oLayer.isBaseLayer? this.baselayerData  :this.overlayData;
         var fTypes = [];
-
         thNode = this.getThemeNode(layerTree,oLayer.theme);
         chNode = {id:oLayer.id, text:oLayer.title, state:'closed', iconCls:oLayer.isBaseLayer?"overlay-param":"overlay", attributes:{layer:oLayer}};
         if(!oLayer.isBaseLayer && oLayer.theme != oLayer.title) chNode.checked = oLayer.visibility;

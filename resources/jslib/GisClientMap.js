@@ -186,16 +186,6 @@ OpenLayers.GisClient = OpenLayers.Class({
 
 		this.initLayers();
 
-        this.overviewMap = new OpenLayers.GisClient.OverviewMap({
-            layers: this.layers
-        });
-        this.map.addControl(this.overviewMap);
-
-
-
-
-
-
 		if(controls) this.map.addControls(controls);
 		//if(this.mapOptions.center) this.map.setCenter(this.mapOptions.center);
 		//if(this.mapOptions.zoom) this.map.zoomTo(this.mapOptions.zoom);
@@ -207,6 +197,12 @@ OpenLayers.GisClient = OpenLayers.Class({
             if(ret.length > 0) this.map.setBaseLayer(ret[0]);
         }   
 
+
+
+        this.overviewMap = new OpenLayers.GisClient.OverviewMap({
+            layers: this.layers
+        });
+        this.map.addControl(this.overviewMap);
 
 		if(this.callback) this.callback.call(this);
 

@@ -51,13 +51,17 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
     createMap: function() {
         // create the overview map
 
+
+        //console.log(this)
+
         var options = {};
         OpenLayers.Util.extend(options, GisClientMap.mapOptions);
+
         OpenLayers.Util.extend(options, {
             controls: [],
-            maxResolution: 'auto',
+            //maxResolution: 'auto',
             fallThrough: false,
-            minZoomLevel: 0,
+            //minZoomLevel: 0,
             resolutions: GisClientMap.mapOptions.serverResolutions,
             projection: this.map.projection
         });
@@ -65,31 +69,34 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         var layers = [],
             len = this.layers.length, layer, i, olLayer, refMapOptions;
         
+
+
         var emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER_OV',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{
             //maxResolution:this.map.resolutions[0]*8,
             //numZoomLevels:this.map.resolutions.length+4,
-            minZoomLevel: 0,
-            maxZoomLevel: 22,
+            //minZoomLevel: 0,
+            //maxZoomLevel: 22,
             resolutions: this.map.serverResolutions,
             //passare le serverResolutions
-            displayInLayerSwitcher:true, 
+            //displayInLayerSwitcher:true, 
             isBaseLayer:true
         });
         layers.push(emptyBaseLayer);
-        
+
         for(i = 0; i < len; i++) {
             layer = this.layers[i];
             olLayer = null;
-            if(!layer.options || !layer.options.refmap) continue;
-            
+            if(!layer.overview) continue;
+            //console.log(layer)
 			switch(layer.typeId){
 				case 1:
 					olLayer = new OpenLayers.Layer.WMS(layer.name,layer.url,layer.parameters,layer.options);
-				break;
+                break;
 				case 2:
                     refMapOptions = {};
                     OpenLayers.Util.extend(refMapOptions, layer.parameters);
                     OpenLayers.Util.extend(refMapOptions, {
+                        serverResolutions: this.map.serverResolutions,
                         zoomOffset: 0
                     });
                     olLayer = new OpenLayers.Layer.WMTS(refMapOptions);
@@ -114,11 +121,10 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                     OpenLayers.Util.extend(refMapOptions, layer.options);
                     OpenLayers.Util.extend(refMapOptions, {
                         resolutions: this.map.serverResolutions,
-                        zoomOffset: 0,
-                        visibility: true,
-                        isBaseLayer: false
                     });
                     olLayer = new OpenLayers.Layer.OSM(layer.name,null,refMapOptions);
+
+
 				break;	
 				case 7:
                     refMapOptions = OpenLayers.Util.extend({
@@ -149,6 +155,11 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
 
         this.ovmap = new OpenLayers.Map(this.mapDiv, options);
         this.ovmap.viewPortDiv.appendChild(this.extentRectangle);
+
+        //console.log(this.ovmap)
+
+        
+
         
         // prevent ovmap from being destroyed when the page unloads, because
         // the OverviewMap control has to do this (and does it).
@@ -157,6 +168,9 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         this.ovmap.addLayers(layers.reverse());
         
         this.ovmap.zoomToMaxExtent();
+        //this.updateRectToMap();
+
+
         // check extent rectangle border width
         this.wComp = parseInt(OpenLayers.Element.getStyle(this.extentRectangle,
                                                'border-left-width')) +
@@ -207,6 +221,11 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                 OpenLayers.INCHES_PER_UNIT[sourceUnits] /
                 OpenLayers.INCHES_PER_UNIT[targetUnits] : 1;
         }
+
+
+        //console.log(this.ovmap)
+
+
     },
     
     draw: function() {
