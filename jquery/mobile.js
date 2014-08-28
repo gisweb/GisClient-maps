@@ -441,8 +441,8 @@ var initMap = function(){
                 }
                 var oldQueryFilters = control.queryFilters[fType.typeName];
                 control.queryFilters[fType.typeName] = filter;
-                var oldHighlight = control.highLight;
-                control.highLight = true;
+                //var oldHighlight = control.highLight;
+                //control.highLight = true;
 
                 control.select(geometry, mode);
                 

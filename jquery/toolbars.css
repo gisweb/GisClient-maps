@@ -241,8 +241,9 @@ olOptionDisabled
         background: #ffffff;
     }
     th { 
-        background: #777; 
+        background: #ff0000; 
         font-weight: bold; 
+        color: :#ffffff;
     }
     td, th { 
         padding: 6px; 
@@ -269,9 +270,10 @@ olOptionDisabled
             position: absolute;
             top: -9999px;
             left: -9999px;
+
         }
         
-        .smalltable tr { border: 1px solid #ccc; }
+        .smalltable tr { border: 3px solid #ccc; }
         
         .smalltable td { 
             /* Behave  like a "row" */
@@ -279,7 +281,6 @@ olOptionDisabled
             border-bottom: 1px solid #eee; 
             position: relative;
             padding-left: 50%; 
-            white-space: nowrap;
         }
         
         .smalltable td:before { 
@@ -393,3 +394,4 @@ olOptionDisabled
     background-repeat: no-repeat;
     background-position: center;
 }
+

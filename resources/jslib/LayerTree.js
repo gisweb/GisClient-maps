@@ -366,10 +366,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             },
 
             formatter:function(node){
+                    return node.text;
+                    /*
                     if(node.queryable)
                         return '<span class="tree-file"></span>' + node.text;
                     else
                         return node.text;
+                    */
             },
 
             onLoadSuccess: function(node, data){
@@ -429,7 +432,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 if(oLayer.theme == oLayer.title) fTypes = this.getFetureTypes(layerParam);  //SINGOLO TEMA
                 if((fTypes.length > 0 && oLayer.theme == oLayer.title) || (fTypes.length > 0 && fTypes[0].typeName == layerParam)){
                     leafNode.queryable = true;
-                    leafNode.iconCls = "queryable";
+                    //leafNode.iconCls = "queryable";
                     leafNode.attributes.featureTypes = fTypes;
                 }
                 if(oLayer.nodes[j].nodes){ //3 livelli su tema unico

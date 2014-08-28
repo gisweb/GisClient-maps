@@ -277,3 +277,16 @@
 
 
 
+#layerlegend div{
+
+    background-color: #fff;
+
+
+}
+
+#layerlegend p{
+
+    color: #404040; 
+    font-weight: bold;
+
+}

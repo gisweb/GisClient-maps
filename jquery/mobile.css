@@ -163,27 +163,6 @@ div.olMapViewport {
 
 }
 
-    table, thead, tbody, th, td, tr { 
-      display: block; 
-    }
-    
-    /* Hide table headers (but not display: none;, for accessibility) */
-    theadxx trxx { 
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-    }
-
-    tr { border: 1px solid #ccc; }
-    
-    tdxx { 
-      /* Behave  like a "row" */
-      border: none;
-      border-bottom: 1px solid #eee; 
-      position: relative;
-      padding-left: 50%; 
-    }
-
 
 #resultpanelddd {
     width: 200px;
@@ -608,3 +587,4 @@ div.olMapViewport {
     margin-right:5px;
     float: right;
 }
+
