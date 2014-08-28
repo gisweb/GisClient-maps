@@ -165,7 +165,7 @@ function getParams() {
         params.legend = 'yes';
         
     }
-    tiles.reverse();
+    // tiles.reverse();
     params.tiles = tiles;
 
 
