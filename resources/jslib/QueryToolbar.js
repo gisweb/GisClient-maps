@@ -725,7 +725,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         return feature;
     },
     
-    getFeatureDetails: function(featureType, feature, relation) {
+    getFeatureDetails: function(featureType, feature, relationName) {
         var fType = GisClientMap.getFeatureType(featureType);
         
         if(!feature) return console.log('Feature undefined');
@@ -757,7 +757,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             srid: GisClientMap.map.projection,
             featureType: featureType,
             featureId: feature.attributes[pkey],
-            relationName: relation.relationName,
+            relationName: relationName,
             action: 'viewdetails'
         };
         var request = OpenLayers.Request.POST({
@@ -774,7 +774,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 var eventData = {
                     featureType: featureType,
                     feature: feature,
-                    relation: relation,
+                    relation: {relationName: relationName},
                     response: response
                 };
                 

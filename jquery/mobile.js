@@ -250,7 +250,7 @@ var initMap = function(){
                 } catch(e) {
                     return alert('Errore di sistema');
                 }
-                
+
                 for(i = 0; i < len; i++) {
                     property = fType.properties[i];
                     
@@ -278,7 +278,8 @@ var initMap = function(){
                 table += '</tbody></table>';
                 
                 $('#DetailsWindow div.modal-body').html(table);
-                $('#DetailsWindow h4.modal-title').html(event.relation.relationTitle + ' di ' + fType.title);
+                var title = event.relation.relationTitle || event.relation.relationName;
+                $('#DetailsWindow h4.modal-title').html(title + ' di ' + fType.title);
                 $('#DetailsWindow').modal('show');
             }
         },
@@ -630,16 +631,7 @@ var initMap = function(){
         }),
         geolocateControl,
         
-        new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
-            iconclass:"glyphicon-white  glyphicon-eye-open", 
-            title:"Mappa di riferimento",
-            tbarpos:"first",
-            eventListeners: {
-                'activate': function(){GisClientMap.overviewMap.show();},
-                'deactivate': function(){GisClientMap.overviewMap.hide();}
-            }
-        }),
+
 
         btnSearch = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE, 
@@ -681,7 +673,7 @@ var initMap = function(){
             }
         }),
 
-
+/*
         new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-edit", type: OpenLayers.Control.TYPE_TOGGLE, title:"Editor vettoriale",
 
             eventListeners: {
@@ -689,6 +681,8 @@ var initMap = function(){
                 'deactivate': function(){vectorEditor.stopEditMode();}
             }
         }),
+        
+   */     
         new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", type: OpenLayers.Control.TYPE_TOGGLE, title:"Redline",
 
             eventListeners: {
@@ -696,6 +690,8 @@ var initMap = function(){
                 'deactivate': function(){redlineToolbar.deactivate();}
             }
         }),
+        
+    /*    
         new OpenLayers.Control.Button({tbarpos:"last", iconclass:"glyphicon-white glyphicon-tint", type: OpenLayers.Control.TYPE_TOGGLE, exclusiveGroup: 'sidebar', title:"Tools aggiunti tipo ricerca valvole",
 
             eventListeners: {
@@ -704,7 +700,7 @@ var initMap = function(){
                 }
 
         }),
-
+*/
         btnPrint = new OpenLayers.Control.Button({
             tbarpos:"first", 
             type: OpenLayers.Control.TYPE_TOGGLE, 
@@ -723,6 +719,20 @@ var initMap = function(){
                 }
             }
         }),
+        
+        new OpenLayers.Control.Button({
+            type: OpenLayers.Control.TYPE_TOGGLE, 
+            iconclass:"glyphicon-white  glyphicon-eye-open", 
+            title:"Mappa di riferimento",
+            tbarpos:"last",
+            eventListeners: {
+                'activate': function(){GisClientMap.overviewMap.show();},
+                'deactivate': function(){GisClientMap.overviewMap.hide();}
+            }
+        })
+        
+   /*     
+        ,
         btnSettings = new OpenLayers.Control.Button({
             tbarpos:"last", 
             exclusiveGroup: 'sidebar',
@@ -731,7 +741,7 @@ var initMap = function(){
             title:"Settings",
 
         })
-
+*/
     ]);
 
     sideBar.defaultControl = sideBar.controls[0];
