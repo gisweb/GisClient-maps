@@ -9,6 +9,9 @@ $(document).ready(function() {
         var loadingControl = GisClientMap.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
         loadingControl.maximizeControl();
         
+        $('#printpanel a[role="pdf"], #printpanel a[role="html"]').attr('href', '');
+        $('#printpanel span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
+        
         $.ajax({
             url: '/gisclient/services/print.php',
             type: 'POST',
@@ -16,18 +19,16 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if(typeof(response.result) != 'undefined' && response.result == 'ok') {
-                    $('#printpanel div.loading').hide();
-                    var link = '<a href="'+response.file+'" target="_blank" rel="file">';
+                    //$('#printpanel div.loading').hide();
+                    
                     if(response.format == 'HTML') {
-                        link += 'Visualizza stampa';
+                        $('#printpanel a[role="html"]').attr('href', response.file);
+                        $('#printpanel a[role="html"] span[role="icon"]').removeClass('glyphicon-disabled').addClass('glyphicon-white');
                     } else if(response.format == 'PDF') {
-                        link += 'Scarica stampa';
-                    } else if(response.format == 'geotiff') {
-                        link += 'Scarica immagine';
+                        $('#printpanel a[role="pdf"]').attr('href', response.file);
+                        $('#printpanel a[role="pdf"] span[role="icon"]').removeClass('glyphicon-disabled').addClass('glyphicon-white');
                     }
-                    link += '</a>';
-                    $('#printpanel div.results span[name="result"]').html(link);
-                    $('#printpanel div.results').show();
+                    
                 } else alert(OpenLayers.i18n('Error'));
                 
                 loadingControl.minimizeControl();

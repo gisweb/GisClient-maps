@@ -11,6 +11,24 @@
   color:#FFF;
 }
 
+.glyphicon-disabled{
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color:#BBB;
+}
+
+.print-download-icon {
+    font-size: 20px;
+    margin: 20px;
+}
+
 
 
 #map-sidebar {
