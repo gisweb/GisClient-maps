@@ -155,7 +155,6 @@ var initMap = function(){
     //
     
     if(ConditionBuilder) ConditionBuilder.init('.query');
-    
     var queryToolbar = new OpenLayers.GisClient.queryToolbar({
         createControlMarkup:customCreateControlMarkup,
         resultTarget:document.getElementById("resultpanel"),
@@ -460,6 +459,8 @@ var initMap = function(){
     });
     queryToolbar.defaultControl = queryToolbar.controls[0];
     map.addControl(queryToolbar);
+
+
     
     $('.panel-clearresults').click(function(event) {
         event.preventDefault();
@@ -468,6 +469,9 @@ var initMap = function(){
         
         //sidebarPanel.close();
     });
+
+
+
 
     //popolo la select nel footer per le ricerche veloci
     var options = [];
@@ -581,6 +585,9 @@ var initMap = function(){
         div:document.getElementById("map-sidebar"),
         createControlMarkup:customCreateControlMarkup
     });
+    
+
+
     
     var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
     map.defaultControl = defaultControl;
@@ -744,38 +751,10 @@ var initMap = function(){
 */
     ]);
 
-    sideBar.defaultControl = sideBar.controls[0];
+    sideBar.defaultControl = sideBar.controls[2];
     map.addControl(sideBar);
 
 
-
-
-
-
-
-
-
-
-/*     $('#sidebar-drag').on('click',function(){
-//console.log('sidebar drag click');
-        openPanel(1200);
-        $("#resultpanel").removeClass("smalltable");
-
-    }) */
-
-/*    $('#sidebar-dragxx').draggable({
-        handlexx:'#title',
-        axis:'h',
-        cursor:'col-resize',
-        onDrag:function(e){
-            var width = $( document ).width()-$(this).offset().left+30;
-            console.log(width)
-            //return false
-            //$("#map-overlay-panel").css({"left":left+"px"})
-
-
-        }
-    }); */
 
 
 
@@ -786,6 +765,7 @@ var initMap = function(){
         element:document.getElementById("map-coordinates"),
         prefix: '<a target="_blank" ' + 'href="http://spatialreference.org/ref/epsg/' + v[1] + '/">' + projection + '</a> coordinate: '
     }));
+
 
 
     //ELENCO DELLE SCALE
@@ -800,9 +780,19 @@ var initMap = function(){
         option.text('Scala 1:'+ parseInt(scale));
         $('#map-select-scale').append(option);
     }
+    $('#map-select-scale').val(map.getZoom());
     $('#map-select-scale').change(function(){
         map.zoomTo(this.value);
     });
+    map.events.register('zoomend', null, function(){
+        $('#map-select-scale').val(map.getZoom());
+    });
+
+
+
+/*    return;
+
+
     var showCurrentScale = function() {
         var currentZoom = map.getZoom();
         
@@ -810,21 +800,21 @@ var initMap = function(){
     };
     showCurrentScale.call(null);
     
-    map.events.register('zoomend', null, showCurrentScale);
+    map.events.register('zoomend', null, showCurrentScale);*/
 
 
-
+    //TOLTO IL 29/8/14 a cosa serviva?????
     //if(this.mapOptions.center) map.setCenter(this.mapOptions.center);
    // if(this.mapOptions.zoom) map.setCenter(this.mapOptions.center,this.mapOptions.zoom);
     //queryToolbar.activate();
     //queryToolbar.controls[0].activate();
-    if(this.mapOptions.center){
-        var center = new OpenLayers.LonLat(this.mapOptions.center[0],this.mapOptions.center[1]).transform(map.displayProjection, map.projection);
-        map.setCenter(center);
-    }
-    if(this.mapOptions.scale){
-        map.zoomToScale(this.mapOptions.scale)
-    }
+    // if(this.mapOptions.center){
+    //     var center = new OpenLayers.LonLat(this.mapOptions.center[0],this.mapOptions.center[1]).transform(map.displayProjection, map.projection);
+    //     map.setCenter(center);
+    // }
+    // if(this.mapOptions.scale){
+    //     map.zoomToScale(this.mapOptions.scale)
+    // }
 
 
     $('#mapset-title').html(GisClientMap.title);
