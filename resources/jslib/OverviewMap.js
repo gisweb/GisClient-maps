@@ -81,13 +81,14 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
             //displayInLayerSwitcher:true, 
             isBaseLayer:true
         });
-        layers.push(emptyBaseLayer);
 
+        options.layers = [emptyBaseLayer];//Parto con base vuota poi aggiungo tutto in overlay
         for(i = 0; i < len; i++) {
             layer = this.layers[i];
             olLayer = null;
             if(!layer.overview) continue;
-            //console.log(layer)
+
+            //SOLO WMS WMTS e OSM per gli altri bohhhhhh
 			switch(layer.typeId){
 				case 1:
 					olLayer = new OpenLayers.Layer.WMS(layer.name,layer.url,layer.parameters,layer.options);
@@ -97,23 +98,21 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                     OpenLayers.Util.extend(refMapOptions, layer.parameters);
                     OpenLayers.Util.extend(refMapOptions, {
                         serverResolutions: this.map.serverResolutions,
-                        zoomOffset: 0
+                        zoomOffset: 0,
+                        isBaseLayer: false
                     });
                     olLayer = new OpenLayers.Layer.WMTS(refMapOptions);
 				break;
-				case 6:
+				case 60:
                     console.log('not implemented TMS for overview map');
-                    if(false) {
-                        //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
-                        cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
-                        cfgLayer.options.resolutions = this.map.resolutions;
-                        oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
-                        if(refMap) {
-                            refMapOptions = OpenLayers.Util.extend({
-                                resolutions: this.map.serverResolutions
-                            }, cfgLayer.options);
-                            overviewLayers.push(new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,refMapOptions));
-                        }
+                    cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
+                    cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
+                    if(refMap) {
+                        refMapOptions = OpenLayers.Util.extend({
+                            resolutions: this.map.serverResolutions
+                        }, cfgLayer.options);
+                        overviewLayers.push(new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,refMapOptions));
                     }
 				break;
 				case 5:
@@ -121,26 +120,30 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                     OpenLayers.Util.extend(refMapOptions, layer.options);
                     OpenLayers.Util.extend(refMapOptions, {
                         resolutions: this.map.serverResolutions,
+                        zoomOffset: 0,
+                        isBaseLayer: false
                     });
                     olLayer = new OpenLayers.Layer.OSM(layer.name,null,refMapOptions);
-
-
 				break;	
-				case 7:
+				case 70:
+
                     refMapOptions = OpenLayers.Util.extend({
-                        resolutions: this.map.serverResolutions
+                        resolutions: this.map.serverResolutions,
+                        isBaseLayer: false
                     }, layer.options);
                     olLayer = new OpenLayers.Layer.Google(layer.name,refMapOptions);
 				break;			
-				case 8:
+				case 80:
                     refMapOptions = OpenLayers.Util.extend({
-                        resolutions: this.map.serverResolutions
+                        resolutions: this.map.serverResolutions,
+                        isBaseLayer: false
                     }, layer.options);
                     olLayer = new OpenLayers.Layer.Bing(layer.name,refMapOptions);
 				break;	
-				case 4:
+				case 40:
                     refMapOptions = OpenLayers.Util.extend({
-                        resolutions: this.map.serverResolutions
+                        resolutions: this.map.serverResolutions,
+                        isBaseLayer: false
                     }, layer.options);
                     olLayer = new OpenLayers.Layer.Yahoo(layer.name,refMapOptions);
 				break;
@@ -155,21 +158,17 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
 
         this.ovmap = new OpenLayers.Map(this.mapDiv, options);
         this.ovmap.viewPortDiv.appendChild(this.extentRectangle);
-
-        //console.log(this.ovmap)
-
-        
+        this.ovmap.addLayers(emptyBaseLayer);
+        this.ovmap.zoomToMaxExtent();
+        this.ovmap.addLayers(layers);
 
         
         // prevent ovmap from being destroyed when the page unloads, because
         // the OverviewMap control has to do this (and does it).
         OpenLayers.Event.stopObserving(window, 'unload', this.ovmap.unloadDestroy);
 
-        this.ovmap.addLayers(layers.reverse());
         
-        this.ovmap.zoomToMaxExtent();
         //this.updateRectToMap();
-
 
         // check extent rectangle border width
         this.wComp = parseInt(OpenLayers.Element.getStyle(this.extentRectangle,
@@ -221,10 +220,6 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                 OpenLayers.INCHES_PER_UNIT[sourceUnits] /
                 OpenLayers.INCHES_PER_UNIT[targetUnits] : 1;
         }
-
-
-        //console.log(this.ovmap)
-
 
     },
     

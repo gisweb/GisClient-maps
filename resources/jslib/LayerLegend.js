@@ -78,7 +78,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 legendUrls.push(OpenLayers.Util.urlAppend(layer.owsurl, paramsString));
             break;
             default:
-                console.log('legend not implemented for '+layer.CLASS_NAME + ' ('+layer.name+')');
+                //console.log('legend not implemented for '+layer.CLASS_NAME + ' ('+layer.name+')');
             break;
         }
         
