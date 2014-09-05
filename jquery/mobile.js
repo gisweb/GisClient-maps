@@ -915,10 +915,10 @@ var initMap = function(){
                 new OpenLayers.Control.LayerTree({
                     emptyTitle:'Base vuota', 
                     div:OpenLayers.Util.getElement('layertree-tree')
-                }),
-                new OpenLayers.Control.LayerLegend({
-                    div:OpenLayers.Util.getElement('layerlegend')
-                })
+                 })/*,
+                // new OpenLayers.Control.LayerLegend({
+                //     div:OpenLayers.Util.getElement('layerlegend')
+                })*/ 
             ]
             //scale:2000,
             //center:[8.92811, 44.41320]

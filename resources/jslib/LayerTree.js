@@ -143,8 +143,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         containsBaseLayers = true;
         containsOverlays = true;
 
-
-
+        this.baseLbl.innerHTML = '<span class="tree-hit tree-collapsed"></span> Livelli di base';
+        this.dataLbl.innerHTML = '<span class="tree-hit tree-collapsed"></span><input type="checkbox" checked id="chkOverlays"> Attiva navigazione veloce';
 
         // if no overlays, dont display the overlay label
         this.dataLbl.style.display = (containsOverlays) ? "" : "none";
@@ -152,6 +152,23 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         // if no baselayers, dont display the baselayer label
         this.baseLbl.style.display = (containsBaseLayers) ? "" : "none";
 
+        var $ovelaysDiv = jQuery(this.dataLayersDiv);
+
+        //$ovelaysDiv.prop("disabled",true);
+        //$ovelaysDiv.hide();
+        jQuery("#chkOverlays").on("click",function(){
+
+            console.log(this);
+            //return;
+
+            if($(this).is(':checked'))
+                $ovelaysDiv.hide();
+            else
+                $ovelaysDiv.show();
+
+
+
+        })
 
         return this.div;
     },

@@ -216,6 +216,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             
 			switch(cfgLayer.typeId){
 				case 1:
+                    if(!cfgLayer.options.isBaseLayer) cfgLayer.options.visibility = false;
 					oLayer = new OpenLayers.Layer.WMS(cfgLayer.name,cfgLayer.url,cfgLayer.parameters,cfgLayer.options);
 					if(cfgLayer.nodes){
                         //SE MAPPROXY AGGIUNGO IL LAYER WMTS
@@ -224,6 +225,9 @@ OpenLayers.GisClient = OpenLayers.Class({
                     } 
 				break;
 				case 2:
+                    if(!cfgLayer.parameters.isBaseLayer) cfgLayer.parameters.visibility = false;
+                    cfgLayer.parameters.matrixSet = this.mapOptions.matrixSet;
+                    cfgLayer.parameters.requestEncoding = "REST";
 					oLayer = new OpenLayers.Layer.WMTS(cfgLayer.parameters);
 				break;
 				case 6:
@@ -252,16 +256,17 @@ OpenLayers.GisClient = OpenLayers.Class({
 			}
             //var theme_id = (cfgLayer.parameters && cfgLayer.parameters.theme_id) || cfgLayer.options.theme_id;
             //oLayer.id = theme_id+"_"+cfgLayer.name;
-            
             this.map.addLayer(oLayer);
 		}
 
+        //this.addMapsetWMTS();
+        this.addMapsetWMS();
+
 	},
     
-
+    //SERVIVA PER IL TEMA UNICO IN CACHE
     addWMTSLayer: function(oLayer){
         var baseUrl;
-        console.log(this)
         if(this.mapProxyBaseUrl)
             baseUrl = this.mapProxyBaseUrl + "/" + this.projectName +"/wmts/";
         else
@@ -286,6 +291,52 @@ OpenLayers.GisClient = OpenLayers.Class({
         var vis = oLayer.params['LAYERS'].length == oLayer.nodes.length;
         ll.setVisibility(vis);
         this.map.addLayer(ll);
+    },
+
+
+    //LAYER MAPSET COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
+    addMapsetWMTS: function(){
+        var baseUrl;
+        var baseUrl = this.mapProxyBaseUrl + "/" + this.name +"/wmts/";
+        var layerParams = {
+            "name": this.name,
+            "layer": this.name + '_tiles',
+            "url": baseUrl + "/" + this.name + "_tiles/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+            "style": "",
+            "matrixSet": this.mapOptions.matrixSet,
+            "requestEncoding": "REST",
+            "maxExtent": this.mapOptions.tilesExtent, 
+            "zoomOffset": this.mapOptions.minZoomLevel,
+            "transitionEffect": "resize",
+            "displayInLayerSwitcher":false,
+            "visibility":true,
+            "serverResolutions":this.mapOptions.serverResolutions,
+            "isBaseLayer":false
+        };
+        this.map.addLayer(new OpenLayers.Layer.WMTS(layerParams));
+    },
+
+    //LAYER MAPSET COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
+    addMapsetWMS: function(){
+        var baseUrl;
+        var baseUrl = this.mapProxyBaseUrl + "/" + this.name + "/service";
+        var layerParams = {
+            "map": this.name,
+            "exceptions": "xml",
+            "format": "image/png",
+            "transparent": true,
+            "layers": [
+                this.name + "_tiles"
+            ]
+        }
+        var layerOptions = {
+            "transitionEffect": "resize",
+            "displayInLayerSwitcher":false,
+            "visibility":true,
+            "singleTile":true,
+            "isBaseLayer":false
+        };
+        this.map.addLayer(new OpenLayers.Layer.WMS(this.name,baseUrl,layerParams,layerOptions));
     },
 
 
