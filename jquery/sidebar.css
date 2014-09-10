@@ -290,3 +290,19 @@
     font-weight: bold;
 
 }
+
+input.fast-navigate {
+
+ margin-left:10px;
+ margin-top:5px;
+
+}
+
+div.fast-navigate {
+
+    width:80%;
+    margin-top:15px;
+    padding:5px;
+    border: 1px solid white;
+    border-radius: 4px;
+}

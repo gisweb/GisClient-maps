@@ -264,9 +264,9 @@ OpenLayers.GisClient = OpenLayers.Class({
             //oLayer.id = theme_id+"_"+cfgLayer.name;
             this.map.addLayer(oLayer);
         }
-
-        //this.addMapsetWMTS();
-        //this.addMapsetWMS();
+        
+        if(this.mapsetTiles == 2) this.addMapsetWMTS();
+        if(this.mapsetTiles == 3) this.addMapsetWMS();
 
     },
     
@@ -289,7 +289,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             "zoomOffset": this.mapOptions.minZoomLevel,
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
-            "visibility":false,
+            "visibility":true,
             "serverResolutions":this.mapOptions.serverResolutions,
             "isBaseLayer":oLayer.isBaseLayer
         };
@@ -300,7 +300,7 @@ OpenLayers.GisClient = OpenLayers.Class({
     },
 
 
-    //LAYER MAPSET COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
+    //LAYER MAPSET WMTS COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
     addMapsetWMTS: function(){
         var baseUrl;
         var baseUrl = this.mapProxyBaseUrl + "/" + this.name +"/wmts/";
@@ -319,11 +319,11 @@ OpenLayers.GisClient = OpenLayers.Class({
             "serverResolutions":this.mapOptions.serverResolutions,
             "isBaseLayer":false
         };
-        this.mapsetWMTS = new OpenLayers.Layer.WMTS(layerParams);
-        this.map.addLayer(this.mapsetWMTS);
+        this.mapsetTileLayer = new OpenLayers.Layer.WMTS(layerParams);
+        this.map.addLayer(this.mapsetTileLayer);
     },
 
-    //LAYER MAPSET COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
+    //LAYER MAPSET WMS COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
     addMapsetWMS: function(){
         var baseUrl;
         var baseUrl = this.mapProxyBaseUrl + "/" + this.name + "/service";
@@ -343,8 +343,8 @@ OpenLayers.GisClient = OpenLayers.Class({
             "singleTile":true,
             "isBaseLayer":false
         };
-        this.mapsetWMS = new OpenLayers.Layer.WMS(this.name,baseUrl,layerParams,layerOptions);
-        this.map.addLayer(this.mapsetWMS);
+        this.mapsetTileLayer = new OpenLayers.Layer.WMS(this.name,baseUrl,layerParams,layerOptions);
+        this.map.addLayer(this.mapsetTileLayer);
     },
 
     getFeatureType: function(featureTypeName) {
