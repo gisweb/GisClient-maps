@@ -143,8 +143,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         containsBaseLayers = true;
         containsOverlays = true;
 
-        this.baseLbl.innerHTML = '<span class="tree-hit tree-collapsed"></span> Livelli di base';
-        this.dataLbl.innerHTML = '<span class="tree-hit tree-collapsed"></span><input type="checkbox" checked id="chkOverlays"> Attiva navigazione veloce';
+        //this.baseLbl.innerHTML = '<div id="checkOverlays">Livelli di base</div>';
+        //$("<div>jahdkajhdlfk</div>").insertBefore($(this.dataLbl))
+
+        //this.dataLbl.innerHTML = '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Attiva navigazione veloce</span></div>';
+        //this.dataLbl.innerHTML += '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Disattiva navigazione veloce</span></div>';
 
         // if no overlays, dont display the overlay label
         this.dataLbl.style.display = (containsOverlays) ? "" : "none";
@@ -156,21 +159,9 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         //$ovelaysDiv.prop("disabled",true);
         //$ovelaysDiv.hide();
-        jQuery("#chkOverlays").on("click",function(){
-
-            console.log(this);
-            //return;
-
-            if($(this).is(':checked'))
-                $ovelaysDiv.hide();
-            else
-                $ovelaysDiv.show();
 
 
-
-        })
-
-        return this.div;
+        //return this.div;
     },
 
     updadeNodeStatus: function(){

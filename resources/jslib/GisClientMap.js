@@ -82,7 +82,13 @@ OpenLayers.GisClient = OpenLayers.Class({
      */
     oleUrl: '',
 
-	initialize : function(url, map, options){
+    activeLayers:[],
+
+    mapsetWMS: null,
+
+    mapsetWMTS: null,
+
+    initialize : function(url, map, options){
 
         OpenLayers.Util.extend(this, options);
 
@@ -96,7 +102,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             //TODO VEDERE COSA TENERE
         } 
         else
-        	this.mapDiv = map;
+            this.mapDiv = map;
 
 
         if (!options.dialog) {
@@ -107,55 +113,55 @@ OpenLayers.GisClient = OpenLayers.Class({
         this.id = OpenLayers.Util.createUniqueID('OpenLayers.GisClientMap_');
 
 
-		if(url!=null){//SE  C'E URL CARICO LA CONFIGURAZIONE DA REMOTO
-			var req = {
-				url: url,
-				success:this.requestComplete,
-				failure:function(){alert('fallito')},
-				scope: this
-			}; 
-			//start waiting
-			OpenLayers.Request.GET(req);
-		}
-		else
-			this.initGCMap();	
-	},
-	
+        if(url!=null){//SE  C'E URL CARICO LA CONFIGURAZIONE DA REMOTO
+            var req = {
+                url: url,
+                success:this.requestComplete,
+                failure:function(){alert('fallito')},
+                scope: this
+            }; 
+            //start waiting
+            OpenLayers.Request.GET(req);
+        }
+        else
+            this.initGCMap();   
+    },
+    
 
-	requestComplete : function(response){
+    requestComplete : function(response){
 
-		var responseJSON = new OpenLayers.Format.JSON().read(response.responseText);
-		//stop waiting
-		var script,googleCallback = false;
+        var responseJSON = new OpenLayers.Format.JSON().read(response.responseText);
+        //stop waiting
+        var script,googleCallback = false;
         if (!responseJSON) {
             this.showStatus('error', OpenLayers.i18n('noJSON'))
         } else if (responseJSON.error) {
             this.showStatus('error', responseJSON.message)
         } else {
 
-        	OpenLayers.Util.extend(responseJSON.mapOptions, this.mapOptions);
-        	OpenLayers.Util.extend(this, responseJSON);
+            OpenLayers.Util.extend(responseJSON.mapOptions, this.mapOptions);
+            OpenLayers.Util.extend(this, responseJSON);
 
-        	/*//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
-			for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
-				this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
-			};
+            /*//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
+            for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
+                this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
+            };
             */
 
-			this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
+            this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
 
-		    if (this.mapProviders && this.mapProviders.length>0) {
-				for (var i = 0, len = this.mapProviders.length; i < len; i++) {
-					script = document.createElement('script');
-					script.type = "text/javascript";
-					script.src = this.mapProviders[i];
-					if(this.mapProviders[i].indexOf('google')>0){
-						script.src += "&callback=OpenLayers.GisClient.CallBack";
-						OpenLayers.GisClient.CallBack = this.createDelegate(this.initGCMap,this);
-						googleCallback=true;
-					} 
-					document.getElementsByTagName('head')[0].appendChild(script);
-				}	
+            if (this.mapProviders && this.mapProviders.length>0) {
+                for (var i = 0, len = this.mapProviders.length; i < len; i++) {
+                    script = document.createElement('script');
+                    script.type = "text/javascript";
+                    script.src = this.mapProviders[i];
+                    if(this.mapProviders[i].indexOf('google')>0){
+                        script.src += "&callback=OpenLayers.GisClient.CallBack";
+                        OpenLayers.GisClient.CallBack = this.createDelegate(this.initGCMap,this);
+                        googleCallback=true;
+                    } 
+                    document.getElementsByTagName('head')[0].appendChild(script);
+                }   
             }
 
 
@@ -164,32 +170,32 @@ OpenLayers.GisClient = OpenLayers.Class({
                     if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
                 }
             }
-			if(!googleCallback)	this.initGCMap();	
+            if(!googleCallback) this.initGCMap();   
         }
-	},
+    },
 
-	initGCMap: function(){
+    initGCMap: function(){
 
-		this.mapOptions.theme = null;	
-		if(this.mapOptions.controls){
-			// TOLGO I CONTROLLI PER AGGIUNGERLI DOPO ALTRIMENTI I NUOVI FANNO CASINO... TODO
-			var controls = this.mapOptions.controls;
-			this.mapOptions.controls = [];
-		}
+        this.mapOptions.theme = null;   
+        if(this.mapOptions.controls){
+            // TOLGO I CONTROLLI PER AGGIUNGERLI DOPO ALTRIMENTI I NUOVI FANNO CASINO... TODO
+            var controls = this.mapOptions.controls;
+            this.mapOptions.controls = [];
+        }
        // this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel,this.mapOptions.maxZoomLevel);       
-		this.map = new OpenLayers.Map(this.mapDiv, this.mapOptions);
-		this.map.config = this;
+        this.map = new OpenLayers.Map(this.mapDiv, this.mapOptions);
+        this.map.config = this;
         this.emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{maxResolution:this.map.resolutions[0],  resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true});
-		this.map.addLayer(this.emptyBaseLayer);
-		this.map.zoomToMaxExtent ({restricted:true});
+        this.map.addLayer(this.emptyBaseLayer);
+        this.map.zoomToMaxExtent ({restricted:true});
 
 
-		this.initLayers();
+        this.initLayers();
 
-		if(controls) this.map.addControls(controls);
-		//if(this.mapOptions.center) this.map.setCenter(this.mapOptions.center);
-		//if(this.mapOptions.zoom) this.map.zoomTo(this.mapOptions.zoom);
-		//console.log(this)
+        if(controls) this.map.addControls(controls);
+        //if(this.mapOptions.center) this.map.setCenter(this.mapOptions.center);
+        //if(this.mapOptions.zoom) this.map.zoomTo(this.mapOptions.zoom);
+        //console.log(this)
 
         //SETTO IL BASE LAYER SE IMPOSTATO
         if(this.baseLayerName) {
@@ -202,67 +208,67 @@ OpenLayers.GisClient = OpenLayers.Class({
         });
         this.map.addControl(this.overviewMap);
 
-		if(this.callback) this.callback.call(this);
+        if(this.callback) this.callback.call(this);
 
 
 
-	},
-	
-	initLayers: function(){
-		var cfgLayer,oLayer,owLayer;
+    },
+    
+    initLayers: function(){
+        var cfgLayer,oLayer,owLayer;
         
-		for (var i = 0, len = this.layers.length; i < len; i++) {
-			cfgLayer =  this.layers[i];
+        for (var i = 0, len = this.layers.length; i < len; i++) {
+            cfgLayer =  this.layers[i];
             
-			switch(cfgLayer.typeId){
-				case 1:
-                    if(!cfgLayer.options.isBaseLayer) cfgLayer.options.visibility = false;
-					oLayer = new OpenLayers.Layer.WMS(cfgLayer.name,cfgLayer.url,cfgLayer.parameters,cfgLayer.options);
-					if(cfgLayer.nodes){
+            switch(cfgLayer.typeId){
+                case 1:
+                case 3:
+                    oLayer = new OpenLayers.Layer.WMS(cfgLayer.name,cfgLayer.url,cfgLayer.parameters,cfgLayer.options);
+                    if(cfgLayer.nodes){
                         //SE MAPPROXY AGGIUNGO IL LAYER WMTS
                         oLayer.nodes = cfgLayer.nodes;
-                        if(this.useMapproxy && cfgLayer.theme_single) this.addWMTSLayer(oLayer);
+                        //tema singolo per ora non in uso
+                        //if(this.useMapproxy && cfgLayer.theme_single) this.addWMTSLayer(oLayer);
                     } 
-				break;
-				case 2:
-                    if(!cfgLayer.parameters.isBaseLayer) cfgLayer.parameters.visibility = false;
-                    cfgLayer.parameters.matrixSet = this.mapOptions.matrixSet;
+                break;
+                case 2:
+                    //cfgLayer.parameters.matrixSet = this.mapOptions.matrixSet;
                     cfgLayer.parameters.requestEncoding = "REST";
-					oLayer = new OpenLayers.Layer.WMTS(cfgLayer.parameters);
-				break;
-				case 6:
-					//CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
-					cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
-					cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.WMTS(cfgLayer.parameters);
+                break;
+                case 6:
+                    //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
+                    cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
+                    cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
-				break;
-				case 5:
-					cfgLayer.options.resolutions = this.map.resolutions;
-					oLayer = new OpenLayers.Layer.OSM(cfgLayer.name,null,cfgLayer.options);
-				break;	
-				case 7:
-					cfgLayer.options.resolutions = this.map.resolutions;
-					oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
-				break;			
-				case 8:
-					cfgLayer.options.resolutions = this.map.resolutions;
-					oLayer = new OpenLayers.Layer.Bing(cfgLayer.options);
-				break;	
-				case 4:
-					cfgLayer.options.resolutions = this.map.resolutions;
-					oLayer = new OpenLayers.Layer.Yahoo(cfgLayer.name,cfgLayer.options);
-				break;
+                break;
+                case 5:
+                    cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.OSM(cfgLayer.name,null,cfgLayer.options);
+                break;  
+                case 7:
+                    cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
+                break;          
+                case 8:
+                    cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.Bing(cfgLayer.options);
+                break;  
+                case 4:
+                    cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.Yahoo(cfgLayer.name,cfgLayer.options);
+                break;
 
-			}
+            }
             //var theme_id = (cfgLayer.parameters && cfgLayer.parameters.theme_id) || cfgLayer.options.theme_id;
             //oLayer.id = theme_id+"_"+cfgLayer.name;
             this.map.addLayer(oLayer);
-		}
+        }
 
         //this.addMapsetWMTS();
-        this.addMapsetWMS();
+        //this.addMapsetWMS();
 
-	},
+    },
     
     //SERVIVA PER IL TEMA UNICO IN CACHE
     addWMTSLayer: function(oLayer){
@@ -309,11 +315,12 @@ OpenLayers.GisClient = OpenLayers.Class({
             "zoomOffset": this.mapOptions.minZoomLevel,
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
-            "visibility":true,
+            "visibility":false,
             "serverResolutions":this.mapOptions.serverResolutions,
             "isBaseLayer":false
         };
-        this.map.addLayer(new OpenLayers.Layer.WMTS(layerParams));
+        this.mapsetWMTS = new OpenLayers.Layer.WMTS(layerParams);
+        this.map.addLayer(this.mapsetWMTS);
     },
 
     //LAYER MAPSET COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
@@ -332,13 +339,13 @@ OpenLayers.GisClient = OpenLayers.Class({
         var layerOptions = {
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
-            "visibility":true,
+            "visibility":false,
             "singleTile":true,
             "isBaseLayer":false
         };
-        this.map.addLayer(new OpenLayers.Layer.WMS(this.name,baseUrl,layerParams,layerOptions));
+        this.mapsetWMS = new OpenLayers.Layer.WMS(this.name,baseUrl,layerParams,layerOptions);
+        this.map.addLayer(this.mapsetWMS);
     },
-
 
     getFeatureType: function(featureTypeName) {
         var featureTypes = this.featureTypes,
@@ -354,7 +361,7 @@ OpenLayers.GisClient = OpenLayers.Class({
         return fType;
     },
 
-	CLASS_NAME: "OpenLayers.GisClient"
+    CLASS_NAME: "OpenLayers.GisClient"
 });
 function createDelegate(handler, obj)
 {

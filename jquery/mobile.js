@@ -143,6 +143,48 @@ var initMap = function(){
     sidebarPanel.init('#sidebar-panel');
 
 
+    //SE HO SETTATO LA NAVIGAZIONE VELOCE????
+    if(false){
+        for(i=0;i<this.map.layers.length;i++){
+            if(!this.map.layers[i].isBaseLayer && this.map.layers[i].visibility){
+                this.map.layers[i].setVisibility(false);
+                this.activeLayers.push(this.map.layers[i]);
+            }
+        }
+
+
+
+    //this.mapsetWMTS.setVisibility(true);
+
+    //console.log(this.activeLayers)
+
+    var chk = $("<input type='checkbox'>");
+    $(".baseLbl").html("Livelli di base")
+    $(".dataLbl")
+    .html("Attiva navigazione veloce ")
+    .append(chk);
+
+
+
+        chk.on("click",function(){
+
+            console.log(this);
+
+            //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
+
+            if($(this).is(':checked'))
+                $(".dataLayersDiv").hide();
+            else
+                $(".dataLayersDiv").show();
+
+
+
+        })
+
+
+
+  }
+
 /*
     var vectorEditor = new OpenLayers.Editor(map, {
         activeControls: ['Navigation', 'SnappingSettings', 'CADTools', 'TransformFeature', 'Separator', 'DeleteFeature', 'DragFeature', 'SelectFeature', 'Separator', 'DrawHole', 'ModifyFeature', 'Separator'],
@@ -895,8 +937,8 @@ var initMap = function(){
 
 
 
-	OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-	GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
+    OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
+    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
         mapProxyBaseUrl:"/ows",
         mapOptions:{
