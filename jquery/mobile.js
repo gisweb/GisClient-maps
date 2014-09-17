@@ -928,6 +928,29 @@ var initMap = function(){
     //queryToolbar.activate();
     //queryToolbar.controls[0].activate();
     //map.zoomToScale(2000)
+    
+    var len = GisClientMap.mapsets.length, i, mapset,
+        options = [], option;
+
+    for(i = 0; i < len; i++) {
+        mapset = GisClientMap.mapsets[i];
+        
+        option = '<option value="'+mapset.mapset_name+'"';
+        if(mapset.mapset_name == GisClientMap.name) option += ' selected ';
+        option += '>'+mapset.mapset_title+'</option>';
+        
+        options.push(option);
+    }
+    $('#mapset-switcher select').html(options);
+    $('#mapset-switcher select').change(function() {
+        var mapset = $(this).val();
+        if(mapset == GisClientMap.name) return;
+        
+        var currentUrl = window.location.href;
+        var newUrl = currentUrl.replace('mapset='+GisClientMap.name, 'mapset='+mapset);
+        
+        window.location.href = newUrl;
+    });
 
         
 }//END initMap
@@ -995,5 +1018,4 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
         OpenLayers.Control.Panel.prototype.activateControl.apply(this, [control]);
     }
 });
-
 
