@@ -144,38 +144,53 @@ var initMap = function(){
 
 
     //SE HO SETTATO LA NAVIGAZIONE VELOCE????
-    if(false){
-        for(i=0;i<this.map.layers.length;i++){
-            if(!this.map.layers[i].isBaseLayer && this.map.layers[i].visibility){
-                this.map.layers[i].setVisibility(false);
-                this.activeLayers.push(this.map.layers[i]);
+    if(this.mapsetTiles){
+        for(i=0;i<map.layers.length;i++){
+            if(!map.layers[i].isBaseLayer && map.layers[i].visibility){
+                map.layers[i].setVisibility(false);
+                this.activeLayers.push(map.layers[i]);
             }
         }
+        
+        $(".dataLayersDiv").hide();
+        this.mapsetTileLayer.setVisibility(true);
 
+       // console.log(this.activeLayers)
 
+        var chk = $("<input class='fast-navigate' type='checkbox'>");
+        $(".baseLbl").html("Livelli di base")
+        $(".dataLbl")
+        .html(" Naviga veloce sulla mappa")
+        .append(chk);
+        $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
+        chk.attr("checked",true);
 
-    //this.mapsetWMTS.setVisibility(true);
-
-    //console.log(this.activeLayers)
-
-    var chk = $("<input type='checkbox'>");
-    $(".baseLbl").html("Livelli di base")
-    $(".dataLbl")
-    .html("Attiva navigazione veloce ")
-    .append(chk);
-
-
-
+        var self = this;
         chk.on("click",function(){
-
-            console.log(this);
 
             //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
 
-            if($(this).is(':checked'))
+            if($(this).is(':checked')){
                 $(".dataLayersDiv").hide();
-            else
+                $("div.fast-navigate").show();
+                self.activeLayers = [];
+                for(i=0;i<map.layers.length;i++){
+                    if(!map.layers[i].isBaseLayer && map.layers[i].visibility){
+                        map.layers[i].setVisibility(false);
+                        self.activeLayers.push(map.layers[i]);
+                    }
+                }
+                self.mapsetTileLayer.setVisibility(true);
+
+            }
+            else{
                 $(".dataLayersDiv").show();
+                $("div.fast-navigate").hide();
+                self.mapsetTileLayer.setVisibility(false);
+                for(var i=0; i<self.activeLayers.length;i++){
+                    self.activeLayers[i].setVisibility(true);
+                }
+            }
 
 
 
@@ -796,10 +811,6 @@ var initMap = function(){
     sideBar.defaultControl = sideBar.controls[2];
     map.addControl(sideBar);
 
-
-
-
-
     //VISUALIZZAZIONE DELLE COORDINATE
     var projection = this.mapOptions.displayProjection || this.mapOptions.projection;
     var v = projection.split(":");
@@ -975,12 +986,15 @@ var initMap = function(){
                     dragPanOptions: {
                         enableKinetic: true
                     }
-                }),*/
+                }),
                 //new OpenLayers.Control.PinchZoom(),
+*/
                 new OpenLayers.Control.LayerTree({
                     emptyTitle:'Base vuota', 
                     div:OpenLayers.Util.getElement('layertree-tree')
-                 })/*,
+                 })
+/*
+                 ,
                 // new OpenLayers.Control.LayerLegend({
                 //     div:OpenLayers.Util.getElement('layerlegend')
                 })*/ 
