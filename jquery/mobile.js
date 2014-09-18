@@ -517,7 +517,6 @@ var initMap = function(){
     queryToolbar.defaultControl = queryToolbar.controls[0];
     map.addControl(queryToolbar);
 
-
     
     $('.panel-clearresults').click(function(event) {
         event.preventDefault();
@@ -607,34 +606,27 @@ var initMap = function(){
     map.addControl(redlineToolbar);
     //redlineToolbar.activate();
 
-
-
     var toolsToolbar = new OpenLayers.Control.Panel({
         createControlMarkup:customCreateControlMarkup,
         div:document.getElementById("map-toolbar-tools"),
         autoActivate:false,
         saveState:true,
     })
-    toolsToolbar.addControls([
-        new OpenLayers.Control.PIPESelect(
+
+    var pSelect = new OpenLayers.Control.PIPESelect(
             OpenLayers.Handler.Click,
             {
-                type: OpenLayers.Control.TYPE_TOGGLE, 
                 clearOnDeactivate:false,
                 serviceURL:'../../services/iren/findPipes.php',
-                pipelayer: 'RATRACCIA.traccia_table',
                 distance:50,
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
+                tbarpos:"last", 
                 text:"Ricerca valvole", 
                 title:"Ricerca valvole",
                 eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
             }
-        )]
-    )
-    map.addControls(toolsToolbar);
-    //toolsToolbar.activate();
-
+        );
 
     //******************** TOOLBAR VERTICALE *****************************************
 
@@ -642,9 +634,6 @@ var initMap = function(){
         div:document.getElementById("map-sidebar"),
         createControlMarkup:customCreateControlMarkup
     });
-    
-
-
     
     var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
     map.defaultControl = defaultControl;
@@ -694,8 +683,6 @@ var initMap = function(){
             title:"Zoom estensione"
         }),
         geolocateControl,
-        
-
 
         btnSearch = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE, 
@@ -755,16 +742,8 @@ var initMap = function(){
             }
         }),
         
-    /*    
-        new OpenLayers.Control.Button({tbarpos:"last", iconclass:"glyphicon-white glyphicon-tint", type: OpenLayers.Control.TYPE_TOGGLE, exclusiveGroup: 'sidebar', title:"Tools aggiunti tipo ricerca valvole",
+        pSelect,
 
-            eventListeners: {
-                'activate': function(){toolsToolbar.activate();},
-                'deactivate': function(){toolsToolbar.deactivate();}
-                }
-
-        }),
-*/
         btnPrint = new OpenLayers.Control.Button({
             tbarpos:"first", 
             type: OpenLayers.Control.TYPE_TOGGLE, 
