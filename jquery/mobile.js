@@ -622,7 +622,6 @@ var initMap = function(){
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
                 tbarpos:"last", 
-                text:"Ricerca valvole", 
                 title:"Ricerca valvole",
                 eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
             }
