@@ -43,3 +43,13 @@ header h1 a {
     float: right;
 }
 
+#mapset-switcher select {
+    width: 150px;
+    color: #000000;
+}
+
+#mapset-switcher {
+    float:right;
+    margin-right: 5px;
+}
+
