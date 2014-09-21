@@ -457,8 +457,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
     //SCRIVE IL VALORE DELL'ATTRIBUTO: DA RIPRISTINARE IL RENDER COME NELLA 2 (LINK, IMMAGINE.....)
     writeDataAttribute: function(type,value){
-
-        return value
+        switch(type) {
+            case 2: //collegamento
+                if(value) {
+                    value = '<a href="'+value+'" target="_blank" class="olControlButtonItemInactive olButton olLikeButton"><span class="glyphicon-white glyphicon-link"></span></a>';
+                }
+            break;
+        }
+        return value || '&nbsp;';
 
     },
 
@@ -495,7 +501,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         for (var j = 0; j < fLen; j++) {
             values = '';
             for (var i = 0; i < aCols.length; i++) {
-                if(aCols[i] == 'gc_actions') {
+                var fieldName = aCols[i];
+                if(fieldName == 'gc_actions') {
                     values += '<td><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+(featureType.zoomBuffer || 0)+'" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
                     if(featureType.relations) {
                         for(var f = 0; f < featureType.relations.length; f++) {
@@ -509,11 +516,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     values += '</td>';
                     
                 } else {
-                    var value = featureType.features[j].attributes[aCols[i]] || '&nbsp;';
-                    values += '<td>'+value+'</td>';
+                    var field = this.getFieldByName(featureType, fieldName);
+                    values += '<td>'+ this.writeDataAttribute(field.fieldType, featureType.features[j].attributes[fieldName]) +'</td>';
                 }
-                //il property va recuperato per nome, non per l'indice di aCols, visto che alcune properties vengono saltate!
-                //values += '<td>'+ this.writeDataAttribute(featureType.properties[i].fieldType,featureType.features[j].attributes[aCols[i]]) +'</td>';
             }
             htmlTable +=  '<tr featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'">'+values+'</tr>';        
         }
@@ -526,6 +531,19 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         featureTypeDiv.innerHTML = cssHeaders + htmlTable;
         return featureTypeDiv;
 
+    },
+    
+    getFieldByName: function(featureType, fieldName) {
+        var field = null,
+            len = featureType.properties.length, property, i;
+        
+        for(i = 0; i < len; i++) {
+            property = featureType.properties[i];
+            
+            if(property.name == fieldName) field = property;
+        }
+        
+        return field;
     },
 
     writeDataPopup: function(featureType){
