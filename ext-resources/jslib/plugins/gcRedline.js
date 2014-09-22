@@ -345,6 +345,8 @@ GisClient.plugins.Redline = Ext.extend(Ext.util.Observable, {
 	},
 
 	saveSession: function(){
+		var srs = this.mapPanel.map.projection;
+		console.log(this)
 		Ext.MessageBox.show({
 			title: this.saveBtnText,
 			msg: this.promptTitle,
@@ -354,8 +356,10 @@ GisClient.plugins.Redline = Ext.extend(Ext.util.Observable, {
 			value: new Date().format("d-m-Y-H-i-s"),
 			fn: function(btn,text){
 				if(btn == 'ok'){
+					console.log('save')
 					this.redlineVectLayer.protocol.params["TITLE"] = text;
-					this.redlineVectLayer.protocol.params["REQUEST"] = 'SaveLayer'
+					this.redlineVectLayer.protocol.params["REQUEST"] = 'SaveLayer';
+					this.redlineVectLayer.protocol.params["SRS"] = srs;
 					this.redlineVectLayer.strategies[0].save();
 				}
 			},

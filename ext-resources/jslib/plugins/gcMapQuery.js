@@ -104,11 +104,12 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 		var self=this;
 
 		if(!this.resultLayer) this.initResultLayer();
-		this.setQueryLayers();
 		this.initWfsCache();
+
 		this.initSelActions();
 		this.initSelGroups();
 		this.initSelOptions();
+		this.setQueryLayers();
 		
 		var queryTools = new Ext.SplitButton({
 			enableToggle: true,
@@ -198,7 +199,10 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 			if(this.selgroupActive=='ActiveLayer') this.setQueryLayers();
 		}, this)
 		
-
+       	mapPanel.map.events.on({
+            changelayer: this.updateQueryLayers,
+            scope: this
+        });
     },
 
 	initResultLayer: function(){
@@ -235,16 +239,16 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 	
 	
 	initWfsCache:function(){
-		Ext.each(this.map.layers,function(layer){
-			if(layer.featureTypes) {
-				this.wfsCache[layer.id] = this.wfsCache[layer.id] || {};
-				this.wfsCache[layer.id]["featureTypes"] = layer.featureTypes;
-				layer.events.register("visibilitychanged",this,function(){
-					this.setQueryLayers()
+		var layer;
+	    for (var i = 0; i < this.mapPanel.featureTypes.length; i++) {
+	        layer =  this.mapPanel.map.getLayersByName(this.mapPanel.featureTypes[i].WMSLayerName)[0];
+	        if(typeof(this.wfsCache[layer.id])=='undefined') this.wfsCache[layer.id] = {featureTypes:[]};
+	        this.wfsCache[layer.id].featureTypes.push(this.mapPanel.featureTypes[i]);
+	       // layer.events.register("visibilitychanged",this,function(){
+			//	this.setQueryLayers()
 					//this.activeControl.setLayers(this.queryLayers); 
-				});
-			}
-		},this);
+			//});
+	    };
 	},
 	
 	initSelActions: function(){
@@ -459,6 +463,7 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 		if(typeof(console)!="undefined") console.log('Active selgroup => ' + this.selgroupActive);
 		//this.queryTools.toggle(false);
 		this.queryLayers = [];
+
 		switch (this.selgroupActive) { 
 
 			case 'ActiveLayer': 
@@ -485,9 +490,8 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 			break; 
 
 			case 'VisibleLayers': 
-			
 				Ext.each(this.map.layers,function(layer){
-					if(layer instanceof OpenLayers.Layer.WMS && layer.featureTypes && layer.visibility){
+					if(layer instanceof OpenLayers.Layer.WMS && this.wfsCache[layer.id] && layer.visibility && layer.inRange){
 						this.queryLayers.push(layer);
 					}
 				},this);
@@ -518,9 +522,23 @@ GisClient.plugins.MapQuery = Ext.extend(Ext.util.Observable, {
 			
 		}
 		if(this.activeControl) this.activeControl.layers = this.queryLayers; 
-
 	},
 		
+	updateQueryLayers: function(e){
+
+		if(this.selgroupActive == 'VisibleLayers' && typeof(this.wfsCache[e.layer.id])!='undefined'){
+			var index = -1;
+			for (var i = 0; i < this.queryLayers.length; i++) {
+				if(this.queryLayers[i].id == e.layer.id) index = i
+			};
+			if(e.layer.visibility && e.layer.inRange)
+				index==-1 && this.queryLayers.push(e.layer); 
+			else
+				index!=-1 && this.queryLayers.splice(index,1);
+		}
+
+	},
+
 	getFeatures: function(e){
 
 		var layer = e.layer;

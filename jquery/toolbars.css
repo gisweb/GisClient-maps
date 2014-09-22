@@ -1,0 +1,397 @@
+.map-layout #map {
+    height: 100%;
+    width:100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.map-layout #content {
+    bottom: 30px;
+    overflow: hidden;
+    position: absolute;
+    top: 20px;
+    width: 100%;
+}
+
+.map-layout #map-footer {
+    bottom: 0px;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 30px;
+    color:#FFFFFF;
+    background-color: rgba(0, 0, 0, 0.6);
+    box-shadow: 5px 5px 5px 5px #000000;
+}
+
+.map-layout #map-header {
+    top: 0px;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 25px;
+    color: #FFFFFF;
+    background-color: rgba(0, 0, 0, 0.6);
+    box-shadow: 1px 1px 1px 1px #000000;
+}
+
+#map-fast-search {
+    font-size: 12px;
+    height: 20px;
+    width: 15em;
+    margin-left: 5px;
+    bottom:0px;
+    color:#000;
+}
+
+#map-scale {
+    height: 20px;
+    width: 10em;
+    margin-right: 5px;
+    float: right;
+    bottom:0px;
+    margin-top: 4px;
+}
+
+#map-select-scale {
+    font-size: 12px;
+    color:#000;
+}
+#map-coordinates {
+    height: 20px;
+    width: 23em;
+    margin-left: 300px;
+}
+/*
+#map-footer-info {
+    height: 20px;
+    width: 23em;
+    margin-left: 250px;
+}
+*/
+
+
+div.olMapViewport {
+     z-index: 0;
+}  
+
+.olImageLoadError {
+    visibility: hidden !important;
+}
+
+
+.olControlAttribution {
+    bottom: 5px;
+    right:30px;
+}
+
+.olControlLoadingPanel {
+    background-image:url('icons/loading.gif');
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-position:center;
+    background-repeat:no-repeat;
+    display: block;
+}
+
+
+.olEditorControlEditorPanel {
+
+
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-right:50px;
+
+
+}
+
+
+
+
+.map-layout #map-toolbars {
+    height: auto;
+    width: :auto;
+    float: left;
+    top:2px;
+    left:2px;
+    font-size: 12px;
+    position:absolute;
+    overflow: hidden;
+
+}
+
+.map-layout  #map-toolbars .olToolbarsControl{
+    background-color: rgba(0, 0, 0, 0.6);
+    margin:2px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+
+.map-layout  #map-toolbars .olToolbarsControl .olButton, .olLikeButton {
+    background-color: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    display: inline-block;
+    outline: medium none;
+    text-decoration: none;
+    margin:4px 2px 4px 4px;
+    padding: 2px 4px 0px 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+.map-layout  #map-toolbars .olToolbarsControl .olButton span, .olLikeButton span {
+    color: #FFFFFF;
+    margin-left: 3px;
+   
+}
+
+.map-layout #map-toolbars .olControlQueryMapSelect {
+    font-size: 10px;
+    display: block;
+    height: 25px;
+    width: 23em;
+    margin-left: -1px;
+}
+.map-layout #map-toolbars .olControlQueryMapSelect .olOptionDisabled {
+    color:#aaaaaa;
+}
+
+olOptionDisabled
+.map-layout  #map-toolbars .olToolbarsControl .olButton:hover {
+    background-color: #000000;
+}
+.map-layout  #map-toolbars .olToolbarsControl .olButton.active {
+    background-color: #9ED485;
+}
+.map-layout  #map-toolbars .olToolbarsControl .olButton.disabled {
+    background-color: rgba(0, 0, 0, 0.5);
+    cursor: default;
+}
+
+.map-layout  #map-toolbars .olToolbarsControl a[class*="ItemActive"] {
+    background-color: #000000;
+}
+.map-layoutxx  #map-toolbars .olToolbarsControl a[class*="ItemInactive"] {
+    background-color: #FF00FF;
+}
+
+
+
+
+
+
+
+
+
+.map-layout #map-toolbars div {
+
+}
+.map-layout #map-toolbars h2 {
+    padding: 20px 20px 10px;
+}
+.map-layout #map-toolbars h3, .map-layout #map-toolbars h4 {
+    font-size: 13px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+.map-layout #map-toolbars .icon.close {
+    cursor: pointer;
+    float: right;
+}
+.map-layout .welcome {
+    display: none;
+}
+
+
+.icon-measure-length{
+    background-image:url(images/ruler.png) !important;
+}
+
+.icon-measure-area{
+    background-image:url(images/ruler_triangle.png) !important;
+}
+.ui-icon-locate {
+    background-image: url(images/locate.png) !important;
+}
+.ui-icon-layers {
+    background-image: url(images/openlayers.png) !important;
+}
+
+
+.tab-pane {
+
+    height: 300px;
+
+
+}
+
+
+
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+    }
+    /* Zebra striping */
+    tr:nth-of-type(odd) { 
+        background: #eee; 
+    }
+    .smalltable tr {
+        background: #ffffff;
+    }
+    th { 
+        background: #ff0000; 
+        font-weight: bold; 
+        color: :#ffffff;
+    }
+    td, th { 
+        padding: 6px; 
+        border: 1px solid #ccc; 
+        text-align: left; 
+        color:#000000;
+    }
+    /* 
+    Max width before this PARTICULAR table gets nasty
+    This query will take effect for any screen smaller than 760px
+    and also iPads specifically.
+
+    
+        /* Force table to not be like tables anymore */
+
+
+
+        .smalltable table, .smalltable thead, .smalltable tbody, .smalltable th, .smalltable td, .smalltable tr { 
+            display: block; 
+        }
+        
+        /* Hide table headers (but not display: none;, for accessibility) */
+        .smalltable thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+
+        }
+        
+        .smalltable tr { border: 3px solid #ccc; }
+        
+        .smalltable td { 
+            /* Behave  like a "row" */
+            border: none;
+            border-bottom: 1px solid #eee; 
+            position: relative;
+            padding-left: 50%; 
+        }
+        
+        .smalltable td:before { 
+            /* Now like a table header */
+            position: absolute;
+            /* Top/left values mimic padding */
+            top: 6px;
+            left: 6px;
+            width: 45%; 
+            padding-right: 10px; 
+            /*white-space: nowrap;*/
+        }
+        
+        /*
+        Label the data
+        
+        .smalltable td:nth-of-type(1):before { content: "First Name"; }
+        .smalltable td:nth-of-type(2):before { content: "Last Name"; }
+        .smalltable td:nth-of-type(3):before { content: "Job Title"; }
+        .smalltable td:nth-of-type(4):before { content: "Favorite Color"; }
+        .smalltable td:nth-of-type(5):before { content: "Wars of Trek?"; }
+        .smalltable td:nth-of-type(6):before { content: "Porn Name"; }
+        .smalltable td:nth-of-type(7):before { content: "Date of Birth"; }
+        .smalltable td:nth-of-type(8):before { content: "Dream Vacation City"; }
+        .smalltable td:nth-of-type(9):before { content: "GPA"; }
+        .smalltable td:nth-of-type(10):before { content: "Arbitrary Data"; }
+
+*/
+#resultpanelddd {
+    width: 200px;
+    background-color: #ddd;
+    border-radius: 10px;
+    font-style: "Tahoma";
+    font-size: 1.1em;
+    border: 1px solid #eee;
+}
+
+.featureTypeTitle {
+    padding: 5px 0px;
+    font-size:12px;
+    margin-top: 1px;
+    cursor: pointer;
+    position: relative;
+    font-weight: bold;
+    border-radius: 0;
+    background-color: #aaaaaa;
+}
+
+.featureTypeTitle span{
+    font-size: 12px;
+}
+
+.featureTypeTitle:first-child {
+    border-radius: 10px 10px 0 0;
+    margin-top: 0;
+}
+
+.featureTypeTitle:last-child {
+    border-radius: 0 0px 10px 10px;
+}
+
+.featureTypeData {
+    display:none;
+}
+
+
+
+
+/* OVERVIEW MAP */
+.gcOverviewMapContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.gcOverviewMapElement {
+    padding: 10px 10px 0px 10px;
+    /*background-color: #00008B;
+    -moz-border-radius: 1em 0 0 0;*/
+    background-color: rgba(0, 0, 0, 0.6);
+    margin:2px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.gcOverviewMapElement .olMap {
+    background-color: white;
+}
+
+.gcOverviewMapMinimizeButton,
+.gcOverviewMapMaximizeButton {
+    height: 18px;
+    width: 18px;
+    left: 0;
+    bottom: 80px;
+    cursor: pointer;
+}
+
+.gcOverviewMapExtentRectangle {
+    overflow: hidden;
+    background-image: url("../resources/themes/openlayers/img/blank.gif");
+    cursor: move;
+    border: 2px dotted red;
+}
+.gcOverviewMapRectReplacement {
+    overflow: hidden;
+    cursor: move;
+    background-image: url("../resources/themes/openlayers/img/overview_replacement.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+

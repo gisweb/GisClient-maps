@@ -31,7 +31,7 @@ var TreePanel = function(mapPanel,menu){
 				Ext.util.Cookies.set('gcTreeCollapsed', p.collapsed);
 			},
 			click:function(node){
-				if(node.layer instanceof OpenLayers.Layer.WMS && (node.layer.featureTypes || (node.layer.gc_id && node.layer.gc_id.indexOf('gc_redline_')!=-1))){
+				if(node.layer instanceof OpenLayers.Layer.WMS && (node.layer.featureTypes || (node.layer.gcname && node.layer.gcname.indexOf('gc_redline_')!=-1))){
 					mapPanel.setActiveLayer(node.layer);
 					activeNode = node;
 				}

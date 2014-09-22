@@ -21,40 +21,30 @@ GisClient.MapPanel = Ext.extend(
 		
 			var gxMapPanelOptions = {
 			
-				items: [
-						{
-							xtype: "gx_zoomslider",
-							vertical: true,
-							height: 220,
-							x: 10,
-							y: 20,
-							minValue:this.minZoomLevel,
-							plugins: new GeoExt.ZoomSliderTip({template:this.sliderTemplate})
-						}
-					],
-
 					bbar : new Ext.Container(),
 					tbar: new Ext.Toolbar({items: []})
 			}
 			
 			Ext.apply(this, gxMapPanelOptions);
 
-			if(this.layers) this.map.layers = this.layers;	
-			GisClient.MapPanel.superclass.initComponent.call(this);
-			//Add dummy base layer
-			var emptyBaseLayer = new OpenLayers.Layer.Image(this.baseLayerText,Ext.BLANK_IMAGE_URL, this.map.maxExtent, new OpenLayers.Size(1,1),{"gc_id":"GisClient_empty_base","displayInLayerSwitcher":true,"isBaseLayer":true,"group":this.baseLayerGroup});
-			this.map.addLayer(emptyBaseLayer);
-			this.map.setLayerIndex(emptyBaseLayer,0);
+
+			var emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',Ext.BLANK_IMAGE_URL, new OpenLayers.Bounds.fromArray(this.map.maxExtent), new OpenLayers.Size(256,256),{maxResolution:this.map.resolutions[0], serverResolutions:this.map.serverResolutions, resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true});
+			emptyBaseLayer.title = this.baseLayerText;
 			
-			if(this.baseLayerId) 
-				this.map.setBaseLayer(this.getGCLayer(this.baseLayerId));
-			else
-				this.map.setBaseLayer(emptyBaseLayer);
+			this.map.controls = [];
+			this.map.layers = [emptyBaseLayer];
+			for (var i = 0; i < this.layers.length; i++) {
+				if(this.layers[i])	this.map.layers.push(this.layers[i])
+			};
+
+			GisClient.MapPanel.superclass.initComponent.call(this);
+
+			if(this.baseLayerName) 	this.map.setBaseLayer(this.getGCLayer(this.baseLayerName));
+
 			
 			this.addEvents('activelayerset');
 			
 			if(this.useCookies) this.readCookies()
-
 		},	
 		
 		
@@ -62,10 +52,10 @@ GisClient.MapPanel = Ext.extend(
 			return this.map;
 		},
 
-		getGCLayer: function(gcId){
+		getGCLayer: function(layerName){
 		
 			var layer = null;
-			var lays = this.map.getLayersBy("gc_id",gcId);
+			var lays = this.map.getLayersByName(layerName);
 			if (lays.length > 0) layer = lays[0];
 			return layer;
 		

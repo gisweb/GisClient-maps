@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>GisCLient Maps</title>
+	<link rel="stylesheet" type="text/css" href="../resources/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../resources/themes/icon.css">
+	<script type="text/javascript" src="../resources/jslib/jquery.min.js"></script>
+	<script type="text/javascript" src="../resources/jslib/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../resources/themes/openlayers/style.css" type="text/css">
+    <link rel="stylesheet" href="../resources/themes/style.css" type="text/css">
+    <script src="../resources/jslib/OpenLayers.js"></script>
+	<script src="../resources/jslib/LoadingPanel.js"></script>
+	<script src="../resources/jslib/GisClientMap.js"></script>
+	<script type="text/javascript">
+ 	$(function() {
+
+
+
+		OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
+		new OpenLayers.Map.GisClient('http://localhost/gisclient3/services/gcmap.php' + window.location.search,'map',{mapOptions:{zoom:12,theme:null}});
+	});
+	</script>
+</head>
+<body>
+    <h1 id="title">Sample</h1>
+    <div id="map" class="smallmap"></div>
+</body>
+</html>
