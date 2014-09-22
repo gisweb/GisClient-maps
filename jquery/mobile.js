@@ -87,7 +87,11 @@ var sidebarPanel = {
     expand: function() {
         var el = $('#map-overlay-panel');
         var width = ($(document).width() / 3) * 2;
-        el.animate({width: width + 'px'});
+        el.animate({width: width + 'px'}, {
+            complete: function() {
+                $('#resultpanel').find('.featureTypeData').first().slideDown(200);
+            }
+        });
         $('#resultpanel').removeClass('smalltable');
         
         $('.panel-expand', this.$element).hide();
