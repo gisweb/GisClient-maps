@@ -194,7 +194,21 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         if(value == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS){
             for(var i=0;i<this.map.layers.length;i++){
                 layer = this.map.layers[i];
-                if(this.wfsCache[layer.id] && layer.getVisibility() && layer.calculateInRange()) layers.push(layer);
+                
+                if(this.wfsCache[layer.id]) {
+                    if(GisClientMap.mapsetTiles && GisClientMap.mapsetTileLayer.getVisibility()) {
+                        if(GisClientMap.default_layers.indexOf(layer.name) > -1) {
+                            layers.push(layer);
+                        }
+                    } else {
+                        if(layer.getVisibility() && layer.calculateInRange()) {
+                            layers.push(layer);
+                        }
+                    }
+                }
+                //console.log(layer.id, this.wfsCache[layer.id], layer.getVisibility(), layer.calculateInRange());
+                //il getVisibility torna false nel caso di layer "veloce", quindi bisogna controllare anche se è acceso quello e se il layer corrente fa parte di quelli
+                //if(this.wfsCache[layer.id] && layer.getVisibility() && layer.calculateInRange()) layers.push(layer);
             }
             this.visibleLayers = layers;
         }
