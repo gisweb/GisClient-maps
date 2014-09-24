@@ -1,4 +1,6 @@
 OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
+    autoLoad: true,
+    loaded: false,
     
     initialize: function(options) {
         OpenLayers.Control.prototype.initialize.apply(this, arguments);
@@ -12,18 +14,26 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
     setMap: function(map) {
         OpenLayers.Control.prototype.setMap.apply(this, arguments);
         
+        if(this.autoLoad) {
+            this.load();
+        }
+
+    },
+    
+    load: function() {
         var len = this.map.layers.length, i, layer, j,
             params, legendUrls, paramsString, legendNodes = [], node, nodeHtml;
         
         for(i = 0; i < len; i++) {
             layer = this.map.layers[i];
+            
             legendUrls = this.getLegendUrls(layer);
             
             if(!legendUrls || !legendUrls.length) continue;
             
             node = document.createElement('div');
             node.setAttribute('id', 'legend_'+layer.id);
-            node.style.display = (layer.getVisibility() ? 'block' : 'none');
+            node.style.display = (this.layerIsVisible(layer) ? 'block' : 'none');
             nodeHtml = '<p>'+layer.title+'</p>';
             for(j = 0; j < legendUrls.length; j++) {
                 nodeHtml += '<img src="'+legendUrls[j]+'"><br>';
@@ -39,7 +49,8 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
         }
 
         this.map.events.register("changelayer", this, this.layerChanged);
-
+        
+        this.loaded = true;
     },
     
     getLegendUrls: function(layer) {
@@ -48,10 +59,16 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
         
         switch(layer.CLASS_NAME) {
             case 'OpenLayers.Layer.WMS':
-                var len = layer.params.LAYERS.length, i, layerName;
-                
+                var layers;
+                if(layer.params.LAYERS instanceof Array) {
+                    layers = layer.params.LAYERS.slice(0);
+                } else {
+                    layers = [layer.params.LAYERS];
+                }
+                var len = layers.length, i, layerName;
+
                 for(i = 0; i < len; i++) {
-                    layerName = layer.params.LAYERS[i];
+                    layerName = layers[i];
                     params = {};
                         
                     OpenLayers.Util.extend(params, layer.params);
@@ -66,16 +83,18 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 }
             break;
             case 'OpenLayers.Layer.WMTS':
-                params = {
-                    REQUEST: 'GetLegendGraphic',
-                    LAYER: layer.name,
-                    FORMAT: 'image/png',
-                    SERVICE: 'WMS',
-                    VERSION: '1.1.1'
-                };
-                
-                paramsString = OpenLayers.Util.getParameterString(params);
-                legendUrls.push(OpenLayers.Util.urlAppend(layer.owsurl, paramsString));
+                if(layer.owsurl) {
+                    params = {
+                        REQUEST: 'GetLegendGraphic',
+                        LAYER: layer.name,
+                        FORMAT: 'image/png',
+                        SERVICE: 'WMS',
+                        VERSION: '1.1.1'
+                    };
+                    
+                    paramsString = OpenLayers.Util.getParameterString(params);
+                    legendUrls.push(OpenLayers.Util.urlAppend(layer.owsurl, paramsString));
+                }
             break;
             default:
                 //console.log('legend not implemented for '+layer.CLASS_NAME + ' ('+layer.name+')');
@@ -90,8 +109,24 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
         
         var element = document.getElementById('legend_'+event.layer.id);
         if(element) {
-            element.style.display = (event.layer.getVisibility() ? 'block' : 'none');
+            element.style.display = (this.layerIsVisible(event.layer) ? 'block' : 'none');
         }
+    },
+    
+    layerIsVisible: function(layer) {
+        var visible = false;
+        
+        if(layer.getVisibility()) {
+            visible = true;
+        } else {
+            if(GisClientMap.mapsetTiles && GisClientMap.mapsetTileLayer.getVisibility()) {
+                var mapsetTileLayer = true;
+                if(GisClientMap.default_layers.indexOf(layer.name) > -1) {
+                    visible = true;
+                }
+            }
+        }
+        return visible;
     }
     
 });

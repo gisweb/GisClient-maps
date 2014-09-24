@@ -951,7 +951,15 @@ var initMap = function(){
 
 
 
-
+    var layerLegend = new OpenLayers.Control.LayerLegend({
+        div: OpenLayers.Util.getElement('layerlegend'),
+        autoLoad: false
+    });
+    $('a[href="#layerlegend"]').click(function() {
+        if(!layerLegend.loaded) {
+            layerLegend.load();
+        }
+    });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
     GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
@@ -974,12 +982,8 @@ var initMap = function(){
                 new OpenLayers.Control.LayerTree({
                     emptyTitle:'Base vuota', 
                     div:OpenLayers.Util.getElement('layertree-tree')
-                 })
-/*
-                 ,
-                // new OpenLayers.Control.LayerLegend({
-                //     div:OpenLayers.Util.getElement('layerlegend')
-                })*/ 
+                }),
+                layerLegend
             ]
             //scale:2000,
             //center:[8.92811, 44.41320]
