@@ -56,6 +56,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var self = this.control;
         var layer = this.layer;
         var node = self.getNode(layer);
+
         if(node){
             jQuery(node.target).find('.tree-icon').removeClass('icon-mini-loading');
             if(jQuery(layer.div).find('.olImageLoadError').length>0)
@@ -76,26 +77,55 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
     getNode: function(layer){
 
-        var layerTree = layer.isBaseLayer? this.baselayerTree :this.overlayTree;
+        var layerTree = layer.isBaseLayer? this.baseTree :this.overlayTree;
         return jQuery(layerTree).tree('find',layer.id);
 
     },
 
 
     getErrors: function(evt) {
+        $('#ErrorWindow div[data-role="content"]').empty();
+        $('#ErrorWindow div[data-role="loading"]').show();
+        $('#ErrorWindow').modal('show');
+        
+        if(evt.data.url) {
+            $.ajax({
+                url: evt.data.url,
+                success: function(response, success, req) {
+                    var errorText = 'Impossibile leggere l\'errore';
+                    
+                    if(req && req.responseXML) {
+                        var format = new OpenLayers.Format.OGCExceptionReport(),
+                            ogcException;
 
-        var options ={
-            width:500,
-            height:200,
-            modal:true,
-            title:'Errore: ' + evt.data.title
-        };
-        if(evt.data.url)
-            options.href = evt.data.url
-        else
-            options.content = 'I layer contengono degli errori, verificare i singoli leyer....';
-
-        jQuery(evt.data.control.errorDiv).dialog(options)
+                        try {
+                            ogcException = format.read(req.responseXML);
+                            if(!ogcException || !ogcException.exceptionReport || 
+                                !ogcException.exceptionReport.exceptions || 
+                                !ogcException.exceptionReport.exceptions.length) throw 'Parse error';
+                            
+                            var errorText = ogcException.exceptionReport.exceptions[0].text;
+                            if(text) {
+                                $('#ErrorWindow div[data-role="loading"]').hide();
+                                return $('#ErrorWindow div[data-role="content"]').html(text);
+                            }
+                        } catch(e) {
+                            console.log('xml parse exception', e);
+                        }
+                    } else if(req && req.responseText) {
+                        errorText = req.responseText;
+                    }
+                    $('#ErrorWindow div[data-role="loading"]').hide();
+                    $('#ErrorWindow div[data-role="content"]').html(errorText);
+                },
+                error: function(req) {
+                    $('#ErrorWindow div[data-role="loading"]').hide();
+                    $('#ErrorWindow div[data-role="content"]').html(req.statusText);
+                }
+            });
+        } else {
+            $('#ErrorWindow div[data-role="content"]').html('I layer contengono degli errori, verificare i singoli leyer....');
+        }
 
     },
 
@@ -389,8 +419,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             }
 
         });
-
-
 
 
 
