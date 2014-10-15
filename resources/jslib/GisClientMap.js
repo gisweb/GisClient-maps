@@ -148,7 +148,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             };
             */
 
-            this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
+            //this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
 
             if (this.mapProviders && this.mapProviders.length>0) {
                 for (var i = 0, len = this.mapProviders.length; i < len; i++) {
@@ -239,6 +239,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                 case 6:
                     //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
                     cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
+                    //cfgLayer.options.serverResolutions = this.map.resolutions;
                     cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
                 break;
@@ -249,6 +250,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                 case 7:
                     cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
+                    console.log(oLayer)
                 break;          
                 case 8:
                     cfgLayer.options.resolutions = this.map.resolutions;
