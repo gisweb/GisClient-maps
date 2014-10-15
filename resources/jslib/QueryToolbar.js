@@ -117,9 +117,10 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         for (var i = 0; i < this.map.config.featureTypes.length; i++) {
             //console.log(this.map.config.featureTypes[i].WMSLayerName, this.map.config.featureTypes);
             layer =  this.map.getLayersByName(this.map.config.featureTypes[i].WMSLayerName)[0];
-            //console.log(layer);
-            if(typeof(this.wfsCache[layer.id])=='undefined') this.wfsCache[layer.id] = {featureTypes:[]};
-            this.wfsCache[layer.id].featureTypes.push(this.map.config.featureTypes[i]);
+            if(layer){
+                if(typeof(this.wfsCache[layer.id])=='undefined') this.wfsCache[layer.id] = {featureTypes:[]};
+                this.wfsCache[layer.id].featureTypes.push(this.map.config.featureTypes[i]);
+            }
         };
         //console.log(this.wfsCache)
         //this.addfeaturesCombo();
