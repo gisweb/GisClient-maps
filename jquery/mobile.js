@@ -807,8 +807,8 @@ var initMap = function(){
     var scale, zoomLevel = 0, option;
 
     //lo zoomLevel non parte da minZoomLevel ma sempre da 0, quindi lo zoomLevel 0 è sempre = al minZoomLevel
-    for(var i=this.mapOptions.minZoomLevel;i<this.mapOptions.maxZoomLevel;i++){
-        scale = OpenLayers.Util.getScaleFromResolution (this.mapOptions.serverResolutions[i],this.mapOptions.units);
+    for(var i=0;i<this.mapOptions.resolutions.length;i++){
+        scale = OpenLayers.Util.getScaleFromResolution (this.mapOptions.resolutions[i],this.mapOptions.units);
         option = $("<option></option>");
         option.val(zoomLevel);
         zoomLevel += 1;
@@ -970,7 +970,7 @@ var initMap = function(){
                 new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
-                //new OpenLayers.Control.PanZoomBar(),
+                new OpenLayers.Control.PanZoomBar(),
                 /*
                 new OpenLayers.Control.TouchNavigation({
                     dragPanOptions: {
