@@ -164,7 +164,8 @@ OpenLayers.GisClient = OpenLayers.Class({
                 }   
             }
 
-
+            //BOH!! manca
+            Proj4js.defs["EPSG:3857"] = Proj4js.defs["EPSG:3875"];
             if(this.projdefs){
                 for (key in this.projdefs){
                     if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
@@ -256,6 +257,14 @@ OpenLayers.GisClient = OpenLayers.Class({
                     cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.Bing(cfgLayer.options);
                 break;  
+                case 9:
+                    //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
+                    //cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
+                    //cfgLayer.options.serverResolutions = this.map.resolutions;
+                    cfgLayer.options.resolutions = this.map.resolutions;
+                    oLayer = new OpenLayers.Layer.XYZ(cfgLayer.name,cfgLayer.url,cfgLayer.options);
+                    console.log(oLayer)
+                break;
                 case 4:
                     cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.Yahoo(cfgLayer.name,cfgLayer.options);
@@ -274,7 +283,7 @@ OpenLayers.GisClient = OpenLayers.Class({
     
     //SERVIVA PER IL TEMA UNICO IN CACHE
     addThemeLayer: function(oLayer){
-        var baseUrl = this.mapProxyBaseUrl + "/" + this.name +"/wmts/";
+        var baseUrl = this.mapProxyBaseUrl + "/" + this.mapsetName +"/wmts/";
         var layerParams = {
             "name": oLayer.name + '_tiles',
             "layer": oLayer.name + '_tiles',
@@ -299,11 +308,11 @@ OpenLayers.GisClient = OpenLayers.Class({
 
     //LAYER MAPSET WMTS COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
     addMapsetWMTS: function(){
-        var baseUrl = this.mapProxyBaseUrl + "/" + this.name +"/wmts/";
+        var baseUrl = this.mapProxyBaseUrl + "/" + this.mapsetName +"/wmts/";
         var layerParams = {
-            "name": this.name,
-            "layer": this.name + '_tiles',
-            "url": baseUrl + "/" + this.name + "_tiles/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+            "name": this.mapsetName,
+            "layer": this.mapsetName + '_tiles',
+            "url": baseUrl + "/" + this.mapsetName + "_tiles/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
             "style": "",
             "matrixSet": this.mapOptions.matrixSet,
             "requestEncoding": "REST",
@@ -321,14 +330,14 @@ OpenLayers.GisClient = OpenLayers.Class({
 
     //LAYER MAPSET WMS COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
     addMapsetWMS: function(){
-        var baseUrl = this.mapProxyBaseUrl + "/" + this.name + "/service";
+        var baseUrl = this.mapProxyBaseUrl + "/" + this.mapsetName + "/service";
         var layerParams = {
-            "map": this.name,
+            "map": this.mapsetName,
             "exceptions": "xml",
             "format": "image/png",
             "transparent": true,
             "layers": [
-                this.name + "_tiles"
+                this.mapsetName + "_tiles"
             ]
         }
         var layerOptions = {
@@ -338,7 +347,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             "singleTile":true,
             "isBaseLayer":false
         };
-        this.mapsetTileLayer = new OpenLayers.Layer.WMS(this.name,baseUrl,layerParams,layerOptions);
+        this.mapsetTileLayer = new OpenLayers.Layer.WMS(this.mapsetName,baseUrl,layerParams,layerOptions);
         this.map.addLayer(this.mapsetTileLayer);
     },
 

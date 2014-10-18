@@ -131,7 +131,7 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
-    document.title = this.title;
+    document.title = this.mapsetTitle;
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -929,7 +929,7 @@ var initMap = function(){
         mapset = GisClientMap.mapsets[i];
         
         option = '<option value="'+mapset.mapset_name+'"';
-        if(mapset.mapset_name == GisClientMap.name) option += ' selected ';
+        if(mapset.mapset_name == GisClientMap.mapsetName) option += ' selected ';
         option += '>'+mapset.mapset_title+'</option>';
         
         options.push(option);
@@ -937,10 +937,10 @@ var initMap = function(){
     $('#mapset-switcher select').html(options);
     $('#mapset-switcher select').change(function() {
         var mapset = $(this).val();
-        if(mapset == GisClientMap.name) return;
+        if(mapset == GisClientMap.mapsetName) return;
         
         var currentUrl = window.location.href;
-        var newUrl = currentUrl.replace('mapset='+GisClientMap.name, 'mapset='+mapset);
+        var newUrl = currentUrl.replace('mapset='+GisClientMap.mapsetName, 'mapset='+mapset);
         
         window.location.href = newUrl;
     });
@@ -971,6 +971,7 @@ var initMap = function(){
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
                 new OpenLayers.Control.PanZoomBar(),
+                new OpenLayers.Control.ScaleLine(),
                 /*
                 new OpenLayers.Control.TouchNavigation({
                     dragPanOptions: {
