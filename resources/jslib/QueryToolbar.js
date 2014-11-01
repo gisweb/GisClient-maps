@@ -609,7 +609,6 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                                     //var feature = me.findFeature(featureId);
                                     var feature = me.resultLayer.getFeatureById(featureId);
                                     if(!feature) console.log('zoom: non trovo la feature ', featureType, featureId);
-                                    console.log(feature.geometry)
                                     me.map.zoomToExtent(feature.geometry.getBounds());
                                 }
                             break;

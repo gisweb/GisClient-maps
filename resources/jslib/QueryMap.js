@@ -483,7 +483,6 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 			url = layer.owsurl;
 		else
 			url = layer.url;
-		console.log(url)
 		this.nquery++;
 		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
 		var xml = new OpenLayers.Format.XML();

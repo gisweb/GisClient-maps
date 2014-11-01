@@ -164,8 +164,8 @@ OpenLayers.GisClient = OpenLayers.Class({
                 }   
             }
 
-            //BOH!! manca
-            Proj4js.defs["EPSG:3857"] = Proj4js.defs["EPSG:3875"];
+            //FIX Proj4js bug ??
+            Proj4js.defs["EPSG:3857"] = Proj4js.defs["GOOGLE"];
             if(this.projdefs){
                 for (key in this.projdefs){
                     if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
@@ -229,7 +229,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                         //SE MAPPROXY AGGIUNGO IL LAYER WMTS
                         oLayer.nodes = cfgLayer.nodes;
                         //tema singolo per ora non in uso
-                        if(this.useMapproxy && cfgLayer.theme_single) this.addThemeLayer(oLayer);
+                        //if(this.useMapproxy && cfgLayer.theme_single) this.addThemeLayer(oLayer);
                     } 
                 break;
                 case 2:
@@ -251,7 +251,6 @@ OpenLayers.GisClient = OpenLayers.Class({
                 case 7:
                     cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
-                    console.log(oLayer)
                 break;          
                 case 8:
                     cfgLayer.options.resolutions = this.map.resolutions;

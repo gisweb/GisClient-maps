@@ -507,7 +507,7 @@ var initMap = function(){
                 control.select(geometry, mode);
                 
                 control.queryFilters[fType.typeName] = oldQueryFilters;
-                control.highLight = oldHighlight;
+                //control.highLight = oldHighlight;
 
                 $('#SearchWindow').modal('hide');
             });
