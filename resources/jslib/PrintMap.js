@@ -135,7 +135,7 @@ function getParams() {
                 VERSION: '1.1.1'
             };
             tile = {
-                url: GisClientMap.mapProxyBaseUrl+'/'+GisClientMap.name+'/service?',
+                url: GisClientMap.mapProxyBaseUrl+'/'+GisClientMap.mapsetName+'/service?',
                 type: 'WMS',
                 parameters: params,
                 opacity: layer.opacity ? (layer.opacity * 100) : 100
@@ -148,7 +148,7 @@ function getParams() {
                 externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
                 name: layer.name,
                 project: GisClientMap.projectName,
-                map: GisClientMap.name
+                map: GisClientMap.mapsetName
             };
         } else console.log(layer.name+' '+layer.CLASS_NAME+' non riconosciuto per stampa');
         if(tile) {
