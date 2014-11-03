@@ -245,7 +245,10 @@ OpenLayers.GisClient = OpenLayers.Class({
                     oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
                 break;
                 case 5:
-                    cfgLayer.options.resolutions = this.map.resolutions;
+                    //maxlevel = 18
+
+                    cfgLayer.options.resolutions = this.map.resolutions.slice(0, 19 - cfgLayer.options.zoomOffset);
+
                     oLayer = new OpenLayers.Layer.OSM(cfgLayer.name,null,cfgLayer.options);
                 break;  
                 case 7:
