@@ -747,16 +747,22 @@ var initMap = function(){
         
         pSelect,
 
-        btnPrint = new OpenLayers.Control.Button({
+        btnPrint = new OpenLayers.Control.PrintMap({
             tbarpos:"first", 
-            type: OpenLayers.Control.TYPE_TOGGLE, 
+            //type: OpenLayers.Control.TYPE_TOGGLE, 
+            formId: 'printpanel',
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
+            waitFor: 'panelready',
             eventListeners: {
                 'activate': function(){
+                    var me = this;
+                    
                     if($.trim($('#printpanel').html()) == '') {
-                        $("#printpanel").load('print_panel.html');
+                        $("#printpanel").load('print_panel.html', function() {
+                            me.events.triggerEvent('panelready');
+                        });
                     }
                     sidebarPanel.show('printpanel');
                 },
