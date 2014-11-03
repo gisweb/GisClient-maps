@@ -9,7 +9,7 @@ $(document).ready(function() {
         var loadingControl = GisClientMap.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
         loadingControl.maximizeControl();
         
-        $('#printpanel a[role="pdf"], #printpanel a[role="html"]').attr('href', '');
+        $('#printpanel a[role="pdf"], #printpanel a[role="html"]').attr('href', '#');
         $('#printpanel span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
         
         $.ajax({
