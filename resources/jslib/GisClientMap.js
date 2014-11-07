@@ -204,10 +204,12 @@ OpenLayers.GisClient = OpenLayers.Class({
             if(ret.length > 0) this.map.setBaseLayer(ret[0]);
         }   
 
-        this.overviewMap = new OpenLayers.GisClient.OverviewMap({
-            layers: this.layers
-        });
-        this.map.addControl(this.overviewMap);
+        if(OpenLayers.GisClient.OverviewMap){
+            this.overviewMap = new OpenLayers.GisClient.OverviewMap({
+                layers: this.layers
+            });
+            this.map.addControl(this.overviewMap);
+        }
 
         if(this.callback) this.callback.call(this);
 
