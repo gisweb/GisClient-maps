@@ -70,6 +70,9 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             containment: $('#content'),
             onStopDrag: function() {
                 me.boxMoved();
+            },
+            stop: function() {
+                me.boxMoved();
             }
 
         });
@@ -78,11 +81,12 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         if(me.waitFor) waitForEvent = me.waitFor;
 
         me.events.register(waitForEvent, me, me.onToolReady);
+        */
         me.events.register('deactivate', me, me.removePrintArea);
         
         me.map.events.register('moveend', me, me.boxMoved);
 
-        */
+
     },
     
     getConfigParams: function() {
@@ -279,6 +283,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
 
     drawPrintArea: function() {
+ 
         var me = this;
         var params = me.getConfigParams();
         params.request_type = 'get-box';
@@ -289,10 +294,11 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             dataType: 'json',
             data: params,
             success: function(response) {
-                if(typeof(response) != 'object' || response == null || typeof(response.result) != 'string' || response.result != 'ok' || typeof(response.box) != 'object') {
+                if(typeof(response) != 'object' || response == null || typeof(response.result) != 'string' || response.result != 'ok' || typeof(response.printBox) != 'object') {
                     return alert(OpenLayers.i18n('System error'));
                 }
-                me.printBox = response.box;
+                me.printBox = response.printBox;
+                me.pageSize = response.pageSize;
                 
                 me.updateBox();
                 
@@ -332,11 +338,23 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     
     boxMoved: function(event) {
         var pos = $('#print_box').position();
+        var offset = $(this.map.div).offset();
         // get the left-boom and right-top LonLat, given the rectangle position
-        var lb = this.map.getLonLatFromPixel(new OpenLayers.Pixel(pos.left, (pos.top+$('#print_box').height())));
-        var rt = this.map.getLonLatFromPixel(new OpenLayers.Pixel((pos.left+$('#print_box').width()), pos.top));
+//        var lb = this.map.getLonLatFromPixel(new OpenLayers.Pixel(offset.left + pos.left, (offset.top + pos.top + $('#print_box').height())));
+//        var rt = this.map.getLonLatFromPixel(new OpenLayers.Pixel((offset.left + pos.left + $('#print_box').width()), offset.top + pos.top));
+        var lb = this.map.getLonLatFromPixel(new OpenLayers.Pixel(pos.left, (pos.top + $('#print_box').height())));
+        var rt = this.map.getLonLatFromPixel(new OpenLayers.Pixel((pos.left + $('#print_box').width()), pos.top));
+
+
         // update the map viewport with the bounds calculated above
         this.printBox = [lb.lon, lb.lat, rt.lon, rt.lat];
+
+        console.log((rt.lon-lb.lon)/this.pageSize.w)
+        console.log(this.map.getScale())
+
+        // update scale in control
+
+
     },
     
     removePrintarea: function() {
