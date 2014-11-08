@@ -47,9 +47,48 @@ var initMap = function(){
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
-            scale:50000
+            scale:50000,
+            pageLayout:'vertical',
+            pageFormat:'A3',
+            serviceUrl:'/gisclient/services/print.php',
+            eventListeners: {
+                updatebox: function(e){
+                    //da formattare
+                    console.log(this.printBoxScale);
+                    $('#printpanel input[name="scale"]').val(this.printBoxScale);
+
+                }
+
+            }
+
+
         });
-        
+
+    $('#printpanel input[name="scale_mode"]').change(function() {
+        $('#printpanel input[name="scale_mode"]:checked').val();
+        btnPrint.drawPrintBox();
+    });
+    $('#printpanel input[name="scale"]').change(function() {
+        btnPrint.printBoxScale = $(this).val();
+        btnPrint.updatePrintBox();
+    });
+    $('#printpanel input[name="direction"]').change(function() {
+        btnPrint.pageLayout = $('#printpanel input[name="direction"]:checked').val();
+        btnPrint.updatePrintBox();
+    });
+    $('#printpanel select[name="formato"]').change(function() {
+        btnPrint.pageFormat = $(this).val();
+        btnPrint.updatePrintBox();
+    });
+
+    $('#printpanel').on('click', 'button[role="print"]', function(event) {
+        event.preventDefault();
+        btnPrint.doPrint();
+    });
+
+    
+
+
     map.addControl(btnPrint);
     btnPrint.activate();
 

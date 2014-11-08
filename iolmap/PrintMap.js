@@ -1,12 +1,27 @@
 OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     type: OpenLayers.Control.TYPE_TOGGLE,
-    formId: undefined, //id del form di stampa
-    loadingControl: undefined,
-    waitFor: undefined, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
-    //passare l'url del servizio stampa per non doverlo cablare!
+    formId: null, //id del form di stampa
+    loadingControl: null,
+    offsetLeft:0, //pannelli che se aperti riducono l'area della mappa
+    offsetRight:0,
+    offsetTop:0,
+    offsetBottom:0,
+    margin:25,
+    pageFormat:"A4", //controlli
+    pageLayout:"vertical",
+    printFormat:"HTML",
+    printScale:null,
+    printLegend:0,
+    printResolution:150,
+    maxPrintScale:null,
+    layerBox:null,
+
+    //waitFor: null, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
+    pages: null,
     
     initialize: function(options) {
         OpenLayers.Control.prototype.initialize.apply(this, arguments);
+        OpenLayers.Feature.Vector.style['default']['strokeWidth'] = '2';
     },
     
     doPrint: function() {
@@ -47,44 +62,54 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     },
     
     setMap: function(map) {
+
+        //si può spostare in initialize quando togliamo i parametri che dipendono da map
+
+
         var me = this;
 
         OpenLayers.Control.prototype.setMap.apply(me, arguments);
+
+
+
+
+        this.layerbox = new OpenLayers.Layer.Vector("LayerBox");    
+        this.map.addLayer(this.layerbox);
+
+        this.modifyControl = new OpenLayers.Control.ModifyFeature(this.layerbox);
+        this.modifyControl.mode = OpenLayers.Control.ModifyFeature.RESIZE | OpenLayers.Control.ModifyFeature.DRAG;
+        this.map.addControl(this.modifyControl);
+        this.layerbox.events.register('featuremodified', this, this.onUpdateBox);
+
+
+        //this.modifyControl.activate();
         
-        if(!me.loadingControl) {
-            var query = me.map.getControlsByClass('OpenLayers.Control.LoadingPanel');
-            if(query.length) me.loadingControl = query[0];
-        }
+        var params = this.getConfigParams();
+        params.request_type = 'get-box';
 
-        $('#'+me.formId).on('click', 'button[role="print"]', function(event) {
-            event.preventDefault();
-            
-            me.doPrint();
-        });
+        $.ajax({
+            url: this.serviceUrl,
+            type: 'POST',
+            dataType: 'json',
+            data: params,
+            success: function(response) {
+                if(typeof(response) != 'object' || response == null || typeof(response.result) != 'string' || response.result != 'ok' || typeof(response.pages) != 'object') {
+                    return alert(OpenLayers.i18n('System error'));
+                }
 
-        var boxHtml = '<div id="print_box" style="border:2px solid blue;position:absolute;overflow:hidden;top:0px;left:0px;z-index:1000;cursor:move;display:none;"><div style="background:silver;opacity:0.1;width:100%;height:100%;filter:alpha(opacity=10);">&nbsp;</div></div>';
-        $(me.map.div).append(boxHtml);
-        //$('#print_box').draggable({containment: 'parent'}).bind('stop',{me:me},me.boxMoved);
-        $('#print_box').draggable({
+                console.log(response)
+                me.pages = response.pages;
 
-            containment: $('#content'),
-            onStopDrag: function() {
-                me.boxMoved();
+
+
+                if(me.active) me.drawPrintBox();
+
+ 
             },
-            stop: function() {
-                me.boxMoved();
+            error: function() {
+                return alert(OpenLayers.i18n('System error'));
             }
-
         });
-        /*
-        var waitForEvent = 'activate';
-        if(me.waitFor) waitForEvent = me.waitFor;
-
-        me.events.register(waitForEvent, me, me.onToolReady);
-        */
-        me.events.register('deactivate', me, me.removePrintArea);
-        
-        me.map.events.register('moveend', me, me.boxMoved);
 
 
     },
@@ -220,146 +245,124 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
         return params;
     },
+
     
-    onToolReadyss: function() {
+    onUpdateBox: function(e){
 
-        console.log('dddddddddd')
-        var me = this,
-            scale = Math.round(me.map.getScale()),
-            userScale = $('#'+me.formId+' input[name="scale"]').val();
+        var pageSize=this.pages[this.pageLayout][this.pageFormat];
+        //si dovrebbero passare già in float
+        var pageW = parseFloat(pageSize.w);
+        var pageH = parseFloat(pageSize.h);
 
-        if(!userScale) {
-            $('#'+me.formId+' input[name="scale"]').val(scale)
-        }
-        
-        var selectorsToControl = ['input[name="scale_mode"]', 'input[name="scale_mode"]', 'direction', 'formato'];
-        
-        $('#'+me.formId+' input[name="scale_mode"]').change(function() {
-            me.drawPrintArea();
-        });
-        $('#'+me.formId+' input[name="scale"]').change(function() {
-            me.drawPrintArea();
-        });
-        $('#'+me.formId+' input[name="direction"]').change(function() {
-            me.drawPrintArea();
-        });
-        $('#'+me.formId+' select[name="formato"]').change(function() {
-            me.drawPrintArea();
-        });
-        
-        me.drawPrintArea();
+        var bounds = e.feature.geometry.getBounds();
+        this.printBoxScale = Math.abs(bounds.right-bounds.left)/pageW*100;
+
+
+        this.events.triggerEvent("updatebox");
+
+
+
     },
+
     
     activate: function() {
         var activated = OpenLayers.Control.prototype.activate.call(this);
         if(activated) {
-            console.log(this)
-            var me = this,
-                scale = me.scale || Math.round(me.map.getScale()),
-                userScale = $('#'+me.formId+' input[name="scale"]').val();
+            //.................
 
-            if(!userScale) {
-                $('#'+me.formId+' input[name="scale"]').val(scale)
-            }
-            
-            var selectorsToControl = ['input[name="scale_mode"]', 'input[name="scale_mode"]', 'direction', 'formato'];
-            
-            $('#'+me.formId+' input[name="scale_mode"]').change(function() {
-                me.drawPrintArea();
-            });
-            $('#'+me.formId+' input[name="scale"]').change(function() {
-                me.drawPrintArea();
-            });
-            $('#'+me.formId+' input[name="direction"]').change(function() {
-                me.drawPrintArea();
-            });
-            $('#'+me.formId+' select[name="formato"]').change(function() {
-                me.drawPrintArea();
-            });
-            
-            me.drawPrintArea();
         }
     },
 
 
-    drawPrintArea: function() {
- 
-        var me = this;
-        var params = me.getConfigParams();
-        params.request_type = 'get-box';
-        
-        $.ajax({
-            url: '/gisclient/services/print.php',
-            type: 'POST',
-            dataType: 'json',
-            data: params,
-            success: function(response) {
-                if(typeof(response) != 'object' || response == null || typeof(response.result) != 'string' || response.result != 'ok' || typeof(response.printBox) != 'object') {
-                    return alert(OpenLayers.i18n('System error'));
-                }
-                me.printBox = response.printBox;
-                me.pageSize = response.pageSize;
-                
-                me.updateBox();
-                
-                $('#print_box').show();
-                
-            },
-            error: function() {
-                return alert(OpenLayers.i18n('System error'));
-            }
-        });
-    },
-    
-    updateBox: function() {
-        var me = this;
-        
-        var bounds = me.map.getExtent();
-        var refSize = me.map.getCurrentSize();
-        var offset = $(me.map.div).offset();
-        console.log(offset)
+    drawPrintBox: function() {
 
-        var lb = me.map.getViewPortPxFromLonLat(new OpenLayers.LonLat(me.printBox[0], me.printBox[1]));
-        var rt = me.map.getViewPortPxFromLonLat(new OpenLayers.LonLat(me.printBox[2], me.printBox[3]));
+        //calcolo l'area libera per il box di stampa
+        var boxW = this.map.size.w - this.offsetLeft - this.offsetRight - 2*this.margin;
+        var boxH = this.map.size.h - this.offsetTop - this.offsetBottom - 2*this.margin;
 
-        var left = (lb.x>0) ? lb.x : 0;
-        var top = (rt.y>0) ? rt.y : 0;
-        var width = ((rt.x-lb.x)<refSize.w) ? (rt.x-lb.x) : refSize.w;
-        var height = ((lb.y-rt.y)<refSize.h) ? (lb.y-rt.y) : refSize.h;
-        if((left+width)>refSize.w) width = refSize.w-left;
-        if((top+height)>refSize.h) height = refSize.h-top;
-        $('#print_box').css({
-            'left':offset.left + left,
-            'top':offset.top + top,
-            'width':width,
-            'height':height
-        });
-    },
-    
-    boxMoved: function(event) {
-        var pos = $('#print_box').position();
-        var offset = $(this.map.div).offset();
-        // get the left-boom and right-top LonLat, given the rectangle position
-//        var lb = this.map.getLonLatFromPixel(new OpenLayers.Pixel(offset.left + pos.left, (offset.top + pos.top + $('#print_box').height())));
-//        var rt = this.map.getLonLatFromPixel(new OpenLayers.Pixel((offset.left + pos.left + $('#print_box').width()), offset.top + pos.top));
-        var lb = this.map.getLonLatFromPixel(new OpenLayers.Pixel(pos.left, (pos.top + $('#print_box').height())));
-        var rt = this.map.getLonLatFromPixel(new OpenLayers.Pixel((pos.left + $('#print_box').width()), pos.top));
+        var pageSize=this.pages[this.pageLayout][this.pageFormat];
+        //si dovrebbero passare già in float
+        var pageW = parseFloat(pageSize.w);
+        var pageH = parseFloat(pageSize.h);
+
+        //normalizzo rispetto al rapporto dimensionale della stampa
+        if(pageW/pageH > boxW/boxH)
+            boxH = boxW*pageH/pageW;
+        else
+            boxW = boxH*pageW/pageH;
 
 
-        // update the map viewport with the bounds calculated above
-        this.printBox = [lb.lon, lb.lat, rt.lon, rt.lat];
 
-        console.log((rt.lon-lb.lon)/this.pageSize.w)
-        console.log(this.map.getScale())
+        var leftPix = parseInt((this.map.size.w - boxW)/2);
+        var topPix = parseInt((this.map.size.h - boxH)/2);
 
-        // update scale in control
+        var lb = this.map.getLonLatFromPixel(new OpenLayers.Pixel(leftPix, topPix + boxH));
+        var rt = this.map.getLonLatFromPixel(new OpenLayers.Pixel(leftPix + boxW, topPix));
+
+        //vedo che scala è uscita
+        //occhio all'unità di misura meglio portare tutto in pollici??
+        //comunque per ora va tutto im metri
+
+
+
+        //this.layerbox.removeAllFeatures();
+
+        //se ho già il box mantengo la scala e cambio le dimensioni(a meno che non cambi la scala)
+        if(this.printBox){
+            console.log(this.printBox)
+                //bohhh
+
+        }else{
+            this.printBoxScale = Math.abs(lb.lon-rt.lon)/pageW*100;
+            var bounds = new OpenLayers.Bounds(lb.lon, lb.lat, rt.lon, rt.lat);
+            this.printBox = new OpenLayers.Feature.Vector(bounds.toGeometry());
+            this.layerbox.addFeatures(this.printBox);
+            this.modifyControl.activate();
+            this.events.triggerEvent("updatebox");
+        }
 
 
     },
     
-    removePrintarea: function() {
-        $('#print_box').hide();
+    updatePrintBox: function(){
+
+
+
+        //????????????????????????????????????????? non aggiorna
+
+        //se cambio le dimensioni voglio comunque mantenere la scala di stampa!!!
+        //non ruoto semplicemente il box perchè le dimensioni potrebbero essere diverse
+        var pageSize=this.pages[this.pageLayout][this.pageFormat];
+        console.log(pageSize);
+        //si dovrebbero passare già in float
+        var pageW = parseFloat(pageSize.w);
+        var pageH = parseFloat(pageSize.h);
+        console.log(this.printBoxScale)
+        var boxW = pageW*this.printBoxScale/100;
+        var boxH = pageH*this.printBoxScale/100;
+
+        var bounds = this.printBox.geometry.getBounds();
+        var center = bounds.getCenterLonLat();
+        var newBounds = new OpenLayers.Bounds(center.lon - boxW/2, center.lat - boxH/2, center.lon + boxW/2,  center.lat + boxH/2);
+        this.printBox.geometry.bounds.left = center.lon - boxW/2;
+        this.printBox.geometry.bounds.right = center.lon + boxW/2;
+        this.printBox.geometry.bounds.bottom = center.lat - boxH/2;
+        this.printBox.geometry.bounds.top = center.lat + boxH/2;
+
+        console.log(bounds)
+        console.log(newBounds)
+        //this.printBox.geometry.setBounds(new OpenLayers.Bounds(0,0,0,0))
+        //this.printBox.geometry.destroy();
+        //this.printBox.geometry.clearBounds();
+        //this.printBox.geometry.setBounds(newBounds);
+        //this.printBox.geometry = newBounds.toGeometry()
+        this.layerbox.redraw();
+
+
+
+
     }
+    
 });
 
 
