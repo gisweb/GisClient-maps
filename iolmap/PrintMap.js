@@ -115,6 +115,9 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     },
     
     getConfigParams: function() {
+
+
+        //DA SISTEMARE !!!!!!!!!!!!
         var size  = this.map.getCurrentSize();
         var bounds = this.map.calculateBounds();
         var topLeft = new OpenLayers.Geometry.Point(bounds.top, bounds.left);
@@ -165,6 +168,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         return params;
         
     },
+
+
     getParams: function() {
         var self = this;
         
@@ -326,37 +331,32 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     
     updatePrintBox: function(){
 
-
-
-        //????????????????????????????????????????? non aggiorna
-
         //se cambio le dimensioni voglio comunque mantenere la scala di stampa!!!
         //non ruoto semplicemente il box perchè le dimensioni potrebbero essere diverse
         var pageSize=this.pages[this.pageLayout][this.pageFormat];
-        console.log(pageSize);
+
         //si dovrebbero passare già in float
         var pageW = parseFloat(pageSize.w);
         var pageH = parseFloat(pageSize.h);
-        console.log(this.printBoxScale)
+
         var boxW = pageW*this.printBoxScale/100;
         var boxH = pageH*this.printBoxScale/100;
 
         var bounds = this.printBox.geometry.getBounds();
         var center = bounds.getCenterLonLat();
         var newBounds = new OpenLayers.Bounds(center.lon - boxW/2, center.lat - boxH/2, center.lon + boxW/2,  center.lat + boxH/2);
-        this.printBox.geometry.bounds.left = center.lon - boxW/2;
-        this.printBox.geometry.bounds.right = center.lon + boxW/2;
-        this.printBox.geometry.bounds.bottom = center.lat - boxH/2;
-        this.printBox.geometry.bounds.top = center.lat + boxH/2;
-
-        console.log(bounds)
-        console.log(newBounds)
-        //this.printBox.geometry.setBounds(new OpenLayers.Bounds(0,0,0,0))
-        //this.printBox.geometry.destroy();
-        //this.printBox.geometry.clearBounds();
-        //this.printBox.geometry.setBounds(newBounds);
-        //this.printBox.geometry = newBounds.toGeometry()
-        this.layerbox.redraw();
+       
+        //????????????????????????????????????????? non aggiorna
+        //BOH NON RIESCO A MODIFICARE LA FEATURE. QUINDI LA TOLGO E LA RIAGGIUNGO POI VEDIAMO
+        try{
+            this.modifyControl.unselectFeature(this.printBox);
+        }
+        catch (err){
+            
+        }
+        this.printBox.destroy();
+        this.printBox = new OpenLayers.Feature.Vector(newBounds.toGeometry());
+        this.layerbox.addFeatures(this.printBox);
 
 
 

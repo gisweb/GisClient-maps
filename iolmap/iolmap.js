@@ -53,10 +53,7 @@ var initMap = function(){
             serviceUrl:'/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
-                    //da formattare
-                    console.log(this.printBoxScale);
-                    $('#printpanel input[name="scale"]').val(this.printBoxScale);
-
+                    $('#printpanel input[name="scale"]').val(Math.round(this.printBoxScale));
                 }
 
             }
@@ -68,10 +65,7 @@ var initMap = function(){
         $('#printpanel input[name="scale_mode"]:checked').val();
         btnPrint.drawPrintBox();
     });
-    $('#printpanel input[name="scale"]').change(function() {
-        btnPrint.printBoxScale = $(this).val();
-        btnPrint.updatePrintBox();
-    });
+
     $('#printpanel input[name="direction"]').change(function() {
         btnPrint.pageLayout = $('#printpanel input[name="direction"]:checked').val();
         btnPrint.updatePrintBox();
@@ -86,6 +80,18 @@ var initMap = function(){
         btnPrint.doPrint();
     });
 
+    $('#printpanel input[name="scale"]').spinner({
+      step: 100,
+      numberFormat: "n",
+      change: function( event, ui ) {
+        btnPrint.printBoxScale = $(this).val();
+        btnPrint.updatePrintBox();
+      },
+      spin: function( event, ui ) {
+        btnPrint.printBoxScale = $(this).val();
+        btnPrint.updatePrintBox();
+      }
+    });
     
 
 
@@ -100,37 +106,6 @@ var initMap = function(){
         prefix: '<a target="_blank" ' + 'href="http://spatialreference.org/ref/epsg/' + v[1] + '/">' + projection + '</a> coordinate: '
     }));
 
-
-    //ELENCO DELLE SCALE
-    var scale, zoomLevel = 0, option;
-
-    //lo zoomLevel non parte da minZoomLevel ma sempre da 0, quindi lo zoomLevel 0 è sempre = al minZoomLevel
-    for(var i=0;i<this.mapOptions.resolutions.length;i++){
-        scale = OpenLayers.Util.getScaleFromResolution (this.mapOptions.resolutions[i],this.mapOptions.units);
-        option = $("<option></option>");
-        option.val(zoomLevel);
-        zoomLevel += 1;
-        option.text('Scala 1:'+ parseInt(scale));
-        $('#map-select-scale').append(option);
-    }
-    $('#map-select-scale').val(map.getZoom());
-    $('#map-select-scale').change(function(){
-        map.zoomTo(this.value);
-    });
-    map.events.register('zoomend', null, function(){
-        $('#map-select-scale').val(map.getZoom());
-    });
-
-    $('#mapset-title').html(GisClientMap.title);
-
-    var onResize = function() {
-        if($(window).width() < 1000) $('#map-coordinates').hide();
-        var panelContentHeight = $(window).height() - $('div.panel-header').height() - $('#map-footer').height() - 35;
-        $('#sidebar-panel div.panel-content').height(panelContentHeight);
-    }
-    $(window).resize(onResize);
-    onResize.call();
-        
 }//END initMap
 
 
