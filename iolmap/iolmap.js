@@ -100,8 +100,8 @@ $(function() {
         }
     }).on("change", function(e){
         console.log(e.added)
-        $('input[name="coordx"]').val(e.added.x);
-        $('input[name="coordy"]').val(e.added.y);
+        $('input[name="coordx"]').val(Math.round(e.added.x));
+        $('input[name="coordy"]').val(Math.round(e.added.y));
     });
 
 
@@ -142,6 +142,9 @@ var initMap = function(){
         this.mapsetTileLayer.setVisibility(true);
     }
 
+    var editMode = $('input[name="coordx"]').length;
+    if(editMode==0) $('#center-button').hide();
+
 
 
     var btnPrint = new OpenLayers.Control.PrintMap({
@@ -152,9 +155,7 @@ var initMap = function(){
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
             maxScale:50000,
-            editMode: $('input[name="page_layout"]').length,
-            pageLayout:'vertical',
-            pageFormat:'A3',
+            editMode: editMode,
             serviceUrl:'/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
@@ -173,15 +174,17 @@ var initMap = function(){
         });
 
 
-    $('input[name="page_layout"]').change(function() {
-        btnPrint.pageLayout = $('input[name="page_layout"]:checked').val();
+    $('select[name="page_layout"]').change(function() {
+        btnPrint.pageLayout = $(this).val();
         btnPrint.updatePrintBox();
     });
     $('select[name="page_format"]').change(function() {
         btnPrint.pageFormat = $(this).val();
         btnPrint.updatePrintBox();
     });
-
+    $('select[name="page_legend"]').change(function() {
+        btnPrint.pageLegend = $(this).val();
+    });
     $('#printpanel').on('click', 'button[role="print"]', function(event) {
         event.preventDefault();
         btnPrint.doPrint();
@@ -200,12 +203,22 @@ var initMap = function(){
         btnPrint.updatePrintBox();
       }
     });
- 
 
     $('#center-button').on('click',function(){
-        
+        var x = Math.round(parseFloat($('input[name="coordx"]').attr('value')));
+        var y = Math.round(parseFloat($('input[name="coordy"]').attr('value')));
+        if(x && y) btnPrint.movePrintBox(new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857"));
     })
 
+    btnPrint.pageLayout = $('[name="page_layout"]').attr('value');
+    btnPrint.pageFormat = $('[name="page_format"]').attr('value');
+    btnPrint.pageLegend = $('[name="page_legend"]').attr('value');
+
+    //ricarico i dati salvati
+    var x = Math.round(parseFloat($('[name="coordx"]').attr('value')));
+    var y = Math.round(parseFloat($('[name="coordy"]').attr('value')));
+    btnPrint.printBoxScale = Math.round(parseFloat($('[name="scale"]').attr('value')));
+    if(x && y) btnPrint.centerBox = new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857");
 
     map.addControl(btnPrint);
     btnPrint.activate();

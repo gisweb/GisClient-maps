@@ -10,7 +10,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     pageFormat:"A4", //controlli
     pageLayout:"vertical",
     printFormat:"HTML",
-    printScale:null,
+    printBoxScale:null,
     printLegend:0,
     printResolution:150,
     maxPrintScale:null,
@@ -69,9 +69,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var me = this;
 
         OpenLayers.Control.prototype.setMap.apply(me, arguments);
-
-
-
 
         this.layerbox = new OpenLayers.Layer.Vector("LayerBox");    
         this.map.addLayer(this.layerbox);
@@ -285,6 +282,12 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         
         console.log("INSERIMENTO POLIGONO")
         
+
+        //console.log(this.pages)
+        //console.log(this.pageLayout)
+        //console.log(this.pageFormat)
+
+
         //calcolo l'area libera per il box di stampa
         var boxW = this.map.size.w - this.offsetLeft - this.offsetRight - 2*this.margin;
         var boxH = this.map.size.h - this.offsetTop - this.offsetBottom - 2*this.margin;
@@ -300,7 +303,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         else
             boxW = boxH*pageW/pageH;
 
-
         var leftPix = parseInt((this.map.size.w - boxW)/2);
         var topPix = parseInt((this.map.size.h - boxH)/2);
 
@@ -310,19 +312,33 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         //vedo che scala è uscita
         //occhio all'unità di misura meglio portare tutto in pollici??
         //comunque per ora va tutto im metri
+        if(!this.printBoxScale) this.printBoxScale = Math.abs(lb.lon-rt.lon)/pageW*100;
+        
+        var boxScale = Math.abs(lb.lon-rt.lon)/pageW*100;
 
-        this.printBoxScale = Math.abs(lb.lon-rt.lon)/pageW*100;
         var bounds = new OpenLayers.Bounds(lb.lon, lb.lat, rt.lon, rt.lat);
 
-        if(this.printBoxScale > this.maxScale) {
-
-            bounds = bounds.scale(this.maxScale/this.printBoxScale)
+        if(this.printBoxScale){
+            if(this.printBoxScale > this.maxScale) {
+                //scalo e risetto la scala
+                bounds = bounds.scale(this.maxScale/boxScale)
+                this.printBoxScale = this.maxScale;
+            }
+            else{
+                bounds = bounds.scale(this.printBoxScale/boxScale)
+            }
         }
-        this.printBoxScale = this.maxScale;
+
+        boxW = bounds.getWidth();
+        boxH = bounds.getHeight();
+
+
+        //DA CAPIRE PERCHE NON SONO  RIUSCITO A FARE UN SEMPLICE MOVE
+        if(this.centerBox) bounds = new OpenLayers.Bounds(this.centerBox.lon - boxW/2, this.centerBox.lat - boxH/2, this.centerBox.lon + boxW/2,  this.centerBox.lat + boxH/2);
+
         this.printBox = new OpenLayers.Feature.Vector(bounds.toGeometry());
         this.layerbox.addFeatures(this.printBox);
         if(this.editMode) this.modifyControl.activate();
-        this.events.triggerEvent("updatebox");
 
     },
     
@@ -333,7 +349,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         //console.log(this.pageFormat)
         //console.log(this.pageLayout)
         var pageSize=this.pages[this.pageLayout][this.pageFormat];
-
         //si dovrebbero passare già in float
         var pageW = parseFloat(pageSize.w);
         var pageH = parseFloat(pageSize.h);
@@ -347,12 +362,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
        
         //????????????????????????????????????????? non aggiorna
         //BOH NON RIESCO A MODIFICARE LA FEATURE. QUINDI LA TOLGO E LA RIAGGIUNGO POI VEDIAMO
-        try{
-            this.modifyControl.unselectFeature(this.printBox);
-        }
-        catch (err){
-            
-        }
+        if(this.modifyControl.feature) this.modifyControl.unselectFeature(this.printBox);
         this.printBox.destroy();
         this.printBox = new OpenLayers.Feature.Vector(newBounds.toGeometry());
         this.layerbox.addFeatures(this.printBox);
@@ -361,7 +371,14 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
 
 
+    },
+
+    movePrintBox: function(position){
+        if(this.modifyControl.feature) this.modifyControl.unselectFeature(this.printBox);
+        this.printBox.move(position);
+
     }
+
     
 });
 
