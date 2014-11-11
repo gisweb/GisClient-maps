@@ -11,11 +11,10 @@ $(function() {
     var elencoCivici = [];
 
 
-    $("#comune").select2({
+    $('select[name="comune"]').select2({
       allowClear: true,
       placeholder: '---'
     }).on("change", function(e) { 
-      $("#via").val(e.added.text);
       $.ajax({
         'url':"resources/elencoVie",
         'type':'GET',
@@ -23,15 +22,16 @@ $(function() {
         'dataType':'JSON',
         'success':function(data, textStatus, jqXHR){
           elencoVie = data.results;
-          $('#via').select2('data', elencoVie);
-          $('#via').select2('val', null);
+          $('input[name="via"]').select2('data', elencoVie);
+          $('input[name="via"]').select2('val', null);
+          $('input[name="civico"]').select2('val', null);
           //$("#civico_geometry").val('');
         }
       });
     });
 
 
-    $('#via').select2({
+    $('input[name="via"]').select2({
           placeholder: '---',
           allowClear: true,
           minimumInputLength: 2,
@@ -41,7 +41,7 @@ $(function() {
             var re = RegExp(query.term, 'i');
             $.each(elencoVie, function(){
               if (re.test(this.text)){
-                data.results.push({id: this.id, text: this.text, coords: this.coord});
+                data.results.push({id: this.text, text: this.text, coords: this.coord, idvia:this.id});
               }
             });
             query.callback(data);
@@ -57,22 +57,23 @@ $(function() {
           callback(data);
         }
     }).on("change", function(e){
+        console.log(e)
       //$("#civico_nomevia").val(e.added.text);
       $.ajax({
         'url':"resources/elencoCivici",
         'type':'GET',
-        'data':{"via":$(this).val()},
+        'data':{"via":e.added.idvia},
         'dataType':'JSON',
         'success':function(data, textStatus, jqXHR){
           elencoCivici = data.results;
-          $('#civico').select2('data', elencoCivici);
-          $('#civico').select2('val', null);
+          $('input[name="civico"]').select2('data', elencoCivici);
+          $('input[name="civico"]').select2('val', null);
           //$("#civico_geometry").val('');
         }
       });
     });
     
-    $('#civico').select2({
+    $('input[name="civico"]').select2({
           placeholder: '---',
           allowClear: true,
           minimumInputLength: 0,
@@ -82,7 +83,7 @@ $(function() {
             var re = RegExp('^' + query.term, 'i');
             $.each(elencoCivici, function(){
               if (re.test(this.text)){
-                data.results.push({id: this.id, text: this.text, x: this.x, y: this.y});
+                data.results.push({id: this.text, text: this.text, x: this.x, y: this.y});
               }
             });
             query.callback(data);
@@ -98,7 +99,9 @@ $(function() {
           callback(data);
         }
     }).on("change", function(e){
-        $("#civico_geometry").val(e.added.coords);
+        console.log(e.added)
+        $('input[name="coordx"]').val(e.added.x);
+        $('input[name="coordy"]').val(e.added.y);
     });
 
 
@@ -148,13 +151,20 @@ var initMap = function(){
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
-            scale:50000,
+            maxScale:50000,
+            editMode: $('input[name="page_layout"]').length,
             pageLayout:'vertical',
             pageFormat:'A3',
             serviceUrl:'/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
-                    $('#printpanel input[name="scale"]').val(Math.round(this.printBoxScale));
+                    var bounds = this.printBox.geometry.getBounds();
+                    var center = bounds.getCenterLonLat().clone().transform("EPSG:3857","EPSG:3003");
+                    $('input[name="scale"]').val(Math.round(this.printBoxScale));
+                    $('input[name="coordx"]').val(Math.round(center.lon));
+                    $('input[name="coordy"]').val(Math.round(center.lat));
+                    $('input[name="boxw"]').val(Math.round(bounds.getWidth()));
+                    $('input[name="boxh"]').val(Math.round(bounds.getHeight()));
                 }
 
             }
@@ -162,16 +172,12 @@ var initMap = function(){
 
         });
 
-    $('#printpanel input[name="scale_mode"]').change(function() {
-        $('#printpanel input[name="scale_mode"]:checked').val();
-        btnPrint.drawPrintBox();
-    });
 
-    $('#printpanel input[name="direction"]').change(function() {
-        btnPrint.pageLayout = $('#printpanel input[name="direction"]:checked').val();
+    $('input[name="page_layout"]').change(function() {
+        btnPrint.pageLayout = $('input[name="page_layout"]:checked').val();
         btnPrint.updatePrintBox();
     });
-    $('#printpanel select[name="formato"]').change(function() {
+    $('select[name="page_format"]').change(function() {
         btnPrint.pageFormat = $(this).val();
         btnPrint.updatePrintBox();
     });
@@ -181,7 +187,8 @@ var initMap = function(){
         btnPrint.doPrint();
     });
 
-    $('#printpanel input[name="scale"]').spinner({
+
+    $('input[name="scale"]').spinner({
       step: 100,
       numberFormat: "n",
       change: function( event, ui ) {
@@ -193,7 +200,11 @@ var initMap = function(){
         btnPrint.updatePrintBox();
       }
     });
-    
+ 
+
+    $('#center-button').on('click',function(){
+        
+    })
 
 
     map.addControl(btnPrint);
@@ -209,9 +220,9 @@ var initMap = function(){
 
 }//END initMap
 
-
-    OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
+    initDialog();
+    OpenLayers.ImgPath = "/gisclient/template/resources/themes/openlayers/img/";
+    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php?mapset=test','map',{
         useMapproxy:true,
         mapProxyBaseUrl:"/ows",
         mapOptions:{

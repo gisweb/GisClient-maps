@@ -262,10 +262,12 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var bounds = e.feature.geometry.getBounds();
         this.printBoxScale = Math.abs(bounds.right-bounds.left)/pageW*100;
 
+        if(this.printBoxScale > this.maxScale) {
+            this.printBoxScale = this.maxScale;
+            this.updatePrintBox();
+        }
 
         this.events.triggerEvent("updatebox");
-
-
 
     },
 
@@ -280,7 +282,9 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
 
     drawPrintBox: function() {
-
+        
+        console.log("INSERIMENTO POLIGONO")
+        
         //calcolo l'area libera per il box di stampa
         var boxW = this.map.size.w - this.offsetLeft - this.offsetRight - 2*this.margin;
         var boxH = this.map.size.h - this.offsetTop - this.offsetBottom - 2*this.margin;
@@ -297,7 +301,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             boxW = boxH*pageW/pageH;
 
 
-
         var leftPix = parseInt((this.map.size.w - boxW)/2);
         var topPix = parseInt((this.map.size.h - boxH)/2);
 
@@ -308,24 +311,18 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         //occhio all'unità di misura meglio portare tutto in pollici??
         //comunque per ora va tutto im metri
 
+        this.printBoxScale = Math.abs(lb.lon-rt.lon)/pageW*100;
+        var bounds = new OpenLayers.Bounds(lb.lon, lb.lat, rt.lon, rt.lat);
 
+        if(this.printBoxScale > this.maxScale) {
 
-        //this.layerbox.removeAllFeatures();
-
-        //se ho già il box mantengo la scala e cambio le dimensioni(a meno che non cambi la scala)
-        if(this.printBox){
-            console.log(this.printBox)
-                //bohhh
-
-        }else{
-            this.printBoxScale = Math.abs(lb.lon-rt.lon)/pageW*100;
-            var bounds = new OpenLayers.Bounds(lb.lon, lb.lat, rt.lon, rt.lat);
-            this.printBox = new OpenLayers.Feature.Vector(bounds.toGeometry());
-            this.layerbox.addFeatures(this.printBox);
-            this.modifyControl.activate();
-            this.events.triggerEvent("updatebox");
+            bounds = bounds.scale(this.maxScale/this.printBoxScale)
         }
-
+        this.printBoxScale = this.maxScale;
+        this.printBox = new OpenLayers.Feature.Vector(bounds.toGeometry());
+        this.layerbox.addFeatures(this.printBox);
+        if(this.editMode) this.modifyControl.activate();
+        this.events.triggerEvent("updatebox");
 
     },
     
@@ -333,6 +330,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
         //se cambio le dimensioni voglio comunque mantenere la scala di stampa!!!
         //non ruoto semplicemente il box perchè le dimensioni potrebbero essere diverse
+        //console.log(this.pageFormat)
+        //console.log(this.pageLayout)
         var pageSize=this.pages[this.pageLayout][this.pageFormat];
 
         //si dovrebbero passare già in float
@@ -357,6 +356,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         this.printBox.destroy();
         this.printBox = new OpenLayers.Feature.Vector(newBounds.toGeometry());
         this.layerbox.addFeatures(this.printBox);
+        this.events.triggerEvent("updatebox");
 
 
 
