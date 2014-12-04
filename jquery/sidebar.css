@@ -306,3 +306,7 @@ div.fast-navigate {
     border: 1px solid white;
     border-radius: 4px;
 }
+
+.infoButton.active {
+    border: 1px solid white;
+}

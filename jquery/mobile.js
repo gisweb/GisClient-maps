@@ -236,8 +236,8 @@ var initMap = function(){
                     if(event.vectorFeaturesOverLimit) {
                         alert('I risultati dell\'interrogazione sono troppi: alcuni oggetti non sono stati disegnati su mappa ');
                     }
-                    console.log(event.mode);
-                    console.log(event.layer.getDataExtent());
+                    //console.log(event.mode);
+                    //console.log(event.layer.getDataExtent());
                     if(event.mode == 'fast') {
                         GisClientMap.map.zoomToExtent(event.layer.getDataExtent());
                     }
@@ -251,6 +251,7 @@ var initMap = function(){
                 }
             },
             'featureselected': function(event) {
+
                 var feature = event.feature,
                     featureType = feature.featureTypeName;
 
@@ -533,6 +534,7 @@ var initMap = function(){
 
 
 
+    //RICERCA E INTERROGAZIONE VELOCE DA COMBO IN BASSO
     //popolo la select nel footer per le ricerche veloci
     var options = [];
     for(var layerId in queryToolbar.wfsCache) {
@@ -545,10 +547,24 @@ var initMap = function(){
         }
     }
     $('#map-fast-search select').html(options);
-    $('#map-fast-search a').click(function(event) {
+    $('#map-fast-search a.searchButton').click(function(event) {
         queryToolbar.searchButtonHander.call(queryToolbar, $('#map-fast-search select').val(), 'fast');
     });
-    
+    $('#map-fast-search a.infoButton').click(function(event) {
+        if($(this).hasClass('active')){
+            queryToolbar.controls[0].deactivate();
+        }
+        else{
+            var control = queryToolbar.controls[0];
+            var layer =  queryToolbar.getLayerFromFeature($('#map-fast-search select').val());
+            control.layers = [layer];
+            control.queryFeatureType = $('#map-fast-search select').val();
+            control.activate();
+        }
+    });
+
+
+
     var measureToolbar = new OpenLayers.Control.Panel({
         createControlMarkup:customCreateControlMarkup,
         div:document.getElementById("map-toolbar-measure"),

@@ -1,5 +1,4 @@
 OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
-
     
     resultLayer:null,
     queryLayers:[],
@@ -150,7 +149,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             featureTypes = this.wfsCache[index].featureTypes; 
             options=[];
             for(var i=0;i<featureTypes.length;i++){
-                if(featureTypes[i].searchable == 1){
+                if(featureTypes[i].searchable == 1 || featureTypes[i].searchable == 2){
                     option = this.getOption(featureTypes[i].title,featureTypes[i].typeName);
                     OpenLayers.Element.addClass(option, "olOptionDisabled");
                     options.push(option);
