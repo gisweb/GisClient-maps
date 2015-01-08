@@ -1,0 +1,224 @@
+#gmap {
+    width: 98%;
+    height: 400px;
+    margin:10px;
+    border:1px solid gray;
+    margin-top: 25px
+}
+
+#info-panel {
+    width: 500px;
+    height: 30px;
+    margin-left: 15px;
+    float:left;
+}
+
+
+.icon-marker,.icon-marker:hover,.icon-marker:focus{
+    background-image: url("../images/marker24.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    height:34px;
+}
+
+
+
+#layerbox { 
+  position: absolute;
+  top:23px; left:0px;
+  margin-top:-2px;
+  padding: 6px 4px;
+  text-align: left;
+  width:350px;
+  max-height:200px;
+  background-color: #fff;
+  display: none;
+  cursor:default;
+  z-index:-1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px; 
+  width:250px;
+  margin-top: 5px;
+
+}
+
+#layerbox hr { 
+  height:1px;
+  border:1px;
+  color:#e2e2e2;
+  background-color:#e2e2e2;
+  margin: 1px 0;
+}
+
+*+html #layerbox hr {
+/* IE 7 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+* html #layerbox hr {
+/* IE 6 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+
+*+html #layerbox hr {
+/* IE 7 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+* html #layerbox hr {
+/* IE 6 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+/*
+CSS for v3 gmap-buttons stolen from:
+ http://gmaps-samples-v3.googlecode.com/svn/trunk/controls/index.html
+*/
+
+
+
+
+.gmap-button, .gmap-button-selected, .dropdown {
+  width:160px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+/*  position: relative; */
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px; 
+  -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 2px 4px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 2px 4px;
+  color: #000;
+  /*border: 1px solid #717B87;*/
+  background-color: #fff; 
+}
+
+.gmap-button, .gmap-button-selected {
+  margin: 5px;
+  padding: 1px 6px;
+  overflow: hidden;
+}
+
+.gmap-button:hover {
+  background: #FEFEFE;
+  background: -moz-linear-gradient(top, #FEFEFE 0%, #F3F3F3 100%);
+  background: -webkit-gradient(linear, left top, left bottom, from(#FEFEFE), to(#F3F3F3));
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#F3F3F3', GradientType=0);
+}
+
+.gmap-button-selected {
+  font-weight: bold;
+}
+
+
+
+#layerbox label{
+
+    list-style:none;
+    white-space:nowrap;
+    margin-left:5px;
+
+} 
+
+#layerbox input{
+
+  display: :inline;
+  margin-right: 2px;
+
+}
+
+#clicktarget {
+  text-align: center;
+}
+
+
+table tbody tr:hover {
+    background-color: blue;
+    cursor: pointer;
+}
+
+
+#draw-panel {
+  width: 200px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  float: right;
+  margin: 5px;
+}
+
+#draw-palette {
+  clear: both;
+}
+
+.color-button {
+  width: 14px;
+  height: 14px;
+  font-size: 0;
+  margin: 2px;
+  float: left;
+  cursor: pointer;
+}
+
+#draw-delete-button {
+  margin-left: 5px;
+}
+
+#coords {
+  margin-left: 15px;
+  font-size: 10px
+}
+
+#draw-delete-button {
+
+  float: left;
+
+}
+
+      .controls {
+        margin-top: 5px;
+        margin-left: 30px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #pac-input {
+        background-color: #fff;
+        padding: 0 11px 0 13px;
+        width: 400px;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        text-overflow: ellipsis;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+        margin-left: -1px;
+        padding-left: 14px;  /* Regular padding-left + 1. */
+        width: 401px;
+      }
+
+      .pac-container {
+        font-family: Roboto;
+      }
+
+      #type-selector {
+        color: #fff;
+        background-color: #4d90fe;
+        padding: 5px 11px 0px 11px;
+      }
+
+      #type-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
