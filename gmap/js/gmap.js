@@ -39,6 +39,7 @@
     //SETTARE LE OPZIONI DA QUALCHE CONFIGURAZIONE
     var infowindow = new google.maps.InfoWindow();
     var marker = new google.maps.Marker({
+      draggable:true,
       map: map,
       anchorPoint: new google.maps.Point(0, -29)
     });
@@ -71,7 +72,7 @@
       });
       marker.setPosition(place.geometry.location);
       marker.setVisible(true);
-
+      updateCoordinates(place.geometry.location.lat(),place.geometry.location.lng());
 
     });
 
@@ -81,10 +82,11 @@
     });
 
     //AGGIUNTO UN DELAY PER EVITARE CHIAMATE INUTILI
+    //QUESTA CHIAMATA PERMETTE DI RICERCARE INFORMAZIONI UTILI DATA LA POSIZIONE (DISABILITATA)
     google.maps.event.addListener(marker, 'dragend', function(e) {
 
       setTimeout(function() {
-        updatePositionInfo(e.latLng.lat(),e.latLng.lng());
+        //updatePositionInfo(e.latLng.lat(),e.latLng.lng());
       }, delayOnRequest);
 
     });
@@ -95,11 +97,14 @@
 
    
     var updateCoordinates = function(lat,lng){
-        var p = new Proj4js.Point(lng,lat);  
-        Proj4js.transform(projSource, projDest, p);
-        $("span[data-bind='text:CoordX']").html(Math.round(p.x));
-        $("span[data-bind='text:CoordY']").html(Math.round(p.y));
-        delete(p);
+        //RIPROIEZIONE ????????????
+
+        //var p = new Proj4js.Point(lng,lat);  
+        //Proj4js.transform(projSource, projDest, p);
+        $("[name='form.widgets.lat_scheda']").val(lat);
+        $("[name='form.widgets.lon_scheda']").val(lng);
+
+
     }
 
 
@@ -587,10 +592,20 @@
           newShape.type = e.type;
           google.maps.event.addListener(newShape, 'click', function() {
             setSelection(newShape);
+            infowindow.setContent('qui cosa ci mettiamo?');
+            infowindow.open(map,newShape);
           });
           setSelection(newShape);
 
         //}
+
+        infowindow.setContent('<h3>TODO html per dataentry della descrizione</h3>se chiudo lasciano il campo vuoto elimino l\'elemento??<br><input type="text">');
+
+        infowindow.open(map,newShape);
+
+
+
+
       });
 
 
