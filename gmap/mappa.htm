@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Tab Mappa</title>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?language=it&libraries=drawing,places"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+    <script type="text/javascript" src="js/proj4js.js"></script>
+
+    <link rel="stylesheet" href="css/mappa.css">
+    <script type="text/javascript" src="js/mappa.js"></script>
+
+
+    <style>
+
+    </style>
+
+
+</head>
+<body>
+
+<!--  ITEMS  -->
+<input name="indirizzo" type="text" />
+
+<!--   LAYERS  -->
+
+        <div id="layerContainer" title="Mostra/Nascondi Livelli">
+        <div class="gmap-button" id="clicktarget">Livelli in mappa</div>
+        <div id="layerbox" class="gmap-button">
+            <label><input name="layers" type="checkbox" data-layer-name="grp_reticolo_idrografico" data-layer-type="WMTS" /> Rete idrografica
+ </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_aree_protette" data-layer-type="WMTS" data-layer-opacity=50 data-layer-on=1 /> Aree protette
+ </label> <br />
+             <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali" data-layer-type="WMTS" data-layer-on=1 /> Bacini principali
+ </label> <br />
+             <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale" data-layer-type="WMTS" /> Rete viaria
+ </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale5" data-layer-type="WMTS"/> Aree IAP </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali5" data-layer-type="WMTS"/> CTR bitonale </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principalii" data-layer-type="WMTS"/> Qualche livello specifico della CTR </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principaliy" data-layer-type="WMTS"/> Punti di recapito idrici </label> <br />
+
+            <label><input name="layers" type="checkbox" data-layer-name="grp_acque_pubbliche_marche" data-layer-type="WMTS"/> Acque pubbliche </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_fabbricati" data-layer-type="WMTS"/> Fabbricati catastali </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_particelle" data-layer-type="WMTS"/> Particelle catastali </label> <br />
+
+        </div>
+        </div>
+
+<!--   LAYERS  -->
+
+
+        <div>
+            <div id="draw-panel">
+              <div id="draw-color-palette"></div>
+              <button id="draw-delete-button">Elimina</button>
+            </div>
+            <div id="gmap"></div>
+        </div>
+
+    </div>
+</body>
+</html>
+

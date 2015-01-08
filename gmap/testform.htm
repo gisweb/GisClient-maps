@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>testform</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?language=it&libraries=drawing,places"></script>
+    
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+    <script type="text/javascript" src="js/proj4js.js"></script>
+
+    <link rel="stylesheet" href="css/typeahead.css">
+
+    <link rel="stylesheet" href="css/testform.css">
+    <script type="text/javascript" src="js/testform.js"></script>
+
+
+    <style>
+
+    </style>
+
+
+</head>
+<body>
+    <div class="container-fluid">
+    <fieldset class="sect450"><legend>Posizione segnalazione</legend>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label>Comune </label>
+                <div class="input-group">
+                    <input class="form-control " data-bind="value:DescComune"  maxlength="200" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default disabled icon-marker" type="button"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label>Località</label>
+                <div class="input-group">
+                    <input class="form-control" data-bind="value:Localita" maxlength="200" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default disabled icon-marker" type="button"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label>Indirizzo</label>
+                <div class="input-group">
+                    <input class="form-control" data-bind="value:Indirizzo" maxlength="200" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default disabled icon-marker" type="button"></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label>Nome Asta</label>
+                <input class="form-control" data-bind="value:NomeAsta" maxlength="100" />
+            </div>
+            <div class="form-group col-sm-4">
+                <label>Foglio</label>
+                <div class="input-group">
+					<input class="form-control" data-bind="value:Foglio" maxlength="100" />
+					<span class="input-group-btn">
+						<button class="btn btn-default disabled icon-marker" type="button"></button>
+					</span>
+				</div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Numero </label>
+                <span class="form-control" data-bind="text:Numero"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label>Sub-Bacino </label>
+                <span class="form-control" data-bind="text:DescSubBacino"></span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>IAP di competenza</label>
+                <span class="form-control" data-bind="text:CodIAP"></span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Acqua Pubblica?</label>
+                <span class="form-control" data-bind="text:DescAcquaPubb"></span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Area Protetta?</label>
+                <span class="form-control" data-bind="text:DescAreaProtetta"></span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <label>Coord X (Gauss Boaga Roma40-est)</label>
+                <span class="form-control" data-bind="text:CoordX"></span>
+            </div>
+            <div class="form-group col-sm-3">
+                <label>Coord Y (Gauss Boaga Roma40-est)</label>
+                <span class="form-control" data-bind="text:CoordY"></span>
+            </div>
+        </div>
+
+
+<!--   LAYERS  -->
+
+        <div id="layerContainer" title="Mostra/Nascondi Livelli">
+        <div class="gmap-button" id="clicktarget">Livelli in mappa</div>
+        <div id="layerbox" class="gmap-button">
+            <label><input name="layers" type="checkbox" data-layer-name="grp_reticolo_idrografico" data-layer-type="WMTS" /> Rete idrografica
+ </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_aree_protette" data-layer-type="WMTS" data-layer-opacity=50 data-layer-on=1 /> Aree protette
+ </label> <br />
+             <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali" data-layer-type="WMTS" data-layer-on=1 /> Bacini principali
+ </label> <br />
+             <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale" data-layer-type="WMTS" /> Rete viaria
+ </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale5" data-layer-type="WMTS"/> Aree IAP </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali5" data-layer-type="WMTS"/> CTR bitonale </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principalii" data-layer-type="WMTS"/> Qualche livello specifico della CTR </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principaliy" data-layer-type="WMTS"/> Punti di recapito idrici </label> <br />
+
+            <label><input name="layers" type="checkbox" data-layer-name="grp_acque_pubbliche_marche" data-layer-type="WMTS"/> Acque pubbliche </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_fabbricati" data-layer-type="WMTS"/> Fabbricati catastali </label> <br />
+            <label><input name="layers" type="checkbox" data-layer-name="grp_particelle" data-layer-type="WMTS"/> Particelle catastali </label> <br />
+
+        </div>
+        </div>
+
+<!--   LAYERS  -->
+
+        <button id="print"></button>
+
+        <div class="row">
+            <div id="info-panel">
+                <div id="coords"></div>
+                <div id="measure"></div>
+            </div>
+            <div id="draw-panel">
+              <button type="button" class="btn" id="draw-save-button">Salva</button>
+              <button type="button" class="btn" id="measure-button"data-toggle="button">Misura</button>
+              <div id="draw-color-palette"></div>
+              <button id="draw-delete-button">Elimina</button>
+            </div>
+            <div id="mappa"></div>
+        </div>
+    </fieldset>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>testelenco</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?language=it"></script>
+    
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+    <script type="text/javascript" src="js/proj4js.js"></script>
+    <script type="text/javascript" src="js/markerclusterer.js"></script>
+
+    
+    <link rel="stylesheet" href="css/testform.css">
+
+
+<script type="text/javascript">
+(function ($) {
+
+  $(function () {
+
+
+    var serviceURL = "http://consorziobonifica.rr.nu/gisclient/services/consorziobonifica/serviceInfo.php";
+    var mapBaseURL ="http://consorziobonifica.rr.nu/ows/consorziobonifica";
+    var tileGridName = "mygoogle_3857";
+
+    var $element, $buttonElement;
+    //DEFINIZIONE DEL SISTEMA PROIETTIVO PER IL RICALCOLO DELLE COORDINATE
+    Proj4js.defs["EPSG:3004"] = "+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9996 +x_0=2520000 +y_0=0 +ellps=intl +units=m +no_defs +towgs84=-104.1,-49.1,-9.9,0.971,-2.917,0.714,-11.68"
+
+    var mapOptions = {
+      center: new google.maps.LatLng(43.3,13.2),
+      zoom: 8
+    };
+    var map = new google.maps.Map($("#mappa").get(0),mapOptions);
+    var icon, marker, markerOptions, markers = [];
+
+
+
+    var markerClusterer = new MarkerClusterer(map, markers, {
+        maxZoom: 10,
+        gridSize: 50
+    });
+
+
+
+    $.ajax({
+      url: serviceURL,
+      dataType: "jsonp",
+      data:{"request":"elencotest"},
+      jsonpCallback: "callback",
+      async: false,
+      success: function( response ) {
+
+        clearMarkers(markers);
+        markerClusterer.clearMarkers();
+        $.each(response.results, function(i, item) {
+
+            markerOptions={
+                map:map,
+                icon:"images/" + item[2] + ".png",
+                rowIndex:i,
+                docId:item[0],
+                title:item[1],
+                position: new google.maps.LatLng(parseFloat(item[4]),parseFloat(item[3]))
+            }
+
+            marker = new google.maps.Marker(markerOptions);
+            markers.push(marker);
+            
+            google.maps.event.addListener(marker, 'click', function(e) {
+
+                alert ("click sul marker per aprire la pratica " + this.docId + " oppure evidenziare la riga " + this.rowIndex); 
+                console.log(this)
+
+            });
+
+
+            $('<tr>').html("<td>" + item[0] + "</td><td>" + item[1] + "</td><td>" + item[2] + "</td><td>" + item[3]+" "+item[4]+"</td>").appendTo('#miatabella');
+
+
+
+
+
+        });
+
+        markerClusterer.addMarkers(markers);
+        //zoom sul marker 
+        $("#miatabella tr").click(function(){
+            
+            map.setCenter(markers[$(this).index()].getPosition());
+            map.setZoom(18);
+
+        })
+
+      }
+
+    })
+
+
+    function clearMarkers(markers){
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(map);
+        }
+        markers=[];
+    }
+
+
+
+  });
+
+})(jQuery);
+
+
+</script>
+
+
+</head>
+<body>
+<div id="mappa"></div>
+<table border="1" id ="miatabella" style="width: 98%;height: 400px;margin:10px;border:1px solid gray;"></table>
+</body>
+</html>
+
