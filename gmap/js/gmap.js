@@ -1,42 +1,28 @@
        
 (function ($) {
 
+  "use strict";
+  
   $(function () {
 
     //PER LE PROVE E LA CACHE DI FIREFOX
     $('input').val('');
 
-    var serviceURL = "/gisclient/services/consorziobonifica/serviceInfo.php";
-    var gisclientUrl = "/gisclient/services/ows.php?MAP=consorziobonifica";
-    var mapBaseURL ="http://sit.bonificamarche.it/ows/consorziobonifica";
+    var serviceURL = "./services/serviceInfo.json";
+    var gisclientUrl = "/gisclient/services/ows.php?MAP=cariplo";
+    var owsBaseURL ="http://sit.gisweb.it/ows/cariplo";
     var tileGridName = "epsg3857";
     var delayOnRequest = 1;
     var markerDraggable = true;
     var drawingShapes = [];
 
-    var $element, $buttonElement;
+    var $element, $buttonElement, $txtIndirizzo;
     //DEFINIZIONE DEL SISTEMA PROIETTIVO PER IL RICALCOLO DELLE COORDINATE
     Proj4js.defs["EPSG:3004"] = "+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9996 +x_0=2520000 +y_0=0 +ellps=intl +units=m +no_defs +towgs84=-104.1,-49.1,-9.9,0.971,-2.917,0.714,-11.68"
     var projSource = new Proj4js.Proj("EPSG:4326"); 
     var projDest = new Proj4js.Proj("EPSG:3004"); 
 
 
-    //CARICO L'ELENCO UNA VOLTA SOLO IN AVVIO COSÌ L'AUTOCOMPLETE È PIÙ VELOCE. USO JSOP PER EVITARE PROBLEMI LEGATI AL XDOMAIN
-    var elencoComuni;
-    $.ajax({
-      url: serviceURL,
-      dataType: "jsonp",
-      data:{"request":"comuni"},
-      jsonpCallback: "callback",
-      async: false,
-      success: function( response ) {
-        //TODO gestire errori da server
-
-        elencoComuni=response.results;
-
-      }
-
-    })
 
     //OPZIONI DELLA MAPPA DI GOOGLE SETTATE QUI A MENO CHE NON VOGLIATE CREARE UN PANNELLO DI CONFIGURAZIONE 
     //SULL'APPLICAZIONE. IN QUESTO CASO LE IMPOSTAZIONI DELLA MAPPA POTREBBERO ESSERE MEMORIZZATE SU HTML5 ATTRIBUTES
@@ -44,8 +30,11 @@
       center: new google.maps.LatLng(43.3,13.2),
       zoom: 8
     };
-    var map = new google.maps.Map($("#mappa").get(0),mapOptions);
+    var map = new google.maps.Map($("#gmap").get(0),mapOptions);
     google.maps.event.addListener(map, 'mousemove', onMouseMove);
+
+
+    console.log(map);
 
 
     //MARKER USATE PER INDIVIDUARE LA POSIZIONE DELLA SEGNALAZIONE
@@ -57,7 +46,7 @@
         icon: 'images/marker48.png'
     });
 
-    $txtIndirizzo = $("input[data-bind='value:Indirizzo']");
+    $txtIndirizzo = $("#pac-input");
     var gMapAutocomplete = new google.maps.places.Autocomplete($txtIndirizzo.get(0));
     gMapAutocomplete.bindTo('bounds', map);
     google.maps.event.addListener(gMapAutocomplete, 'place_changed', function() {
@@ -68,6 +57,8 @@
         return;
       }
 
+      console.log(place)
+
       $buttonElement = $txtIndirizzo.parents(".input-group").find(".icon-marker");
       // If the place has a geometry, then present it on a map.
       if (place.geometry.viewport) {
@@ -77,7 +68,7 @@
 
       } else {
         map.setCenter(place.geometry.location);
-        map.setZoom(17);  // Why 17? Because it looks good.
+        map.setZoom(17);  
         $buttonElement.data("lat",place.geometry.location.lat());
         $buttonElement.data("lng",place.geometry.location.lng());
 
@@ -103,140 +94,6 @@
 
     addDrawingManager();
 
-
-    $txtComune = $("input[data-bind='value:DescComune']");
-    $txtComune.typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 1
-    },
-    {
-      name: 'comune',
-      displayKey: 'value',
-      source: function (q, cb) {
-        var matches, substrRegex;
-  
-        matches = [];
-     
-        // CERCO I TESTI CHE INIZIANO PER..
-        substrRegex = new RegExp('^' + q, 'i');
-     
-        $.each(elencoComuni, function(_, comune) {
-          if (substrRegex.test(comune[1])) {
-              matches.push({value: comune[1], extent:comune[3], codice:comune[0]});
-          }
-        })
-        cb(matches);
-      }
-
-    });
-
-
-    $txtFoglio = $("input[data-bind='value:Foglio']");
-    $txtFoglio.typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 1
-    },
-    {
-      name: 'foglio',
-      displayKey: 'value',
-      source: function (q, cb) {
-        var matches, substrRegex;
-  
-        matches = [];
-     
-        // CERCO I TESTI CHE INIZIANO PER..
-        substrRegex = new RegExp('^' + q, 'i');
-     
-        $.each(elencoFogli, function(_, foglio) {
-          if (substrRegex.test(foglio[1])) {
-              matches.push({id:foglio[0], value: foglio[1], extent:foglio[2]});
-          }
-        })
-        cb(matches);
-      }
-
-    });
-    
-    
-    $txtComune.bind('typeahead:selected', function(obj, datum, name) {      
-      var extent=datum.extent.split(",");
-
-      var bounds = new google.maps.LatLngBounds(new google.maps.LatLng(parseFloat(extent[1]),parseFloat(extent[0])),new google.maps.LatLng(parseFloat(extent[3]),parseFloat(extent[2])))
-
-      map.fitBounds(bounds);
-
-      $buttonElement = $txtComune.parents(".input-group").find(".icon-marker");
-      $buttonElement.data("lat",bounds.getCenter().lat());
-      $buttonElement.data("lng",bounds.getCenter().lng());
-      $buttonElement.removeClass("disabled");
-
-      $.ajax({
-        url: serviceURL,
-        data:{"request":"localita","comune":datum.codice},
-        dataType: "jsonp",
-        jsonpCallback: "callback",
-        async: false,
-        success: function( response ) {
-
-          elencoLocalita=response.results;
-
-        }
-      })
-      
-      $.ajax({
-        url: serviceURL,
-        data:{"request":"fogli","comune":datum.codice},
-        dataType: "jsonp",
-        jsonpCallback: "callback",
-        async: false,
-        success: function( response ) {
-
-          elencoFogli=response.results;
-
-        }
-      })
-      
-
-    });
-
-    $txtLocalita = $("input[data-bind='value:Localita']");
-    $txtLocalita.typeahead({
-        hint: true,
-        highlight: true,
-        minLength: 1
-    },
-    {
-      name: 'localita',
-      displayKey: 'value',
-      source: function (q, cb) {
-        var matches, substrRegex;
-          matches = [];
-          //CERCO I TESTI CHE CONTENGONO LA SOTTOSTRINGA
-          substrRegex = new RegExp(q, 'i');
-
-          $.each(elencoLocalita, function(_, localita) {
-            if (substrRegex.test(localita[0])) {
-                matches.push({value: localita[0], lat:localita[1], lng:localita[2] });
-            }
-          })
-          cb(matches);
-        }
-    });
-
-    $txtLocalita.bind('typeahead:selected', function(obj, datum, name) {      
-
-      map.setCenter(new google.maps.LatLng(parseFloat(datum.lat),parseFloat(datum.lng)));
-      map.setZoom(17); 
-
-      $buttonElement = $txtLocalita.parents(".input-group").find(".icon-marker");
-
-      $buttonElement.data("lat",parseFloat(datum.lat));
-      $buttonElement.data("lng",parseFloat(datum.lng));
-      $buttonElement.removeClass("disabled");
-
-    });
 
 
    
@@ -313,7 +170,8 @@
  
   //AGGINGE IN MAPPA IL BOTTONE DEI LAYERS
   map.controls[google.maps.ControlPosition.TOP_RIGHT].push(container); 
-
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById("pac-input"));
+/*
   var outer = document.createElement("div");
   outer.style.width = "60px";
 
@@ -323,19 +181,19 @@
   inner.title ="Crea immagine per la stampa";
   var text = document.createElement("div");
   text.id = "clicktarget";
-  text.appendChild(document.createTextNode("Stampa")); 
-  inner.appendChild(text);
-  outer.appendChild(inner);
+  //text.appendChild(); 
+  //inner.appendChild(text);
+  //outer.appendChild(document.getElementById("pac-input"));
 
   // Take care of the clicked target
   inner.onclick = function(){mapImage({"segnalazione":1,"layers":'osm.osm-wms,grp_particelle,grp_fabbricati',"width":800,"height":600,"lat":43.598295 ,"lng":13.514557,"scale":866666})};
   //inner.onclick = function(){mapImage({layers:'osm.osm-wms',width:800,height:600,xc:2371336,yc:4765551,scale:1692})};
 
   map.controls[google.maps.ControlPosition.TOP_RIGHT].push(outer); 
-
+*/
     function addMapLayers() {
 
-      var layer, layers = {};
+      var layerOptions, layer, layers = {};
 
       //OVERLAYS
       $("input[name='layers']").each(function(_,element){
@@ -628,7 +486,6 @@
 
       //SALVA LE GEOMETRIE DISEGNATE SULLA MAPPA CON I DAI PASSATI NEL DIZIONARIO attributes (obbligatorio l'attributo id)
       //OPPURE TOGLI L'ARGOMENTO ATTRIBUTES E RICAVI GLI ATTRIBUTI DALLA PAGINA
-
       function saveDrawingShapes (attributes){
         var type, overlay,points,obj;
         var data = attributes || {};
@@ -760,50 +617,7 @@
       });
   
 
-
-    /****************** MISURA DELLA DISTANZA *************************/
-      //disegno la linea per misurare
-      var measureLineOptions = {
-              strokeColor : "blue",
-              strokeOpacity : 0.5,
-              strokeWeight : 2,
-              editable:true
-      };
-      var measurePoly = new google.maps.Polyline(measureLineOptions);
-      measurePoly.setMap(map);
-      var measurePath = measurePoly.getPath();
-
-      google.maps.event.addListener(measurePath, 'set_at', function(index) {
-        infoString = 'Lunghezza: ' + google.maps.geometry.spherical.computeLength(this).toFixed(2);
-        $("#measure").text(infoString);
-      });
-      google.maps.event.addListener(measurePath, 'insert_at', function(index) {
-        infoString = 'Lunghezza: ' + google.maps.geometry.spherical.computeLength(this).toFixed(2);
-        $("#measure").text(infoString);
-      });
-
-      //BUTTON DI ATTIVAZIONE
-      $('#measure-button').bind("click",function(){
-          $(this).toggleClass('active');
-          var clickListener;     
-          if($(this).hasClass('active')){
-            map.setOptions({ draggableCursor: 'crosshair' });
-            clickListener = google.maps.event.addListener(map, 'click', function(e){
-              measurePath.push(e.latLng);
-            });
-
-          }
-          else{
-            measurePath.clear();
-            google.maps.event.removeListener(clickListener);  
-            map.setOptions({ draggableCursor: 'auto' });
-   
-          }
-      });
-
     }
-
-
 
     //CALCOLA LA URL PER I TILE A SECONDA DEL TIPO DI LIVELLO WMS O WMTS (TILES IN CACHE)
     function getTileUrl (layerName,layerType){
@@ -818,12 +632,12 @@
               var ulw = projection.fromPointToLatLng(ul);
               var lrw = projection.fromPointToLatLng(lr);
               var bbox = ulw.lng() + "," + ulw.lat() + "," + lrw.lng() + "," + lrw.lat();
-              return mapBaseURL +  "/service?LAYERS=" + layerName  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:4326&BBOX=" + bbox + "&width=256&height=256";
+              return owsBaseURL +  "/service?LAYERS=" + layerName  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:4326&BBOX=" + bbox + "&width=256&height=256";
           }
       }
       else if(layerType == "WMTS"){
           fn = function (coord, zoom) {
-              return mapBaseURL + "/wmts/" + layerName + "/" + tileGridName + "/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+              return owsBaseURL + "/wmts/" + layerName + "/" + tileGridName + "/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
           };
       }
       return fn
@@ -847,53 +661,17 @@
       }
     }
 
+    //MOSTRA LE COORDINATE RELATIVE ALLA POSIZIONE DEL MOUSE
     function onMouseMove(e){
       var position = 'Coordinate: Lng: ' + e.latLng.lng().toFixed(6) + ' Lat: ' + e.latLng.lat().toFixed(6);
       var p = new Proj4js.Point(e.latLng.lng(),e.latLng.lat());  
       Proj4js.transform(projSource, projDest, p);
       position = position + ' - X: ' + p.x.toFixed(2) + ' Y: ' + p.y.toFixed(2);
       $("#coords").text(position);
-      delete(p);
+
 
     };
 
-    //genera la url di una immagine con dimensione w,h in pixels, centrata nel punto lon ,y (coordinate GB 3004) a scala scale
-    //per una migliore qualità degli sfondi di osm o google usa una di queste scale (o valori prossimi) 423 * 2 ^ p
-    function mapImage(cfg){ 
-      var segnalazioni = ",segnalazioni.segnalazioni,segnalazioni.segnalazioni_p,segnalazioni.segnalazioni_l,segnalazioni.segnalazioni_plg&GCFILTERS=segnalazioni.segnalazioni@id="+cfg.segnalazione+",segnalazioni.segnalazioni_p@segnalazione="+cfg.segnalazione+",segnalazioni.segnalazioni_l@segnalazione="+cfg.segnalazione+",segnalazioni.segnalazioni_plg@segnalazione="+cfg.segnalazione;
-      var resolution = cfg.scale/(39.3701*72);
-      var dx = cfg.width * resolution / 2;
-      var dy = cfg.height * resolution / 2;
-      var projSource = new Proj4js.Proj("EPSG:4326"); 
-      var projDest = new Proj4js.Proj("EPSG:900913"); 
-      var p = new Proj4js.Point(cfg.lng,cfg.lat);  
-      Proj4js.transform(projSource, projDest, p);
-      var bbox = (p.x - dx) + ',' + (p.y - dy) + ',' + (p.x + dx) + ',' + (p.y + dy);
-      var url = gisclientUrl + "&LAYERS=" + cfg.layers + segnalazioni  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:900913&BBOX=" + bbox + "&width=" + cfg.width + "&height=" + cfg.height;
-      delete (projSource);
-      delete (projDest);
-      delete (p);
-      console.log(url)
-
-    }
-
-    //genera la url di una immagine con dimensione w,h in pixels, centrata nel punto lat,lng (coordinate 4326) a scala scale
-    //per una migliere qualità degli sfonfi di osm o google usa una di queste scale (o valori prossimi) 423 * 2 ^ p
-    function mapImage2(cfg){ 
-
-      var resolution = cfg.scale/(39.3701*72);
-      var dx = cfg.width * resolution / 2;
-      var dy = cfg.height * resolution / 2;
-
-      var projection = map.getProjection();
-      var g  = new google.maps.LatLng(cfg.lat,cfg.lng);
-      var p = projection.fromLatLngToPoint(g);
-      console.log(p)
-      var bbox = (p.x - dx) + ',' + (p.y - dy) + ',' + (p.x + dx) + ',' + (p.y + dy);
-      var url = mapBaseURL +  "/service?LAYERS=" + cfg.layers  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:3857&BBOX=" + bbox + "&width=" + cfg.width + "&height=" + cfg.height;
-      //console.log(url)
-
-    }
 
   });
 

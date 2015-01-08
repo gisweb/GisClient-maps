@@ -7,8 +7,8 @@
 
     <script type="text/javascript" src="js/proj4js.js"></script>
 
-    <link rel="stylesheet" href="css/mappa.css">
-    <script type="text/javascript" src="js/mappa.js"></script>
+    <link rel="stylesheet" href="css/gmap.css">
+    <script type="text/javascript" src="js/gmap.js"></script>
 
 
     <style>
@@ -20,8 +20,9 @@
 <body>
 
 <!--  ITEMS  -->
-<input name="indirizzo" type="text" />
 
+<input id="pac-input" class="controls" type="text"
+        placeholder="Inserisci un indirizzo">
 <!--   LAYERS  -->
 
         <div id="layerContainer" title="Mostra/Nascondi Livelli">
@@ -50,12 +51,15 @@
 <!--   LAYERS  -->
 
 
-        <div>
-            <div id="draw-panel">
-              <div id="draw-color-palette"></div>
-              <button id="draw-delete-button">Elimina</button>
-            </div>
+        <div>      
             <div id="gmap"></div>
+            <div id="draw-panel">
+                <button id="draw-delete-button">Elimina</button>
+                <div id="draw-color-palette"></div>
+            </div>
+            <div id="coords"></div>
+
+            
         </div>
 
     </div>
