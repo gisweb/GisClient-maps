@@ -21,7 +21,12 @@
 
 <!--  ITEMS  -->
 
-<input id="pac-input" class="controls" type="text"
+
+
+
+
+
+<input id="indirizzo" class="controls" type="text"
         placeholder="Inserisci un indirizzo">
 <!--   LAYERS  -->
 
@@ -52,6 +57,18 @@
 
 
         <div>      
+        <!-- OPZIONI DI DISEGNO -->
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="marker" data-marker-icon="icon_2.png"/>Punto tipo 1</label>
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="marker" data-marker-icon="icon_4.png" />Punto tipo 2</label>
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="marker" data-marker-icon="icon_7.png"/>Punto tipo 3</label>
+
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="polyline" data-stroke-color="#00FFFF" data-stroke-opacity="1" data-stroke-weight="2" />Linea 1</label>
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="polyline" data-stroke-color="#00FF00" data-stroke-opacity="1" data-stroke-weight="2" />Linea 2</label>
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="polyline" data-stroke-color="#00FFAA" data-stroke-opacity="1" data-stroke-weight="2" />Linea 3</label>
+
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="polygon" data-stroke-color="#00FFEE" data-stroke-opacity="1" data-stroke-weight="2" data-fill-color="#FF0000" data-fill-opacity="0.5" />Poligono1</label>
+            <label><input type="radio" name="elemento-geom" data-drawing-mode="polygon" data-stroke-color="#00FFBB" data-stroke-opacity="1" data-stroke-weight="2" data-fill-color="#FF0000" data-fill-opacity="0.5" />Poligono2</label>
+
             <div id="gmap"></div>
             <div id="draw-panel">
                 <button id="draw-delete-button">Elimina</button>

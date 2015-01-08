@@ -11,6 +11,7 @@
     var serviceURL = "./services/serviceInfo.json";
     var gisclientUrl = "/gisclient/services/ows.php?MAP=cariplo";
     var owsBaseURL ="http://sit.gisweb.it/ows/cariplo";
+    var iconPath = "images";
     var tileGridName = "epsg3857";
     var delayOnRequest = 1;
     var markerDraggable = true;
@@ -27,53 +28,49 @@
     //OPZIONI DELLA MAPPA DI GOOGLE SETTATE QUI A MENO CHE NON VOGLIATE CREARE UN PANNELLO DI CONFIGURAZIONE 
     //SULL'APPLICAZIONE. IN QUESTO CASO LE IMPOSTAZIONI DELLA MAPPA POTREBBERO ESSERE MEMORIZZATE SU HTML5 ATTRIBUTES
     var mapOptions = {
-      center: new google.maps.LatLng(43.3,13.2),
+      center: new google.maps.LatLng(45.2,9.8),
       zoom: 8
     };
     var map = new google.maps.Map($("#gmap").get(0),mapOptions);
     google.maps.event.addListener(map, 'mousemove', onMouseMove);
 
 
-    console.log(map);
-
-
     //MARKER USATE PER INDIVIDUARE LA POSIZIONE DELLA SEGNALAZIONE
     //SETTARE LE OPZIONI DA QUALCHE CONFIGURAZIONE
+    var infowindow = new google.maps.InfoWindow();
     var marker = new google.maps.Marker({
-        map: map,
-        draggable: markerDraggable,
-        animation: google.maps.Animation.DROP,
-        icon: 'images/marker48.png'
+      map: map,
+      anchorPoint: new google.maps.Point(0, -29)
     });
 
-    $txtIndirizzo = $("#pac-input");
+    $txtIndirizzo = $("#indirizzo");
     var gMapAutocomplete = new google.maps.places.Autocomplete($txtIndirizzo.get(0));
     gMapAutocomplete.bindTo('bounds', map);
     google.maps.event.addListener(gMapAutocomplete, 'place_changed', function() {
-
+      
+      infowindow.close();
       marker.setVisible(false);
       var place = gMapAutocomplete.getPlace();
       if (!place.geometry) {
         return;
       }
 
-      console.log(place)
-
-      $buttonElement = $txtIndirizzo.parents(".input-group").find(".icon-marker");
-      // If the place has a geometry, then present it on a map.
       if (place.geometry.viewport) {
         map.fitBounds(place.geometry.viewport);
-        $buttonElement.data("lat",place.geometry.viewport.getCenter().lat());
-        $buttonElement.data("lng",place.geometry.viewport.getCenter().lng());
-
       } else {
         map.setCenter(place.geometry.location);
         map.setZoom(17);  
-        $buttonElement.data("lat",place.geometry.location.lat());
-        $buttonElement.data("lng",place.geometry.location.lng());
-
       }
-      $buttonElement.removeClass("disabled");
+
+      marker.setIcon({
+        url: place.icon,
+        size: new google.maps.Size(71, 71),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        scaledSize: new google.maps.Size(35, 35)
+      });
+      marker.setPosition(place.geometry.location);
+      marker.setVisible(true);
 
 
     });
@@ -170,7 +167,7 @@
  
   //AGGINGE IN MAPPA IL BOTTONE DEI LAYERS
   map.controls[google.maps.ControlPosition.TOP_RIGHT].push(container); 
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById("pac-input"));
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById("indirizzo"));
 /*
   var outer = document.createElement("div");
   outer.style.width = "60px";
@@ -273,7 +270,6 @@
       var colorButtons = {};
       var pointSize = 4;
       var selectedPointSize = 8;
-
 
       function setSelection(shape) {
         clearSelection();
@@ -558,20 +554,15 @@
 
       var drawingManager = new google.maps.drawing.DrawingManager({
         drawingMode: null,
+        drawingControl:true,
         drawingControlOptions:{
           drawingModes: [
             google.maps.drawing.OverlayType.MARKER,
-            google.maps.drawing.OverlayType.POLYLINE,
-            google.maps.drawing.OverlayType.POLYGON,
-            google.maps.drawing.OverlayType.RECTANGLE
           ]
         },
         markerOptions: {
           draggable: true,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: pointSize
-          }
+          icon:''
         },
         polylineOptions: {
           editable: true
@@ -580,6 +571,7 @@
         polygonOptions: polyOptions,
         map: map
       });
+
 
       google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
         drawingShapes.push(e);
@@ -615,7 +607,35 @@
       $("#draw-save-button").bind("click",function(){
         saveDrawingShapes({"id":2,"pippo":10,"pluto":15})
       });
-  
+
+
+      //OPZIONI DEL DRAWING MANAGER PRESE DAI HTML5 ATTRIBUTES
+      $("input[name='elemento-geom']").change(function(e){
+        var $element = $("input[name='elemento-geom']:checked");
+        var drawingOptions = {
+          "drawingMode": $element.data("drawingMode"),
+          "drawingControlOptions":{"drawingModes":[$element.data("drawingMode")]}
+        };
+        if($element.data("drawingMode")=="marker") {
+          drawingOptions["markerOptions"] = {};
+          if($element.data("markerIcon")) drawingOptions["markerOptions"]["icon"] = iconPath + "/" + $element.data("markerIcon");
+        }
+        else{
+          var options = {};
+          if($element.data("strokeColor")) options["strokeColor"] = $element.data("strokeColor");
+          if($element.data("strokeOpacity")) options["strokeOpacity"] = $element.data("strokeOpacity");
+          if($element.data("strokeWeight")) options["strokeWeight"] = $element.data("strokeWeight");
+          if($element.data("fillColor")) options["fillColor"] = $element.data("fillColor");
+          if($element.data("fillOpacity")) options["fillOpacity"] = $element.data("fillOpacity");
+
+          if($element.data("drawingMode")=="polyline") drawingOptions["polylineOptions"] = options;
+          if($element.data("drawingMode")=="polygon") drawingOptions["polygonOptions"] = options;
+
+        }
+
+        drawingManager.setOptions(drawingOptions);
+
+      });
 
     }
 
