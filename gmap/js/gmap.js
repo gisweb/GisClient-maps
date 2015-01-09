@@ -37,7 +37,7 @@
 
     //MARKER USATE PER INDIVIDUARE LA POSIZIONE DELLA SEGNALAZIONE
     //SETTARE LE OPZIONI DA QUALCHE CONFIGURAZIONE
-    var infowindow = new google.maps.InfoWindow();
+    var infowindow = new google.maps.InfoWindow({maxWidth:400});
     var marker = new google.maps.Marker({
       draggable:true,
       map: map,
@@ -90,6 +90,12 @@
       }, delayOnRequest);
 
     });
+
+    google.maps.event.addListener(map, 'zoom_changed', function(e) {
+        $("[name='form.widgets.zoom_scheda']").val(map.getZoom());
+    });
+
+
 
     addDrawingManager();
 
@@ -237,7 +243,6 @@
       var osmMapType = new google.maps.ImageMapType(layerOptions); 
       map.mapTypes.set("OSM", osmMapType); //AGGINGO E LO SETTO DI DEFAULT
       var mapTypeIds = ["OSM",google.maps.MapTypeId.ROADMAP,google.maps.MapTypeId.TERRAIN,google.maps.MapTypeId.SATELLITE,google.maps.MapTypeId.HYBRID];
-      map.setMapTypeId("OSM");
 
       //Ortofoto
       layerOptions = {
@@ -252,7 +257,7 @@
       var ortofotoMapType = new google.maps.ImageMapType(layerOptions); 
       map.mapTypes.set("ORTOFOTO", ortofotoMapType); //AGGINGO E LO SETTO DI DEFAULT
       var mapTypeIds = ["ORTOFOTO","OSM",google.maps.MapTypeId.ROADMAP,google.maps.MapTypeId.TERRAIN,google.maps.MapTypeId.SATELLITE,google.maps.MapTypeId.HYBRID];
-      map.setMapTypeId("OSM");
+      map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
 
       map.setOptions({"mapTypeControlOptions": {
         "mapTypeIds": mapTypeIds,
@@ -281,7 +286,7 @@
         selectedShape = shape;
         if(selectedShape.getIcon){
           var symbol = selectedShape.getIcon();
-          symbol.scale =  selectedPointSize;
+          //symbol.scale =  selectedPointSize;
           selectedShape.setIcon(symbol);
           selectColor(symbol.strokeColor);
           selectedShape.setDraggable(true);
@@ -296,7 +301,7 @@
         if (selectedShape) {
           if(selectedShape.getIcon){
             var symbol = selectedShape.getIcon();
-            symbol.scale =  pointSize;
+            //symbol.scale =  pointSize;
             selectedShape.setIcon(symbol);
             selectedShape.setDraggable(false);
           }
@@ -324,6 +329,7 @@
           colorButtons[currColor].style.border = currColor == color ? '2px solid #789' : '2px solid #fff';
         }
 
+        if(!drawingManager.drawingMode) return
         var markerOptions = drawingManager.get('markerOptions');
         markerOptions.icon.strokeColor = color;
         drawingManager.set('markerOptions', markerOptions);
@@ -578,9 +584,49 @@
       });
 
 
+
+      google.maps.event.addListener(infowindow, 'domready', function() {
+        //NASCONDO LA X CLOSE
+        $(".gm-style-iw").next("div").hide();
+        infowindow.isOpen = true;
+        $("#btn_elemento_salva").click(function(){
+          infowindow.elemento.set("descrizione",$("[name='descrizione']").val());
+          infowindow.close();
+          infowindow.isOpen=false;
+
+        });
+        $("#btn_elemento_annulla").click(function(){
+          if(typeof(infowindow.elemento.get("descrizione")=='undefined')){
+            infowindow.elemento.setMap(null);
+            drawingShapes.pop();
+          }
+          infowindow.close();
+          infowindow.isOpen=false;
+
+        });
+        $("#btn_elemento_chiudi").click(function(){
+          infowindow.close();
+          infowindow.isOpen=false;
+        })
+
+      });
+
       google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
+
+        //PRIMA DI AGGIUNGERE IL NUOVO ELEMENTO VERIFICO ELIMINO QUELLI CHE NON HANNO SETTATO LE PROPRIETÀ OBBLIGATORIE 
+        //DOVREBBE ESSERE SOLO L'ULTIMO INSERITO - VERFÌIFCARE SE VALE LA PENA CICLARE SU TUTTI
+        if(drawingShapes.length>0){
+          var lastShape = drawingShapes[drawingShapes.length-1];
+          if(typeof(lastShape.overlay.get("descrizione"))=='undefined'){
+            lastShape.overlay.setMap(null);
+            drawingShapes.pop();
+          }
+        }
+
+
         drawingShapes.push(e);
         drawingManager.setDrawingMode(null);
+
 
 
         //if (e.type != google.maps.drawing.OverlayType.MARKER) {
@@ -591,17 +637,44 @@
           var newShape = e.overlay;
           newShape.type = e.type;
           google.maps.event.addListener(newShape, 'click', function() {
-            setSelection(newShape);
-            infowindow.setContent('qui cosa ci mettiamo?');
-            infowindow.open(map,newShape);
+            if(!infowindow.isOpen){
+              setSelection(newShape);
+              infowindow.elemento=newShape;
+              infowindow.setContent('descrizione:' + newShape.get("descrizione") + '<button id="btn_elemento_chiudi">Chiudi</button>');
+              if(newShape.type == google.maps.drawing.OverlayType.MARKER){
+                infowindow.open(map,newShape);
+              }else{
+                var path = newShape.getPath();
+                var lastPoint = path.getAt(path.getLength()-1);
+                infowindow.setPosition(lastPoint);
+                infowindow.open(map);
+              }
+            }
+
           });
           setSelection(newShape);
 
         //}
 
-        infowindow.setContent('<h3>TODO html per dataentry della descrizione</h3>se chiudo lasciano il campo vuoto elimino l\'elemento??<br><input type="text">');
+        infowindow.setContent('<h3>TODO html per dataentry della descrizione</h3>se chiudo lasciano il campo vuoto elimino l\'elemento??<br><input type="text" name="descrizione"><button id="btn_elemento_salva">Salva</button><button id="btn_elemento_annulla">Annulla</button>');
 
-        infowindow.open(map,newShape);
+
+
+
+        infowindow.set('elemento',newShape);
+        if(newShape.type == google.maps.drawing.OverlayType.MARKER){
+          infowindow.open(map,newShape);
+        }else{
+          var path = newShape.getPath();
+          var lastPoint = path.getAt(path.getLength()-1);
+          infowindow.setPosition(lastPoint);
+          infowindow.open(map);
+        }
+       
+
+
+
+        
 
 
 
