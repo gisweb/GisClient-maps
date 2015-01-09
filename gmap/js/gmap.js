@@ -656,7 +656,7 @@
 
         //}
 
-        infowindow.setContent('<h3>TODO html per dataentry della descrizione</h3>se chiudo lasciano il campo vuoto elimino l\'elemento??<br><input type="text" name="descrizione"><button id="btn_elemento_salva">Salva</button><button id="btn_elemento_annulla">Annulla</button>');
+        infowindow.setContent('<h3>TODO html per data entry della descrizione</h3><input type="text" name="descrizione"><button id="btn_elemento_salva">Salva</button><button id="btn_elemento_annulla">Annulla</button>');
 
 
 
