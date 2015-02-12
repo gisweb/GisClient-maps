@@ -957,24 +957,6 @@ var initMap = function(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    console.log(this)
-
             // Define three colors that will be used to style the cluster features
             // depending on the number of features they contain.
             var colors = {
@@ -1390,7 +1372,7 @@ var pointStyle = new OpenLayers.Style({
         projection: new OpenLayers.Projection("EPSG:3857"), 
         protocol: new OpenLayers.Protocol.WFS({
             version: "1.1.0",
-            url: "/cgi-bin/mapserv?map=/apps/GisClient-3.3/map/" + this.mapsetName + ".map&SERVICE=WFS",
+            url: "/cgi-bin/mapserv?map=/home/robystar/GisClient-merge/map/" + this.mapsetName + ".map&SERVICE=WFS",
             featureType: "segnalazioni.segnalazioni",
             featurePrefix : 'ms',
             featureNS: "http://mapserver.gis.umn.edu/mapserver",
@@ -1419,13 +1401,8 @@ var pointStyle = new OpenLayers.Style({
     segnalazioniLayer.id = 'gc_segnalazioni_vector_layer';
     map.addLayer(segnalazioniLayer);
 
-
-    console.log(segnalazioniLayer)
-
-
     var v = map.getControlsByClass("OpenLayers.Control.LayerTree");
     var lTree = v.length && v[0];
-    console.log(lTree.overlayTree)
     var myTree = lTree.overlayTree
     myTree.append()
     myTree.tree('append', {
@@ -1588,10 +1565,8 @@ var pointStyle = new OpenLayers.Style({
                         filters: filters
                     })
 
-                console.log(filter)
                 segnalazioniLayer.filter = filter;
                 segnalazioniLayer.refresh({force: true})
-                console.log(segnalazioniLayer.getDataExtent());
                 //map.zoomToExtent(segnalazioniLayer.getDataExtent(),true)
 
             })
@@ -1599,7 +1574,59 @@ var pointStyle = new OpenLayers.Style({
 
 
 
+        //add Popup
+        var selectedFeature;
+        var select = new OpenLayers.Control.SelectFeature(segnalazioniLayer);
+        map.addControl(select);
+        select.activate();
 
+
+        function onPopupClose(evt) {
+            selectControl.unselect(selectedFeature);
+        }
+
+        segnalazioniLayer.events.on({
+            featureselected: function(event) {
+                var feature = event.feature;
+                var popupContent = "<h4><b>Segnalazioni</b></h4>";
+
+                if(feature.cluster && feature.cluster.length > 1){
+                    popupContent += '<div>Gruppo di ' + feature.cluster.length + ' segnalazioni,<br> aumentare lo zoom per vedere le singole segnalazioni </div>';
+                }
+                else if(feature.cluster && feature.cluster.length == 1) {
+                    var attributes = feature.cluster[0].attributes;
+                    var coords = feature.geometry.clone().transform("EPSG:3857","EPSG:3004");
+                    popupContent += '<div><label>Id segnalazione:&nbsp; </label><span>' + attributes.id_segnalazione + '</span></div>';
+                    popupContent += '<div><label>Comune:&nbsp; </label><span>' + attributes.comune + '</span></div>';
+                    popupContent += '<div><label>Tipo segnalazione:&nbsp; </label><span>' + attributes.tipo + '</span></div>';
+                    popupContent += '<div><label>Tipo manutenzione:&nbsp; </label><span>' + attributes.tipomanutenzione + '</span></div>';
+                    popupContent += '<div><label>Stato segnalazione:&nbsp; </label><span>' + attributes.stato + '</span></div>';
+                    popupContent += '<div><label>Coordinata X:&nbsp; </label><span>' + coords.x.toFixed(2) + '</span></div>';
+                    popupContent += '<div><label>Coordinata Y:&nbsp; </label><span>' + coords.y.toFixed(2) + '</span></div>';
+
+                }
+
+                feature.popup = new OpenLayers.Popup.FramedCloud
+                    ("pop",
+                    feature.geometry.getBounds().getCenterLonLat(),
+                    null,
+                    popupContent,
+                    null,
+                    true 
+                    );
+                while( map.popups.length ) {
+                    map.removePopup( map.popups[0] );
+                }
+                map.addPopup(feature.popup);                    
+            },
+
+            featureunselected: function(event) {
+                var feature = event.feature;
+                map.removePopup(feature.popup);
+                feature.popup.destroy();
+                feature.popup = null;
+            }
+        });
 
 
 
