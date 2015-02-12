@@ -133,9 +133,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     redraw: function(e) {
         //if the state hasn't changed since last redraw, no need
         // to do anything. Just return the existing div.
-        
-        //console.log('redraw')
-
 
         if (!this.checkRedraw()) {
             return this.div;

@@ -310,3 +310,7 @@ div.fast-navigate {
 .infoButton.active {
     border: 1px solid white;
 }
+
+.overlay-marker {
+  background: url('images/marker16.png') no-repeat;
+}
