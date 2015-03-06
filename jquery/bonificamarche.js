@@ -1372,7 +1372,7 @@ var pointStyle = new OpenLayers.Style({
         projection: new OpenLayers.Projection("EPSG:3857"), 
         protocol: new OpenLayers.Protocol.WFS({
             version: "1.1.0",
-            url: "/cgi-bin/mapserv?map=/home/robystar/GisClient-merge/map/" + this.mapsetName + ".map&SERVICE=WFS",
+            url: "/cgi-bin/mapserv?map=/apps/GisClient-3.3/map/" + this.mapsetName + ".map&SERVICE=WFS",
             featureType: "segnalazioni.segnalazioni",
             featurePrefix : 'ms',
             featureNS: "http://mapserver.gis.umn.edu/mapserver",
@@ -1411,12 +1411,10 @@ var pointStyle = new OpenLayers.Style({
             state: 'closed',
             children: [{
                 id: 'gc_segnalazioni_vector_layer',
-                text: 'Segnalazioni aperte',
+                text: 'Segnalazioni',
                 checked: true,
                 iconCls:"overlay-marker", 
                 attributes:{layer:segnalazioniLayer}
-            },{
-                text: 'todo...'
             }]
         }]
     });
