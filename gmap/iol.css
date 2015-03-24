@@ -1,0 +1,446 @@
+.plomino_formry {
+
+   margin-right:10px;
+
+}
+
+/*form {
+
+  border: 1px solid black
+
+}*/
+
+
+
+form span.label, form span.legend{
+ 
+    color: #000000;
+    font-size: 15px;
+    font-weight: bold;
+    background-color: transparent;
+    text-shadow: none;
+    display: block;
+    border-radius: 3px;
+    margin-bottom: 3px;
+    white-space: normal;
+
+
+
+
+}
+
+form span.TEXTFieldRead-TEXT, 
+     span.TEXTFieldRead-TEXTAREA, 
+     span.NUMBERFieldRead,
+     span.DATETIMEFieldRead{
+ 
+    background-color:#FFFFFF;
+    color: #000000;
+    font-size:15px;
+    display:block;
+    border: 1px solid #cccccc;
+    text-shadow:none;
+    border-radius: 3px;
+    padding: 5px;
+    height: 15px;
+    margin-bottom: 10px;
+
+    /*width:100%;
+    border:1 px solid gray;*/
+
+}
+
+
+
+form span.TEXTFieldRead-TEXT{
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+form span.TEXTFieldRead-TEXTAREA{
+    height: auto;
+}
+
+form span.SELECTIONFieldRead{
+  margin-bottom: 10px;
+  font-size:15px;
+}
+
+form input.NUMBERField-FLOAT{
+
+  
+}
+
+
+form .fieldset{
+
+  margin-bottom: 10px;
+  line-height: 24px
+
+}
+
+.fieldset .TEXTFieldRead-TEXT {
+  margin-top:-5px;
+}
+
+/*div .span4 {
+   border: 1px solid #cccccc; 
+}
+
+div .span3 {
+   border: 1px solid #cccccc; 
+}*/
+
+
+
+form div.row-fluid{
+
+   mrgin-bottom:15px;
+
+}
+
+
+.plomino_form_solobootstrap .row-fluid select,input[type='text'] {
+    width:100%;
+    height: 24px;
+
+}
+.date{
+
+    width:100%;
+    height: 1em;
+    border-radius: 5px;
+
+}
+
+input[data-plugin='iolCodicefiscale'],input[data-plugin='iolMarker'] {
+
+    max-width:200px;
+
+}
+
+
+.plomino_form .row-fluid input.date{width:100%;text-align:left} 
+
+input[type="radio"],label {
+    vertical-align:middle;
+    padding: 0px;
+    margin: 0px;
+
+}
+
+input[type="checkbox"], label {
+    margin-left: 10px;
+
+}
+.plomino_form input[type="checkbox"] {
+    float: left;
+    margin-right: 5px;
+}
+.plomino_form input[type="radio"] {
+    float: left;
+    margin-right: 5px;
+}
+.plomino_form label.required, legend.required {
+ 
+    color: #FF0000;
+
+}
+
+.plomino_form label.data-mandatory {
+ 
+    color: #0000FF;
+
+}
+
+.plomino_form legend {
+  text-align:left;
+  top:-10px;
+  font-size:15px;
+  border-style: none;
+  border-width: 0px;
+  display: block;
+  font-weight: bold;
+
+  line-height: 15px;
+  margin-bottom: 2px;
+  padding: 0;
+  width: 100%;
+
+}
+.select2-container {
+
+   width:100%
+
+}
+
+
+
+
+
+
+#content legend, #content label {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+
+
+
+table.dataTable{
+
+
+
+
+}
+
+.plomino_form table.dataTable thead th {
+    border-bottom: 2px solid #000000;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+
+background-color: #FFFFFF;
+    padding: 3px 18px 3px 10px;
+}
+
+
+.plominomap {
+
+    width:100%;
+    height:300px;
+
+}
+
+.plominomap-info {
+
+   height:25px;
+   width:100%;
+   border: 1px solid grey;
+
+}
+.plominomap-streetview {
+   margin-top:-300px;
+   margin-left:5px;
+   height:300px;
+   width:50%;
+   background: url('streetview.jpg') no-repeat center;
+   background-color: #FFF;
+   border: 1px solid #cccccc;
+   float: right
+
+}
+
+.plominomap-streetview img {
+    max-width: none
+} 
+
+.plominomap img {
+    max-width: none
+}  
+
+.icon-button{
+
+  height:18px;
+  margin-left:5px;
+}
+
+#layerbox { position: absolute;
+  top:23px; left:0px;
+  margin-top:-2px;
+  padding: 6px 4px;
+  text-align: left;
+  width:150px;
+  max-height:200px;
+  background-color: #fff;
+  display: none;
+  cursor:default;
+  z-index:-1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px; 
+
+
+}
+
+#layerbox hr { height:1px;
+  border:1px;
+  color:#e2e2e2;
+  background-color:#e2e2e2;
+  margin: 1px 0;
+}
+
+*+html #layerbox hr {
+/* IE 7 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+* html #layerbox hr {
+/* IE 6 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+
+*+html #layerbox hr {
+/* IE 7 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+* html #layerbox hr {
+/* IE 6 hr bug fix */
+ display:block; margin: -5px 0;
+}
+
+/*
+CSS for v3 buttons stolen from:
+ http://gmaps-samples-v3.googlecode.com/svn/trunk/controls/index.html
+*/
+
+.button, .button-selected, .dropdown {
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  text-align: center;
+/*  position: relative; */
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 1px 2px; 
+  -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 2px 4px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 2px 4px;
+  color: #000;
+  /*border: 1px solid #717B87;*/
+  background-color: #fff; 
+}
+
+.button, .button-selected {
+  margin: 5px;
+  padding: 1px 6px;
+  overflow: hidden;
+}
+
+.button:hover {
+  background: #FEFEFE;
+  background: -moz-linear-gradient(top, #FEFEFE 0%, #F3F3F3 100%);
+  background: -webkit-gradient(linear, left top, left bottom, from(#FEFEFE), to(#F3F3F3));
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#F3F3F3', GradientType=0);
+}
+
+.button-selected {
+  font-weight: bold;
+}
+
+
+#layerbox label{
+
+
+    display:list-item;
+    list-style:none;
+    white-space:nowrap;
+    margin-top: -3px;
+
+} 
+
+#layerbox input{
+  float: left;
+  display: :inline;
+  margin-right: 2px;
+
+
+}
+
+#portal-top,
+#portal-header-wrapper,
+#plone-document-byline
+{
+  display:none;
+}
+
+#portal-columns{
+  margin-top: 50px;
+  margin-left: 3px;
+
+}
+#portal-footer-wrapper{
+  margin-left: 3px
+}
+#viewlet-below-content{
+  margin-left: 30px
+}
+#iol-buttons .btn{
+
+  margin-right:8px;
+
+}
+
+#iol-menus li {
+
+  list-style-type: none;
+  cursor: pointer;
+
+}
+
+
+
+.plomino_form table.dataTable thead th {
+border-bottom: 1px solid #000000;
+color:grey;
+background: #FFFFFF;
+}
+
+.plomino_form table.dataTable tbody tr td {
+
+  vertical-align: top;
+
+}
+
+
+
+.fileUpload {
+  position: relative;
+  overflow: hidden;
+  margin-left: 5px;
+  margin-top:-10px;
+}
+
+.fileUpload ul{
+  margin-left: -5px;
+  margin-top: 10px;
+  font-size: 12px;
+
+}
+.icon-folder-open{
+
+  margin:2px;
+
+}
+input[type='file'] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  display: none;
+  filter: alpha(opacity=0);
+}
+
+.removeUpload {
+  cursor: pointer;
+  margin-left:10px;
+}
+
+#renderedForm .search-utente{
+  display:none;
+
+}
+
+.info-selected {
+
+  border: 1px solid #717B87;
+  background-color: #fff; 
+
+}

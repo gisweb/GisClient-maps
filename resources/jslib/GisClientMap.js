@@ -177,6 +177,7 @@ OpenLayers.GisClient = OpenLayers.Class({
 
     initGCMap: function(){
 
+        OpenLayers.DOTS_PER_INCH = this.dpi;
         this.mapOptions.theme = null;   
         if(this.mapOptions.controls){
             // TOLGO I CONTROLLI PER AGGIUNGERLI DOPO ALTRIMENTI I NUOVI FANNO CASINO... TODO
