@@ -830,8 +830,11 @@ var initMap = function(){
     });
     map.events.register('zoomend', null, function(){
         $('#map-select-scale').val(map.getZoom());
+<<<<<<< HEAD
 
         console.log(map.getScale())
+=======
+>>>>>>> 46aa79dc6fc8645b02220aacfb1c2994b2ac413b
     });
 
 
@@ -1374,7 +1377,11 @@ var pointStyle = new OpenLayers.Style({
         projection: new OpenLayers.Projection("EPSG:3857"), 
         protocol: new OpenLayers.Protocol.WFS({
             version: "1.1.0",
+<<<<<<< HEAD
             url: "/cgi-bin/mapserv?map=/home/robystar/gisclient-3/map/" + this.mapsetName + ".map&SERVICE=WFS",
+=======
+            url: "/cgi-bin/mapserv?map=/apps/GisClient-3.3/map/" + this.mapsetName + ".map&SERVICE=WFS",
+>>>>>>> 46aa79dc6fc8645b02220aacfb1c2994b2ac413b
             featureType: "segnalazioni.segnalazioni",
             featurePrefix : 'ms',
             featureNS: "http://mapserver.gis.umn.edu/mapserver",
@@ -1413,12 +1420,19 @@ var pointStyle = new OpenLayers.Style({
             state: 'closed',
             children: [{
                 id: 'gc_segnalazioni_vector_layer',
+<<<<<<< HEAD
                 text: 'Segnalazioni aperte',
                 checked: true,
                 iconCls:"overlay-marker", 
                 attributes:{layer:segnalazioniLayer}
             },{
                 text: 'todo...'
+=======
+                text: 'Segnalazioni',
+                checked: true,
+                iconCls:"overlay-marker", 
+                attributes:{layer:segnalazioniLayer}
+>>>>>>> 46aa79dc6fc8645b02220aacfb1c2994b2ac413b
             }]
         }]
     });
