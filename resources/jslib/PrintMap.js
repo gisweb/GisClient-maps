@@ -2,6 +2,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     type: OpenLayers.Control.TYPE_TOGGLE,
     formId: undefined, //id del form di stampa
     loadingControl: undefined,
+    baseUrl:null,
     waitFor: undefined, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
     //passare l'url del servizio stampa per non doverlo cablare!
     
@@ -19,7 +20,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         $('#'+me.formId+' span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
         
         $.ajax({
-            url: '/gisclient/services/print.php',
+            url: me.baseUrl + 'services/print.php',
             type: 'POST',
             data: params,
             dataType: 'json',
@@ -246,7 +247,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         params.request_type = 'get-box';
         
         $.ajax({
-            url: '/gisclient/services/print.php',
+            url: me.baseUrl + 'services/print.php',
             type: 'POST',
             dataType: 'json',
             data: params,

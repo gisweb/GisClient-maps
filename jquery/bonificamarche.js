@@ -41,6 +41,7 @@ var sidebarPanel = {
         
         $('#'+panelId, self).hide();
         
+        return;
         self.closeTimeout = setTimeout(function() {
             self.close();
         }, 100);
@@ -130,8 +131,10 @@ var customCreateControlMarkup = function(control) {
 
 
 var initMap = function(){
-    var map=this.map;
+    var map = this.map;
+    var self = this;
     document.title = this.mapsetTitle;
+
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -169,7 +172,7 @@ var initMap = function(){
         $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
         chk.attr("checked",true);
 
-        var self = this;
+
         chk.on("click",function(){
 
             //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
@@ -431,7 +434,7 @@ var initMap = function(){
                     minimumInputLength: 0,
                     query: function(query) {
                         $.ajax({
-                            url: '/gisclient/services/xSuggest.php',
+                            url: self.baseUrl + 'services/xSuggest.php',
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId
@@ -702,6 +705,16 @@ var initMap = function(){
                 'deactivate': function(){queryToolbar.deactivate();}
             }
         }),
+        btnSegnalazioni = new OpenLayers.Control.Button({
+            type: OpenLayers.Control.TYPE_TOGGLE,
+            exclusiveGroup: 'sidebar',
+            iconclass:"glyphicon-white glyphicon-tasks", 
+            title:"Ricerca segnalazioni",
+            eventListeners: {
+                'activate': function(){sidebarPanel.show('segnalazioni');},
+                'deactivate': function(){sidebarPanel.hide('segnalazioni');}
+            }
+        }),
         btnLayertree = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE,
             exclusiveGroup: 'sidebar',
@@ -753,6 +766,7 @@ var initMap = function(){
         btnPrint = new OpenLayers.Control.PrintMap({
             tbarpos:"first", 
             //type: OpenLayers.Control.TYPE_TOGGLE, 
+            baseUrl:self.baseUrl,
             formId: 'printpanel',
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
@@ -830,11 +844,7 @@ var initMap = function(){
     });
     map.events.register('zoomend', null, function(){
         $('#map-select-scale').val(map.getZoom());
-<<<<<<< HEAD
-
         console.log(map.getScale())
-=======
->>>>>>> 46aa79dc6fc8645b02220aacfb1c2994b2ac413b
     });
 
 
@@ -1377,11 +1387,7 @@ var pointStyle = new OpenLayers.Style({
         projection: new OpenLayers.Projection("EPSG:3857"), 
         protocol: new OpenLayers.Protocol.WFS({
             version: "1.1.0",
-<<<<<<< HEAD
-            url: "/cgi-bin/mapserv?map=/home/robystar/gisclient-3/map/" + this.mapsetName + ".map&SERVICE=WFS",
-=======
-            url: "/cgi-bin/mapserv?map=/apps/GisClient-3.3/map/" + this.mapsetName + ".map&SERVICE=WFS",
->>>>>>> 46aa79dc6fc8645b02220aacfb1c2994b2ac413b
+            url: "/cgi-bin/mapserv?map=/home/robystar/gisclient-3/map/bonificamarche/" + this.mapsetName + ".map&SERVICE=WFS",
             featureType: "segnalazioni.segnalazioni",
             featurePrefix : 'ms',
             featureNS: "http://mapserver.gis.umn.edu/mapserver",
@@ -1420,19 +1426,10 @@ var pointStyle = new OpenLayers.Style({
             state: 'closed',
             children: [{
                 id: 'gc_segnalazioni_vector_layer',
-<<<<<<< HEAD
                 text: 'Segnalazioni aperte',
                 checked: true,
                 iconCls:"overlay-marker", 
                 attributes:{layer:segnalazioniLayer}
-            },{
-                text: 'todo...'
-=======
-                text: 'Segnalazioni',
-                checked: true,
-                iconCls:"overlay-marker", 
-                attributes:{layer:segnalazioniLayer}
->>>>>>> 46aa79dc6fc8645b02220aacfb1c2994b2ac413b
             }]
         }]
     });
@@ -1473,6 +1470,7 @@ var pointStyle = new OpenLayers.Style({
             var properties = fType.properties, 
                 len = properties.length, property, i;
             
+
            // $('#searchFormTitle').html('Ricerca '+fType.title);
             
             //form += '<form role="form">';
@@ -1480,7 +1478,6 @@ var pointStyle = new OpenLayers.Style({
             
             for(i = 0; i < len; i++) {
                 property = properties[i];
-                
                 if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
                 
                 //form += '<div class="form-group">'+
@@ -1507,7 +1504,7 @@ var pointStyle = new OpenLayers.Style({
                             '</div>';
                     break;
                     case 5: //data
-                        form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_da"><input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_a">';
+                        form += '<br>Da:<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_da">A:<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_a">';
                     break;
                     case 6: //lista di valori non wfs
                         form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:200px;">';
@@ -1524,20 +1521,25 @@ var pointStyle = new OpenLayers.Style({
 
             $("#segnalazioni").html(form)
 
+
             $('#segnalazioni input[searchType="3"],#segnalazioni input[searchType="6"]').each(function(e, input) {
                 var fieldId = $(input).attr('fieldId');
                 var fieldName = $(input).attr('name');
+                var multiple = (fieldName == 'stato' || fieldName == 'tipo' || fieldName == 'tipomanutenzione');
                 $(input).select2({
                     minimumInputLength: 0,
                     allowClear: true,
+                    multiple:multiple,
                     placeholder: '---',
                     query: function(query) {
+                        var bacino = '';
                         $.ajax({
-                            url: '/gisclient/services/consorziobonifica/xSuggestSegnalazioni.php',
+                            url: self.baseUrl + 'services/bonificamarche/xSuggestSegnalazioni.php',
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId,
-                                field_name: fieldName
+                                field_name: fieldName,
+                                bacino: $("input[name='bacino']").select2("val")
                             },
                             dataType: 'json',
                             success: function(data) {
@@ -1561,7 +1563,45 @@ var pointStyle = new OpenLayers.Style({
             $("#filtra_segnalazioni").bind("click",function(){
                 var filters = [], filter;
                 $('#segnalazioni input').each(function(){
-                    if($(this).attr("name") && $(this).val()){
+                    if($(this).attr("type") == "date"){
+                        if($(this).attr("id").slice(-3) == '_da' && $(this).val()){
+                            filter = new OpenLayers.Filter.Comparison({
+                                type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
+                                property: getFieldKey($(this).attr("name")),
+                                value: $(this).val()
+                            });
+                            filters.push(filter)
+                        }
+                        if($(this).attr("id").slice(-2) == '_a' && $(this).val()){
+                            filter = new OpenLayers.Filter.Comparison({
+                                type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
+                                property: getFieldKey($(this).attr("name")),
+                                value: $(this).val()
+                            });
+                            filters.push(filter)
+                            
+                        }
+                    }
+                    else if(($(this).attr("name") == 'stato' || $(this).attr("name") == 'tipo' || $(this).attr("name") == 'tipomanutenzione') && $(this).val()){
+                        var values = $(this).val().split(",");
+                        var orFilters = [];
+                        for (var i=0;i<values.length;i++) {
+                            filter = new OpenLayers.Filter.Comparison({
+                                type: OpenLayers.Filter.Comparison.EQUAL_TO,
+                                property: getFieldKey($(this).attr("name")),
+                                value: values[i]
+                            });
+                            orFilters.push(filter)
+                        };
+                        if(values.length>1){
+                            filter = new OpenLayers.Filter.Logical({
+                                type: OpenLayers.Filter.Logical.OR,
+                                filters: orFilters
+                            })
+                        }
+                        filters.push(filter)
+                    }                   
+                    else if($(this).attr("name") && $(this).val()){
                         filter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.EQUAL_TO,
                             property: getFieldKey($(this).attr("name")),
@@ -1617,6 +1657,8 @@ var pointStyle = new OpenLayers.Style({
                     popupContent += '<div><label>Tipo segnalazione:&nbsp; </label><span>' + attributes.tipo + '</span></div>';
                     popupContent += '<div><label>Tipo manutenzione:&nbsp; </label><span>' + attributes.tipomanutenzione + '</span></div>';
                     popupContent += '<div><label>Stato segnalazione:&nbsp; </label><span>' + attributes.stato + '</span></div>';
+                    popupContent += '<div><label>Data apertura:&nbsp; </label><span>' + attributes.data1 + '</span></div>';
+                    popupContent += '<div><label>Data chiusura:&nbsp; </label><span>' + attributes.data2 + '</span></div>';
                     popupContent += '<div><label>Coordinata X:&nbsp; </label><span>' + coords.x.toFixed(2) + '</span></div>';
                     popupContent += '<div><label>Coordinata Y:&nbsp; </label><span>' + coords.y.toFixed(2) + '</span></div>';
 
@@ -1644,7 +1686,7 @@ var pointStyle = new OpenLayers.Style({
             }
         });
 
-
+        sidebarPanel.show('segnalazioni');
 
 
 
@@ -1664,9 +1706,11 @@ var pointStyle = new OpenLayers.Style({
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/services/gcmap.php' + window.location.search,'map',{
+    var GisClientBaseUrl = "/"
+    GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
         mapProxyBaseUrl:"/",
+        baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),

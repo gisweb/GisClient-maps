@@ -1,6 +1,12 @@
 OpenLayers.GisClient = OpenLayers.Class({
 
    /**
+     * Property: baseUrl
+     * {String} url of GisClient.
+     */
+    baseUrl: null,
+
+   /**
      * Property: url
      * {String} url of GisClient service.
      */
@@ -117,7 +123,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             var req = {
                 url: url,
                 success:this.requestComplete,
-                failure:function(){alert('fallito')},
+                failure:function(){alert('caricamento del servizio fallito')},
                 scope: this
             }; 
             //start waiting
