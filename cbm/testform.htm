@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="css/typeahead.css">
 
     <link rel="stylesheet" href="css/testform.css">
-    <script type="text/javascript" src="js/testform.js"></script>
 
 
     <style>
@@ -59,53 +58,62 @@
             </div>
         </div>
         <div class="row">
+            <div class="form group col-sm-3">
+                <label>&nbsp;</label>
+                <button data-bind="click: $parent.posizionaClick" title="Ricerca in mappa" id="btnPosiziona" class="form-control btn btn-primary" type="button">Posiziona&nbsp;<span class="glyphicon glyphicon-globe"></span></button>
+            </div>
+            <div class="form group col-sm-3">
+                <label>&nbsp;</label>
+                <button data-bind="click: $parent.resetClick" title="Pulisci i dati di posizionamento e la mappa" id="btnReset" class="form-control btn btn-primary" type="button">Reimposta posizionamento&nbsp;<span class="glyphicon glyphicon-remove"></span></button>
+            </div>
             <div class="form-group col-sm-6">
                 <label>Nome Asta</label>
-                <input class="form-control" data-bind="value:NomeAsta" maxlength="100" />
+                <span data-bind="text:NomeAsta" class="form-control"></span>
             </div>
-            <div class="form-group col-sm-4">
-                <label>Foglio</label>
-                <div class="input-group">
-					<input class="form-control" data-bind="value:Foglio" maxlength="100" />
-					<span class="input-group-btn">
-						<button class="btn btn-default disabled icon-marker" type="button"></button>
-					</span>
-				</div>
-            </div>
-            <div class="form-group col-sm-2">
-                <label>Numero </label>
-                <span class="form-control" data-bind="text:Numero"></span>
-            </div>
-        </div>
+        </div>  
+
         <div class="row">
             <div class="form-group col-sm-6">
                 <label>Sub-Bacino </label>
-                <span class="form-control" data-bind="text:DescSubBacino"></span>
+                <span data-bind="text:SubBacino" class="form-control">16675</span>
             </div>
             <div class="form-group col-sm-2">
-                <label>IAP di competenza</label>
-                <span class="form-control" data-bind="text:CodIAP"></span>
+                <label>Area IAP di competenza</label>
+                <span data-bind="text:CodIAP" class="form-control">669</span>
             </div>
             <div class="form-group col-sm-2">
                 <label>Acqua Pubblica?</label>
-                <span class="form-control" data-bind="text:DescAcquaPubb"></span>
+                <span data-bind="text:DescAcquaPubb" class="form-control">NO</span>
             </div>
             <div class="form-group col-sm-2">
                 <label>Area Protetta?</label>
-                <span class="form-control" data-bind="text:DescAreaProtetta"></span>
+                <span data-bind="text:DescAreaProtetta" class="form-control">NO</span>
             </div>
         </div>
-        
+
         <div class="row">
             <div class="form-group col-sm-3">
-                <label>Coord X (Gauss Boaga Roma40-est)</label>
-                <span class="form-control" data-bind="text:CoordX"></span>
+                <label>X (Gauss Boaga Roma40-est)</label>
+                <span id="txtGBLat" class="form-control">2401377</span>
             </div>
             <div class="form-group col-sm-3">
-                <label>Coord Y (Gauss Boaga Roma40-est)</label>
-                <span class="form-control" data-bind="text:CoordY"></span>
+                <label>Y (Gauss Boaga Roma40-est)</label>
+                <span id="txtGBLong" class="form-control">4746248</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Sezione </label>
+                <span data-bind="text:Sezione" class="form-control"></span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Foglio </label>
+                <span data-bind="text:Foglio" class="form-control" id="txtFoglio">66</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Numero </label>
+                <span data-bind="text:Numero" class="form-control"></span>
             </div>
         </div>
+    </fieldset>
 
 
 <!--   LAYERS  -->
@@ -113,26 +121,64 @@
         <div id="layerContainer" title="Mostra/Nascondi Livelli">
         <div class="gmap-button" id="clicktarget">Livelli in mappa</div>
         <div id="layerbox" class="gmap-button">
-            <label><input name="layers" type="checkbox" data-layer-name="grp_reticolo_idrografico" data-layer-type="WMTS" /> Rete idrografica
- </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_aree_protette" data-layer-type="WMTS" data-layer-opacity=50 data-layer-on=1 /> Aree protette
- </label> <br />
-             <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali" data-layer-type="WMTS" data-layer-on=1 /> Bacini principali
- </label> <br />
-             <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale" data-layer-type="WMTS" /> Rete viaria
- </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale5" data-layer-type="WMTS"/> Aree IAP </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_ctr_raster" data-layer-type="WMTS"/> CTR bitonale </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_igm" data-layer-type="WMTS"/> IGM 25000 </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principalii" data-layer-type="WMTS"/> Qualche livello specifico della CTR </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principaliy" data-layer-type="WMTS"/> Punti di recapito idrici </label> <br />
 
-            <label><input name="layers" type="checkbox" data-layer-name="grp_acque_pubbliche_marche" data-layer-type="WMTS"/> Acque pubbliche </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_fabbricati" data-layer-type="WMTS"/> Fabbricati catastali </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_particelle" data-layer-type="WMTS"/> Particelle catastali </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_frane" data-layer-type="WMTS"/> Aree a rischio frana </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_esondazione" data-layer-type="WMTS"/> Aree a rischio esondazione </label> <br />
-            <label><input name="layers" type="checkbox" data-layer-name="grp_valanghe" data-layer-type="WMTS"/> Aree a rischio valanga </label> <br />
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-on="1" data-layer-type="WMTS" data-layer-name="grp_ctr_raster" name="layers" checked="checked">CTR bitonale </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_ctr" name="layers">CTR edifici </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-on="0" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_confini_comunali" name="layers">Confini comunali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_confini_provinciali" name="layers">Confini provinciali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_nct_fogli" name="layers">Fogli catastali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_particelle" name="layers">Particelle </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_fabbricati" name="layers">Fabbricati </label>
+            <br> 
+            <label><input type="checkbox" data-layer-type="WMTS" data-layer-name="grp_rete_stradale" name="layers">Rete viaria </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="100" data-layer-on="1" data-layer-type="WMTS" data-layer-name="grp_reticolo_idrografico" name="layers" checked="checked">Rete idrografica </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="100" data-layer-on="1" data-layer-type="WMTS" data-layer-name="grp_acque_pubbliche_marche" name="layers" checked="checked">Acque pubbliche </label>
+            <br>
+             <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_bacini_principali" name="layers">Bacini principali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_sub_bacini" name="layers">Sub Bacini</label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_aree_protette" name="layers">Aree protette </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_sic" name="layers">SIC</label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_zps" name="layers">ZPS</label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_frane" name="layers">Aree a rischio frana </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_esondazione" name="layers">Aree a rischio esondazione </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_valanghe" name="layers">Aree a rischio valanga </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_iaps" name="layers">Aree IAP</label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_areegestione" name="layers">Aree di gestione</label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_comprensori" name="layers">Comprensori</label>
+            <br>
+          
 
         </div>
         </div>
@@ -150,13 +196,16 @@
               <button type="button" class="btn" id="draw-save-button">Salva</button>
               <button type="button" class="btn" id="measure-button"data-toggle="button">Misura</button>
               <button type="button" class="btn" id="area-button"data-toggle="button">Area</button>
+              <button type="button" class="btn" id="position-button"data-toggle="button">Posizione</button>
+
               <div id="draw-color-palette"></div>
               <button id="draw-delete-button">Elimina</button>
             </div>
             <div id="mappa"></div>
         </div>
-    </fieldset>
+
     </div>
+    <script type="text/javascript" src="js/testform.js"></script>
 </body>
 </html>
 

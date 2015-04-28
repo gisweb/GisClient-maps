@@ -1,13 +1,28 @@
        
 (function ($) {
 
+  "use strict";
+  /****************** CAMPO DESCIZIONE SU POPUP *************************/
+  //QUESTO SERVE AD AGGIUNGERE IL METODO ALLE API DI GOOGLE
+  if (!google.maps.Polyline.prototype.getBounds) {
+     google.maps.Polyline.prototype.getBounds = function(latLng) {
+        var bounds = new google.maps.LatLngBounds();
+        var path = this.getPath();
+        for (var i = 0; i < path.getLength(); i++) {
+           bounds.extend(path.getAt(i));
+        }
+        return bounds;
+     }
+  }
+  if (!google.maps.Polygon.prototype.getBounds) google.maps.Polygon.prototype.getBounds = google.maps.Polyline.prototype.getBounds
+
   $(function () {
 
     //PER LE PROVE E LA CACHE DI FIREFOX
     $('input').val('');
 
-    var serviceURL = "/gisclient/services/consorziobonifica/serviceInfo.php";
-    var gisclientUrl = "/gisclient/services/ows.php?MAP=consorziobonifica";
+    var serviceURL = "/services/consorziobonifica/testserviceInfo.php";
+    var gisclientUrl = "/services/ows.php?MAP=consorziobonifica";
     var mapBaseURL ="http://sit.bonificamarche.it/ows/consorziobonifica";
     var tileGridName = "epsg3857";
     var delayOnRequest = 1;
@@ -22,7 +37,7 @@
 
 
     //CARICO L'ELENCO UNA VOLTA SOLO IN AVVIO COSÌ L'AUTOCOMPLETE È PIÙ VELOCE. USO JSOP PER EVITARE PROBLEMI LEGATI AL XDOMAIN
-    var elencoComuni;
+    var elencoComuni,elencoFogli,elencoLocalita;
     $.ajax({
       url: serviceURL,
       dataType: "jsonp",
@@ -32,7 +47,7 @@
       success: function( response ) {
         //TODO gestire errori da server
 
-        elencoComuni=response.results;
+        elencoComuni = response.results;
 
       }
 
@@ -40,13 +55,17 @@
 
     //OPZIONI DELLA MAPPA DI GOOGLE SETTATE QUI A MENO CHE NON VOGLIATE CREARE UN PANNELLO DI CONFIGURAZIONE 
     //SULL'APPLICAZIONE. IN QUESTO CASO LE IMPOSTAZIONI DELLA MAPPA POTREBBERO ESSERE MEMORIZZATE SU HTML5 ATTRIBUTES
+    /****************** POSIZIONE GPS *************************/
+    var initialLocation = new google.maps.LatLng(43.3,13.2);
     var mapOptions = {
-      center: new google.maps.LatLng(43.3,13.2),
+      center: initialLocation,
       zoom: 8
     };
     var map = new google.maps.Map($("#mappa").get(0),mapOptions);
     google.maps.event.addListener(map, 'mousemove', onMouseMove);
 
+    /****************** CAMPO DESCIZIONE SU POPUP *************************/
+    var infowin = new google.maps.InfoWindow();
 
     //MARKER USATE PER INDIVIDUARE LA POSIZIONE DELLA SEGNALAZIONE
     //SETTARE LE OPZIONI DA QUALCHE CONFIGURAZIONE
@@ -57,7 +76,7 @@
         icon: 'images/marker48.png'
     });
 
-    $txtIndirizzo = $("input[data-bind='value:Indirizzo']");
+    var $txtIndirizzo = $("input[data-bind='value:Indirizzo']");
     var gMapAutocomplete = new google.maps.places.Autocomplete($txtIndirizzo.get(0));
     gMapAutocomplete.bindTo('bounds', map);
     google.maps.event.addListener(gMapAutocomplete, 'place_changed', function() {
@@ -104,7 +123,7 @@
     addDrawingManager();
 
 
-    $txtComune = $("input[data-bind='value:DescComune']");
+    var $txtComune = $("input[data-bind='value:DescComune']");
     $txtComune.typeahead({
       hint: true,
       highlight: true,
@@ -132,7 +151,7 @@
     });
 
 
-    $txtFoglio = $("input[data-bind='value:Foglio']");
+    var $txtFoglio = $("input[data-bind='value:Foglio']");
     $txtFoglio.typeahead({
       hint: true,
       highlight: true,
@@ -180,7 +199,7 @@
         async: false,
         success: function( response ) {
 
-          elencoLocalita=response.results;
+          elencoLocalita = response.results;
 
         }
       })
@@ -201,7 +220,7 @@
 
     });
 
-    $txtLocalita = $("input[data-bind='value:Localita']");
+    var $txtLocalita = $("input[data-bind='value:Localita']");
     $txtLocalita.typeahead({
         hint: true,
         highlight: true,
@@ -245,7 +264,6 @@
         Proj4js.transform(projSource, projDest, p);
         $("span[data-bind='text:CoordX']").html(Math.round(p.x));
         $("span[data-bind='text:CoordY']").html(Math.round(p.y));
-        delete(p);
     }
 
 
@@ -262,7 +280,7 @@
         success: function( response ) {
 
           if(response.success){
-            for(key in response.results){
+            for(var key in response.results){
               $("[data-bind$=':" + key + "']").val(response.results[key]);
             }
             var position = new google.maps.LatLng(response.results.Lat,response.results.Lng);
@@ -335,7 +353,7 @@
 
     function addMapLayers() {
 
-      var layer, layers = {};
+      var layerOptions, layer, layers = {};
 
       //OVERLAYS
       $("input[name='layers']").each(function(_,element){
@@ -402,6 +420,35 @@
       return layers;
 
     }
+
+    /****************** CAMPO DESCIZIONE SU POPUP *************************/
+    //CREA LA FINESTRA DI POPUP PER LA DESCRIZIONE
+    function openDialog(overlay){
+
+      var html = '<div style="height:150px" id="iw-description"><label class="horizontal" for="txt-description"> Descrizione </label><br>';
+      html += '<textarea id="txt-description" style="width:300px" name="description" rows="4">' + (overlay.get("description") || '') + '</textarea></div>';     
+      html += '<div id="iw-buttons"><button id="btn-save-description" class="btn btn-default icon-save">Aggiorna</button></div>';
+
+      infowin.setContent(html);
+      infowin.set("element",overlay);
+      if(typeof(overlay.getPosition) != 'undefined'){
+        infowin.open(map,overlay);
+      }else{
+        var bounds = overlay.getBounds();
+        var center = bounds.getCenter();
+        infowin.setPosition(center);
+        infowin.open(map);
+      }
+
+    }
+    //aggiunge la logica sul popup appena creato
+    google.maps.event.addListener(infowin, 'domready', function() {
+      $("#btn-save-description").on("click",function(e){
+        var overlay = infowin.get("element");
+        overlay.set("description", $("#txt-description").val());
+        infowin.close();
+      })
+    });
 
 
 
@@ -528,10 +575,10 @@
       };
 
       //PRENDO L'ID DALLA PAGINA (IN ALTERNATIVA GLIELO PASSO COME LA FUNCT SOTTO)
+      /****************** CAMPO DESCIZIONE SU POPUP *************************/
       function getDrawingShapes (){
 
-
-        var id = $("campoid").val();  id=2;
+        var id = $("campoid").val(); // id=1321;
         var editable = true; //todo!!!!!!!!!!!!!!
         var data = {
           request:"getdata",
@@ -547,12 +594,12 @@
           success: function( response ) {
 
             if(response.success){
-              var geom, overlay, points;
+              var geom, overlay, description, path, points, p, position;
               for(var i=0;i<response.results.length;i++){
                 overlay = response.results[i];
                 geom = overlay[1];
+                description = overlay[2];
                 path = [];
-
                 if(geom.indexOf("POINT")!=-1){
                   points = geom.substring(6,geom.length-1);
                   p = points.split(/\s+/);
@@ -566,12 +613,14 @@
                       scale: pointSize
                     }
                   });
+                  marker.set("description",description);
                   drawingShapes.push({
                     "type":google.maps.drawing.OverlayType.MARKER,
                     "overlay":marker
                   })
                   google.maps.event.addListener(marker, 'click', function() {
                     setSelection(this);
+                    openDialog(this);
                   });
                 }
 
@@ -586,12 +635,14 @@
                     strokeColor: overlay[0]
                   });
                   poly.setMap(map);
+                  poly.set("description",description);
                   drawingShapes.push({
                     "type":google.maps.drawing.OverlayType.POLYLINE,
                     "overlay":poly
                   })
                   google.maps.event.addListener(poly, 'click', function() {
                     setSelection(this);
+                    openDialog(this);
                   });
                 }
 
@@ -607,12 +658,14 @@
                     strokeColor: overlay[0]
                   });
                   poly.setMap(map);
+                  poly.set("description",description);
                   drawingShapes.push({
                     "type":google.maps.drawing.OverlayType.POLYGON,
                     "overlay":poly
                   })
                   google.maps.event.addListener(poly, 'click', function() {
                     setSelection(this);
+                    openDialog(this);
                   });
                 }
               }
@@ -628,7 +681,7 @@
 
       //SALVA LE GEOMETRIE DISEGNATE SULLA MAPPA CON I DAI PASSATI NEL DIZIONARIO attributes (obbligatorio l'attributo id)
       //OPPURE TOGLI L'ARGOMENTO ATTRIBUTES E RICAVI GLI ATTRIBUTI DALLA PAGINA
-
+      /****************** CAMPO DESCIZIONE SU POPUP *************************/
       function saveDrawingShapes (attributes){
         var type, overlay,points,obj;
         var data = attributes || {};
@@ -644,6 +697,7 @@
           points = [];
           obj = {};
           overlay = drawingShapes[i].overlay
+          obj.description = overlay.get("description");
           if(type == google.maps.drawing.OverlayType.MARKER){
             obj.geom = "SRID=4326;POINT(" + overlay.getPosition().lng().toFixed(6) + " " + overlay.getPosition().lat().toFixed(6) + ")";
             var symbol = overlay.getIcon();
@@ -740,6 +794,14 @@
             setSelection(newShape);
           });
           setSelection(newShape);
+          /****************** CAMPO DESCIZIONE SU POPUP *************************/
+          openDialog(newShape);
+          google.maps.event.addListener(newShape, 'click', function(){
+            infowin.element = this;
+            openDialog(this);
+          });
+
+
 
         //}
       });
@@ -756,7 +818,7 @@
       getDrawingShapes ();
       //DA CHIAMARE VIA CODICE IL BUTTON SOLO PER I TEST
       $("#draw-save-button").bind("click",function(){
-        saveDrawingShapes({"id":2,"pippo":10,"pluto":15})
+        saveDrawingShapes({"id":1321})
       });
   
 
@@ -844,8 +906,40 @@
       });
 
     }
+    /****************** POSIZIONE GPS *************************/
+    function handleNoGeolocation(errorFlag) {
+      if (errorFlag == true) {
+        alert("In servizio di geolocalizzazione ha fallito.");
+      } else {
+        alert("Il browser non supporta il servizio di geolocalizzazione.");
+      }
+      map.setCenter(initialLocation);
+    }
+    $('#position-button').bind("click",function(){
+      // Try W3C Geolocation (Preferred)
+      var browserSupportFlag;
+      if(navigator.geolocation) {
+        browserSupportFlag = true;
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var marker = new google.maps.Marker({
+              map: map,
+              animation: google.maps.Animation.DROP,
+              position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
+              icon: 'images/location-icon.png'
+          });
+          map.setCenter(marker.getPosition());
+          map.setZoom(12);
+        }, function() {
+          handleNoGeolocation(browserSupportFlag);
+        });
+      }
+      // Browser doesn't support Geolocation
+      else {
+        browserSupportFlag = false;
+        handleNoGeolocation(browserSupportFlag);
+      }
 
-
+    });
 
     //CALCOLA LA URL PER I TILE A SECONDA DEL TIPO DI LIVELLO WMS O WMTS (TILES IN CACHE)
     function getTileUrl (layerName,layerType){
@@ -873,7 +967,7 @@
 
     //ACCENDE E SPEGNE I LIVELLI DA CHECKBOX
     function toggleLayer (){
-      var layer;
+      var layer, layerName;
       layerName = $(this).data("layerName");
       layer = mapOverlays[layerName]
       if(!layer) return;
@@ -895,7 +989,6 @@
       Proj4js.transform(projSource, projDest, p);
       position = position + ' - X: ' + p.x.toFixed(2) + ' Y: ' + p.y.toFixed(2);
       $("#coords").text(position);
-      delete(p);
 
     };
 
@@ -912,10 +1005,6 @@
       Proj4js.transform(projSource, projDest, p);
       var bbox = (p.x - dx) + ',' + (p.y - dy) + ',' + (p.x + dx) + ',' + (p.y + dy);
       var url = gisclientUrl + "&LAYERS=" + cfg.layers + segnalazioni  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:900913&BBOX=" + bbox + "&width=" + cfg.width + "&height=" + cfg.height;
-      delete (projSource);
-      delete (projDest);
-      delete (p);
-      console.log(url)
 
     }
 
