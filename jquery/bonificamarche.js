@@ -1001,7 +1001,7 @@ var inClusterFilter = new OpenLayers.Filter.Comparison(
 var filterType1 = new OpenLayers.Filter.Comparison(
 {
     type: OpenLayers.Filter.Comparison.GREATER_THAN,
-    property: "IdStatoSegnalazione",
+    property: "idstatosegnalazione",
     value: 1,
 });
 
@@ -1028,7 +1028,7 @@ var filterNoClusterType1 = new OpenLayers.Filter.Logical(
                     strokeOpacity: 0.5,
                     strokeWidth: 12,
                     pointRadius: 10,
-                    label: "${IdStatoSegnalazione}",
+                    label: "${idstatosegnalazione}",
                     labelOutlineWidth: 1,
                     fontColor: "#ffffff",
                     fontOpacity: 0.8,
@@ -1111,7 +1111,7 @@ var filterNoClusterType1 = new OpenLayers.Filter.Logical(
             var stato3 = new OpenLayers.Rule({
                 filter: new OpenLayers.Filter.Comparison({
                     type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                    property: "IdStatoSegnalazione",
+                    property: "idstatosegnalazione",
                     value: 3
                 }),
                 symbolizer: {
@@ -1133,7 +1133,7 @@ var filterNoClusterType1 = new OpenLayers.Filter.Logical(
             var stato11 = new OpenLayers.Rule({
                 filter: new OpenLayers.Filter.Comparison({
                     type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                    property: "IdStatoSegnalazione",
+                    property: "idstatosegnalazione",
                     value: 11
                 }),
                 symbolizer: {
@@ -1156,7 +1156,7 @@ var filterNoClusterType1 = new OpenLayers.Filter.Logical(
             var stato12 = new OpenLayers.Rule({
                 filter: new OpenLayers.Filter.Comparison({
                     type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                    property: "IdStatoSegnalazione",
+                    property: "idstatosegnalazione",
                     value: 12
                 }),
                 symbolizer: {
@@ -1210,7 +1210,7 @@ var clusteredRule = new OpenLayers.Rule(
 var filterType1 = new OpenLayers.Filter.Comparison(
 {
     type: OpenLayers.Filter.Comparison.EQUAL_TO,
-    property: "IdStatoSegnalazione",
+    property: "idstatosegnalazione",
     value: 12,
 });
 
@@ -1326,7 +1326,7 @@ var pointStyle = new OpenLayers.Style({
         //return feature.cluster ? feature.cluster.length : "";  
 
         if(feature.cluster.length == 1) {
-            switch(parseInt(feature.cluster[0].attributes.IdStatoSegnalazione)) {
+            switch(parseInt(feature.cluster[0].attributes.idstatosegnalazione)) {
                 case 1:
                 case 2:
                 case 3:
@@ -1405,7 +1405,7 @@ var pointStyle = new OpenLayers.Style({
             }
         }),
   */
-    //    styleMap:  new OpenLayers.StyleMap(pointStyle)
+        styleMap:  new OpenLayers.StyleMap(pointStyle)
     }); 
 
 
@@ -1439,7 +1439,7 @@ var pointStyle = new OpenLayers.Style({
         var fieldKey="";
         switch (fieldName) {
             case "stato":
-                fieldKey = "IdStatoSegnalazione";
+                fieldKey = "idstatosegnalazione";
                 break;
             case "tipo":
                 fieldKey = "idtiposegnalazione";
