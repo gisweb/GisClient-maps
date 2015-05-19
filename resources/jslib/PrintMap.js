@@ -46,6 +46,16 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             }
         });
     },
+
+    aaactivate: function(){
+
+        console.log("activate");
+    },
+
+    aadeactivate: function(){
+        console.log("deactivate");
+        //this.removePrintArea();
+    },
     
     setMap: function(map) {
         var me = this;
@@ -59,7 +69,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
         $('#'+me.formId).on('click', 'button[role="print"]', function(event) {
             event.preventDefault();
-            
             me.doPrint();
         });
         
@@ -133,25 +142,30 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         return params;
         
     },
+
     getParams: function() {
         var self = this;
-        
+        var gcConfig = this.map.config; 
         var params = this.getConfigParams();
         
+        //Setto i tiles
         var tiles = [];
+
         
         $.each(this.map.layers, function(key, layer) {
             if (!layer.getVisibility()) return;
             //if (!layer.calculateInRange()) return;
             var tile;
+            console.log(layer)
+            if(layer.owsurl) layer.url = layer.owsurl;
             if(layer.CLASS_NAME == 'OpenLayers.Layer.TMS') {
                 tile = {
                     url: layer.url.replace('/tms/', '/wms/'),
                     parameters: {
                         service: 'WMS',
                         request: 'GetMap',
-                        project: gisclient.getProject(),
-                        map: gisclient.getMapOptions().mapsetName,
+                        project: gcConfig.projectName,
+                        map: gcConfig.mapsetName,
                         layers: [layer.layername.substr(0, layer.layername.indexOf('@'))],
                         version: '1.1.1',
                         format: 'image/png'
@@ -160,6 +174,9 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                     opacity: layer.opacity ? (layer.opacity * 100) : 100
                 };
             } else if(layer.CLASS_NAME == 'OpenLayers.Layer.WMS') {
+
+                layer.params.project = gcConfig.projectName;
+                layer.params.map  = gcConfig.mapsetName;
                 tile = {
                     url: layer.url,
                     type: 'WMS',
@@ -169,6 +186,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             } else if(layer.CLASS_NAME == 'OpenLayers.Layer.WMTS') {
                 var params = {
                     LAYERS: [layer.name],
+                    PROJECT: gcConfig.projectName,
+                    MAP: gcConfig.mapsetName,
                     FORMAT: 'image/png',
                     SRS: layer.projection.projCode,
                     TRANSPARENT: true,
@@ -176,20 +195,33 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                     VERSION: '1.1.1'
                 };
                 tile = {
-                    url: GisClientMap.mapProxyBaseUrl+'/'+GisClientMap.mapsetName+'/service?',
+                    //url: gcConfig.mapProxyBaseUrl+'/'+gcConfig.projectName+'/'+gcConfig.mapsetName+'/service?',
+                    url:layer.url,
                     type: 'WMS',
                     parameters: params,
                     opacity: layer.opacity ? (layer.opacity * 100) : 100
                 };
             } else if(layer.CLASS_NAME == 'OpenLayers.Layer.OSM' ||
                 layer.CLASS_NAME == 'OpenLayers.Layer.Google') {
-
+                var params = {
+                    LAYERS: [layer.name],
+                    PROJECT: gcConfig.projectName,
+                    MAP: gcConfig.mapsetName,
+                    FORMAT: 'image/png',
+                    SRS: layer.projection.projCode,
+                    TRANSPARENT: true,
+                    SERVICE: 'WMS',
+                    VERSION: '1.1.1'
+                };
                 tile = {
-                    type: 'external_provider',
-                    externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
+
+                    url:'services/ows.php',
+                    type: 'WMS',
+                    //externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
+                    parameters: params,
                     name: layer.name,
-                    project: GisClientMap.projectName,
-                    map: GisClientMap.mapsetName
+                    project: gcConfig.projectName,
+                    map: gcConfig.mapsetName,
                 };
             } else console.log(layer.name+' '+layer.CLASS_NAME+' non riconosciuto per stampa');
             if(tile) {
@@ -207,6 +239,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             params.legend = 'yes';
             
         }
+        console.log(tiles)
         tiles.reverse();
         params.tiles = tiles;
 

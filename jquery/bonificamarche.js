@@ -780,9 +780,11 @@ var initMap = function(){
                         });
                     }
                     sidebarPanel.show('printpanel');
+                    $('#print_box').show();
                 },
                 'deactivate': function(){
                     sidebarPanel.hide('printpanel');
+                    $('#print_box').hide();
                 }
             }
         }),
@@ -880,9 +882,8 @@ var initMap = function(){
 
         $('#LoginWindow button').on('click',function(e){
             e.preventDefault();
-
             $.ajax({
-                url: '/gisclient/login.php',
+                url: self.baseUrl + 'login.php',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -913,7 +914,7 @@ var initMap = function(){
         event.preventDefault();
         
         $.ajax({
-            url: '/gisclient/logout.php',
+            url: self.baseUrl + 'logout.php',
             type: 'POST',
             dataType: 'json',
             success: function(response) {
@@ -1384,7 +1385,7 @@ var pointStyle = new OpenLayers.Style({
         projection: new OpenLayers.Projection("EPSG:3857"), 
         protocol: new OpenLayers.Protocol.WFS({
             version: "1.1.0",
-            url: "/cgi-bin/mapserv?map=/home/robystar/gisclient-3/map/" + this.projectName + "/" + this.mapsetName + ".map&SERVICE=WFS",
+            url: "/cgi-bin/mapserv?map=/apps/gisclient-3/map/" + this.projectName + "/" + this.mapsetName + ".map&SERVICE=WFS",
             featureType: "segnalazioni.segnalazioni",
             featurePrefix : 'ms',
             featureNS: "http://mapserver.gis.umn.edu/mapserver",
@@ -1509,6 +1510,7 @@ var pointStyle = new OpenLayers.Style({
 
     form += '<br><div><button id="filtra_segnalazioni" class="btn btn-default">Filtra le segnalazioni</button></div>';
     form += '<br><div><button id="stampa_segnalazioni" class="btn btn-default">Stampa le segnalazioni</button></div>';
+    form += '<a id="link-segnalazioni" href="#">segnalazioni</a>';
 
 
 
@@ -1622,28 +1624,11 @@ var pointStyle = new OpenLayers.Style({
 
     //add Vector results to resultPanel
     function refreshSegnalazioni(e) {
-        //console.log(fType)
-        //console.log(segnalazioniLayer.features)
 
-        //console.log(e.object.features.length);return;
-        //var layer = e.object
-        //if (layer.features.length == 0) return;
-
-
-        $.each(e.object.features,function(_,el){
-            console.log(el)
-        });
-
-        var extent = e.object.getDataExtent();
-        console.log(extent)
-        if(extent!=null){
-            map.zoomToExtent(extent)
-        }
-
-
-
-
-
+        window.setTimeout(function(){
+            var ext = e.object.getDataExtent();
+            if(ext) map.zoomToExtent(ext)
+        }, 1500);
 
     }
 
@@ -1673,13 +1658,14 @@ var pointStyle = new OpenLayers.Style({
             else if(feature.cluster && feature.cluster.length == 1) {
                 var attributes = feature.cluster[0].attributes;
                 var coords = feature.geometry.clone().transform("EPSG:3857","EPSG:3004");
-                popupContent += '<div><label>Id segnalazione:&nbsp; </label><span>' + attributes.id_segnalazione + '</span></div>';
+                popupContent += '<div><label>Id segnalazione:&nbsp; </label><span>' + attributes.id + '</span></div>';
+                popupContent += '<div><label>Comprensorio:&nbsp; </label><span>' + attributes.bacino + '</span></div>';
                 popupContent += '<div><label>Comune:&nbsp; </label><span>' + attributes.comune + '</span></div>';
                 popupContent += '<div><label>Tipo segnalazione:&nbsp; </label><span>' + attributes.tipo + '</span></div>';
                 popupContent += '<div><label>Tipo manutenzione:&nbsp; </label><span>' + attributes.tipomanutenzione + '</span></div>';
                 popupContent += '<div><label>Stato segnalazione:&nbsp; </label><span>' + attributes.stato + '</span></div>';
-                popupContent += '<div><label>Data apertura:&nbsp; </label><span>' + attributes.data1 + '</span></div>';
-                popupContent += '<div><label>Data chiusura:&nbsp; </label><span>' + attributes.data2 + '</span></div>';
+                popupContent += '<div><label>Data apertura:&nbsp; </label><span>' + attributes.dataapertura + '</span></div>';
+                popupContent += '<div><label>Data chiusura:&nbsp; </label><span>' + attributes.datachiusura + '</span></div>';
                 popupContent += '<div><label>Coordinata X:&nbsp; </label><span>' + coords.x.toFixed(2) + '</span></div>';
                 popupContent += '<div><label>Coordinata Y:&nbsp; </label><span>' + coords.y.toFixed(2) + '</span></div>';
 
@@ -1705,11 +1691,48 @@ var pointStyle = new OpenLayers.Style({
             feature.popup.destroy();
             feature.popup = null;
         },
-
         refresh: refreshSegnalazioni
+        
+    });
+
+
+    //STAMPA DELLE SEGNALAZIONI
+    $("#stampa_segnalazioni").bind("click",function(){
+        var ids = [];
+        $.each(segnalazioniLayer.features, function(_, el) {
+            //console.log(el)
+            $.each(el.cluster, function(_, feature) {
+                ids.push(feature.attributes.id);
+            });
+        });
+        $.ajax({
+            url: self.baseUrl + 'services/bonificamarche/xStampaSegnalazioni.php',
+            data: {
+                id: ids.join(",")
+            },
+            method:"POST",
+            success: function(data) {
+                if(data.success=="ok"){
+                    $('#link-segnalazioni').attr("href",data.file);
+                    $('#link-segnalazioni').popupWindow({ 
+                        windowName:'segnalazioni',
+                        centerScreen:1 ,
+                        scrollbars:1,
+                        height:900,
+                        width:1200
+                    });
+
+                }
+            }
+        });
+
+
 
 
     });
+
+
+
 
     sidebarPanel.show('segnalazioni');
 

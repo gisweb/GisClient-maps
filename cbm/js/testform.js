@@ -21,7 +21,7 @@
     //PER LE PROVE E LA CACHE DI FIREFOX
     $('input').val('');
 
-    var serviceURL = "/services/consorziobonifica/testserviceInfo.php";
+    var serviceURL = "http://sit.bonificamarche.it/gisclient/services/consorziobonifica/serviceInfo.php";
     var gisclientUrl = "/services/ows.php?MAP=consorziobonifica";
     var mapBaseURL ="http://sit.bonificamarche.it/ows/consorziobonifica";
     var tileGridName = "epsg3857";
