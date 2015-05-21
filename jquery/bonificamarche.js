@@ -113,6 +113,8 @@ var sidebarPanel = {
 //INITMAP PER FARCI QUALCOSA
 $(function() {
 
+
+
 var customCreateControlMarkup = function(control) {
     var button = document.createElement('a'),
         icon = document.createElement('span'),
@@ -134,6 +136,8 @@ var initMap = function(){
     var self = this;
     document.title = this.mapsetTitle;
 
+
+    var ServiceURL = self.baseUrl + "services/bonificamarche/";
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -1524,7 +1528,7 @@ var pointStyle = new OpenLayers.Style({
             query: function(query) {
                 var bacino = '';
                 $.ajax({
-                    url: self.baseUrl + 'services/bonificamarche/xSuggestSegnalazioni.php',
+                    url: serviceURL + 'xSuggestSegnalazioni.php',
                     data: {
                         suggest: query.term,
                         field_id: fieldId,
@@ -1706,7 +1710,7 @@ var pointStyle = new OpenLayers.Style({
         loadingControl.maximizeControl();
 
         $.ajax({
-            url: self.baseUrl + 'services/bonificamarche/xStampaSegnalazioni.php',
+            url: serviceURL + 'xStampaSegnalazioni.php',
             data: {
                 extent: map.getExtent().toArray(),
                 srs: map.getProjection(),
