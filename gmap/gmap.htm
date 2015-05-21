@@ -2,11 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Tab Mappa</title>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?language=it&libraries=drawing,places"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?language=it&libraries=drawing,places,geometry"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 
-    <script type="text/javascript" src="js/proj4js.js"></script>
 
+    <script type="text/javascript" src="js/proj4js.js"></script>
+    <script type="text/javascript" src="js/jquery.json.min.js"></script>
     <link rel="stylesheet" href="css/gmap.css">
     <script type="text/javascript" src="js/gmap.js"></script>
 
@@ -19,28 +20,22 @@
 </head>
 <body>
 
-    <input id="indirizzo" class="controls" type="text" placeholder="Inserisci un indirizzo">
+    <input id="gplaces" class="controls" type="text" placeholder="Inserisci un indirizzo">
 <!--   LAYERS  -->
 
     <div id="layerContainer" title="Mostra/Nascondi Livelli">
     <div class="gmap-button" id="clicktarget">Livelli in mappa</div>
     <div id="layerbox" class="gmap-button">
-        <label><input name="layers" type="checkbox" data-layer-name="grp_reticolo_idrografico" data-layer-type="WMTS" /> Rete idrografica
-</label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_aree_protette" data-layer-type="WMTS" data-layer-opacity=50 data-layer-on=0 /> Aree protette
-</label> <br />
-         <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali" data-layer-type="WMTS" data-layer-on=0 /> Bacini principali
-</label> <br />
-         <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale" data-layer-type="WMTS" /> Rete viaria
-</label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_rete_stradale5" data-layer-type="WMTS"/> Aree IAP </label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principali5" data-layer-type="WMTS"/> CTR bitonale </label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principalii" data-layer-type="WMTS"/> Qualche livello specifico della CTR </label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_bacini_principaliy" data-layer-type="WMTS"/> Punti di recapito idrici </label> <br />
 
-        <label><input name="layers" type="checkbox" data-layer-name="grp_acque_pubbliche_marche" data-layer-type="WMTS"/> Acque pubbliche </label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_fabbricati" data-layer-type="WMTS"/> Fabbricati catastali </label> <br />
-        <label><input name="layers" type="checkbox" data-layer-name="grp_particelle" data-layer-type="WMTS"/> Particelle catastali </label> <br />
+        <label><input name="layers" type="checkbox" data-layer-name="UA.UNITAAMMINISTRATIVE.REGIONI" data-layer-type="WMS" data-layer-url="http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/Vettoriali/LimitiAmministrativi_2011.map"/> Unità amministrative - Regioni
+        </label> <br />
+
+        <label><input name="layers" type="checkbox" data-layer-name="UA.UNITAAMMINISTRATIVE.PROVINCE" data-layer-type="WMS" data-layer-url="http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/Vettoriali/LimitiAmministrativi_2011.map"/> Unità amministrative - Provincie
+        </label> <br />        
+        
+        <label><input name="layers" type="checkbox" data-layer-name="UA.UNITAAMMINISTRATIVE.COMUNI" data-layer-type="WMS" data-layer-url="http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/Vettoriali/LimitiAmministrativi_2011.map"/> Unità amministrative - Comuni
+        </label> <br />       
+    
 
     </div>
     </div>
@@ -50,16 +45,17 @@
 
     <div>      
     <!-- OPZIONI DI DISEGNO -->
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="marker" data-marker-icon="icon_2.png" />Punto tipo 1</label>
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="marker" data-marker-icon="icon_4.png" />Punto tipo 2</label>
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="marker" data-marker-icon="icon_7.png"/>Punto tipo 3</label>
+        <label><input type="radio" name="elemento-geom" data-drawing-mode="null" checked="ckecked" />DISATTIVO</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="punto1" data-drawing-mode="marker" data-marker-icon="MapMarker_Board_Chartreuse.png" />Punto tipo 1</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="punto2" data-drawing-mode="marker" data-marker-icon="icon_4.png" />Punto tipo 2</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="punto3" data-drawing-mode="marker" data-marker-icon="icon_7.png"/>Punto tipo 3</label>
 
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="polyline" data-stroke-color="#00FFFF" data-stroke-opacity="1" data-stroke-weight="2" />Linea 1</label>
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="polyline" data-stroke-color="#00FF00" data-stroke-opacity="1" data-stroke-weight="2" />Linea 2</label>
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="polyline" data-stroke-color="#00FFAA" data-stroke-opacity="1" data-stroke-weight="2" />Linea 3</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="linea1" data-drawing-mode="polyline" data-stroke-color="#00FFFF" data-stroke-opacity="1" data-stroke-weight="2" />Linea 1</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="linea2" data-drawing-mode="polyline" data-stroke-color="#00FF00" data-stroke-opacity="1" data-stroke-weight="2" />Linea 2</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="linea3" data-drawing-mode="polyline" data-stroke-color="#00FFAA" data-stroke-opacity="1" data-stroke-weight="2" />Linea 3</label>
 
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="polygon" data-stroke-color="#00FFEE" data-stroke-opacity="1" data-stroke-weight="2" data-fill-color="#FF0000" data-fill-opacity="0.5" />Poligono1</label>
-        <label><input type="radio" name="elemento-geom" data-drawing-mode="polygon" data-stroke-color="#00FFBB" data-stroke-opacity="1" data-stroke-weight="2" data-fill-color="#FF0000" data-fill-opacity="0.5" />Poligono2</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="poligono1" data-drawing-mode="polygon" data-stroke-color="#00FFEE" data-stroke-opacity="1" data-stroke-weight="2" data-fill-color="#FF0000" data-fill-opacity="0.5" />Poligono1</label>
+        <label><input type="radio" name="elemento-geom" data-element-type="poligono2" data-drawing-mode="polygon" data-stroke-color="#00FFBB" data-stroke-opacity="1" data-stroke-weight="2" data-fill-color="#FF0000" data-fill-opacity="0.5" />Poligono2</label>
 
         <div id="gmap"></div>
         <div id="draw-panel">
@@ -74,12 +70,16 @@
 
     <div>
     <!--ATTRIBUTI DELLA SCHEDA DI PROGETTO-->
+    <textarea rows="6" cols="120" id="form-widgets-geometries">    
+[{"element":"punto1","description":"qweqwe","geom":[7.734375,44.55524925971063]},{"element":"punto2","description":"werwerwe","geom":[8.32763671875,44.78573392716592]},{"element":"punto3","description":"sdfsdfsdf","geom":[9.3109130859375,45.058001435398296]},{"element":"linea1","description":"werwewer","geom":"cjurGervm@nhDyicEjf}A|`l@vdo@zqiD_rzAz}bC_fg@_ho@"},{"element":"poligono1","description":"werwerwer","geom":"gr{qGwey{@ttbAr`aJabUnvkDmdaC{tbM"}]
+
+    </textarea><br>
     <label>Latitudine</label>
-    <input type="text" name="form.widgets.lat_scheda">
+    <input type="text" id="formfield-form-widgets-lat_progetto" value="44.40207923685363"><br>
     <label>Longitudine</label>
-    <input type="text" name="form.widgets.lon_scheda">
-    <label>Zoom (??)</label>
-    <input type="text" name="form.widgets.zoom_scheda">
+    <input type="text" id="formfield-form-widgets-lon_progetto" value="8.94580078125"><br>
+    <label>Zoom</label>
+    <input type="text" id="formfield-form-widgets-zoom_progetto" value="8"><br>
 
     </div>
 </body>

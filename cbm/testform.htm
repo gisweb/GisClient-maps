@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>testform</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?language=it&libraries=drawing,places"></script>
+    
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+    <script type="text/javascript" src="js/proj4js.js"></script>
+
+    <link rel="stylesheet" href="css/typeahead.css">
+
+    <link rel="stylesheet" href="css/testform.css">
+
+
+    <style>
+
+    </style>
+
+
+</head>
+<body>
+    <div class="container-fluid">
+    <fieldset class="sect450"><legend>Posizione segnalazione</legend>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label>Comune </label>
+                <div class="input-group">
+                    <input class="form-control " data-bind="value:DescComune"  maxlength="200" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default disabled icon-marker" type="button"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label>Località</label>
+                <div class="input-group">
+                    <input class="form-control" data-bind="value:Localita" maxlength="200" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default disabled icon-marker" type="button"></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label>Indirizzo</label>
+                <div class="input-group">
+                    <input class="form-control" data-bind="value:Indirizzo" maxlength="200" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default disabled icon-marker" type="button"></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form group col-sm-3">
+                <label>&nbsp;</label>
+                <button data-bind="click: $parent.posizionaClick" title="Ricerca in mappa" id="btnPosiziona" class="form-control btn btn-primary" type="button">Posiziona&nbsp;<span class="glyphicon glyphicon-globe"></span></button>
+            </div>
+            <div class="form group col-sm-3">
+                <label>&nbsp;</label>
+                <button data-bind="click: $parent.resetClick" title="Pulisci i dati di posizionamento e la mappa" id="btnReset" class="form-control btn btn-primary" type="button">Reimposta posizionamento&nbsp;<span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+            <div class="form-group col-sm-6">
+                <label>Nome Asta</label>
+                <span data-bind="text:NomeAsta" class="form-control"></span>
+            </div>
+        </div>  
+
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label>Sub-Bacino </label>
+                <span data-bind="text:SubBacino" class="form-control">16675</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Area IAP di competenza</label>
+                <span data-bind="text:CodIAP" class="form-control">669</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Acqua Pubblica?</label>
+                <span data-bind="text:DescAcquaPubb" class="form-control">NO</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Area Protetta?</label>
+                <span data-bind="text:DescAreaProtetta" class="form-control">NO</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <label>X (Gauss Boaga Roma40-est)</label>
+                <span id="txtGBLat" class="form-control">2401377</span>
+            </div>
+            <div class="form-group col-sm-3">
+                <label>Y (Gauss Boaga Roma40-est)</label>
+                <span id="txtGBLong" class="form-control">4746248</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Sezione </label>
+                <span data-bind="text:Sezione" class="form-control"></span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Foglio </label>
+                <span data-bind="text:Foglio" class="form-control" id="txtFoglio">66</span>
+            </div>
+            <div class="form-group col-sm-2">
+                <label>Numero </label>
+                <span data-bind="text:Numero" class="form-control"></span>
+            </div>
+        </div>
+    </fieldset>
+
+
+<!--   LAYERS  -->
+
+        <div id="layerContainer" title="Mostra/Nascondi Livelli">
+        <div class="gmap-button" id="clicktarget">Livelli in mappa</div>
+        <div id="layerbox" class="gmap-button">
+
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-on="1" data-layer-type="WMTS" data-layer-name="grp_ctr_raster" name="layers" checked="checked">CTR bitonale </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_ctr" name="layers">CTR edifici </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-on="0" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_confini_comunali" name="layers">Confini comunali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_confini_provinciali" name="layers">Confini provinciali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_nct_fogli" name="layers">Fogli catastali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_particelle" name="layers">Particelle </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_fabbricati" name="layers">Fabbricati </label>
+            <br> 
+            <label><input type="checkbox" data-layer-type="WMTS" data-layer-name="grp_rete_stradale" name="layers">Rete viaria </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="100" data-layer-on="1" data-layer-type="WMTS" data-layer-name="grp_reticolo_idrografico" name="layers" checked="checked">Rete idrografica </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="100" data-layer-on="1" data-layer-type="WMTS" data-layer-name="grp_acque_pubbliche_marche" name="layers" checked="checked">Acque pubbliche </label>
+            <br>
+             <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_bacini_principali" name="layers">Bacini principali </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_sub_bacini" name="layers">Sub Bacini</label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_aree_protette" name="layers">Aree protette </label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_sic" name="layers">SIC</label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_zps" name="layers">ZPS</label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_frane" name="layers">Aree a rischio frana </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_esondazione" name="layers">Aree a rischio esondazione </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_valanghe" name="layers">Aree a rischio valanga </label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_iaps" name="layers">Aree IAP</label>
+            <br>
+            <label>
+                <input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_areegestione" name="layers">Aree di gestione</label>
+            <br>
+            <label><input type="checkbox" data-layer-opacity="50" data-layer-type="WMTS" data-layer-name="grp_comprensori" name="layers">Comprensori</label>
+            <br>
+          
+
+        </div>
+        </div>
+
+<!--   LAYERS  -->
+
+        <button id="print"></button>
+
+        <div class="row">
+            <div id="info-panel">
+                <div id="coords"></div>
+                <div id="measure"></div>
+            </div>
+            <div id="draw-panel">
+              <button type="button" class="btn" id="draw-save-button">Salva</button>
+              <button type="button" class="btn" id="measure-button"data-toggle="button">Misura</button>
+              <button type="button" class="btn" id="area-button"data-toggle="button">Area</button>
+              <button type="button" class="btn" id="position-button"data-toggle="button">Posizione</button>
+
+              <div id="draw-color-palette"></div>
+              <button id="draw-delete-button">Elimina</button>
+            </div>
+            <div id="mappa"></div>
+        </div>
+
+    </div>
+    <script type="text/javascript" src="js/testform.js"></script>
+</body>
+</html>
+

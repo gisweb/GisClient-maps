@@ -34,10 +34,12 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         $('#'+me.formId+' span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
         
         $.ajax({
-            url: '/gisclient/services/print.php',
+            url: 'http://geoweb.server2/gisclient/services/print.php',
+            jsonpCallback: "callback",
+            async: false,
             type: 'POST',
             data: params,
-            dataType: 'json',
+            dataType: 'jsonp',
             success: function(response) {
                 if(typeof(response.result) != 'undefined' && response.result == 'ok') {
                     //$('#'+this.formId+' div.loading').hide();
@@ -86,8 +88,10 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
         $.ajax({
             url: this.serviceUrl,
+            jsonpCallback: "callback",
+            async: false,
             type: 'POST',
-            dataType: 'json',
+            dataType: 'jsonp',
             data: params,
             success: function(response) {
                 if(typeof(response) != 'object' || response == null || typeof(response.result) != 'string' || response.result != 'ok' || typeof(response.pages) != 'object') {

@@ -156,7 +156,7 @@ var initMap = function(){
             title:"Pannello di stampa",
             maxScale:50000,
             editMode: editMode,
-            serviceUrl:'/gisclient/services/print.php',
+            serviceUrl:'http://geoweb.server2/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
                     var bounds = this.printBox.geometry.getBounds();
@@ -234,32 +234,53 @@ var initMap = function(){
 }//END initMap
 
     initDialog();
-    OpenLayers.ImgPath = "/gisclient/template/resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php?mapset=test','map',{
-        useMapproxy:true,
-        mapProxyBaseUrl:"/ows",
-        mapOptions:{
-            controls:[
-                new OpenLayers.Control.Navigation(),
-                new OpenLayers.Control.Attribution(),
-                new OpenLayers.Control.LoadingPanel(),
-                new OpenLayers.Control.PanZoomBar(),
-                new OpenLayers.Control.ScaleLine()
-                /*
-                new OpenLayers.Control.TouchNavigation({
-                    dragPanOptions: {
-                        enableKinetic: true
-                    }
-                }),
-                //new OpenLayers.Control.PinchZoom(),
-*/
+    OpenLayers.ImgPath = "http://geoweb.server2/gisclient/template/resources/themes/openlayers/img/";
+    $.ajax({
+      url: 'http://geoweb.server2/gisclient/services/gcmap.php',
+      dataType: "jsonp",
+      data:{"mapset":"test"},
+      jsonpCallback: "callback",
+      async: false,
+      success: function( response ) {
+        //TODO gestire errori da server
 
-            ]
-            //scale:2000,
-            //center:[8.92811, 44.41320]
-        },
-        callback:initMap
+        options = {
+          useMapproxy:true,
+          mapProxyBaseUrl:"/ows",
+          mapOptions:{
+              controls:[
+                  new OpenLayers.Control.Navigation(),
+                  new OpenLayers.Control.Attribution(),
+                  new OpenLayers.Control.LoadingPanel(),
+                  new OpenLayers.Control.PanZoomBar(),
+                  new OpenLayers.Control.ScaleLine()
+                  /*
+                  new OpenLayers.Control.TouchNavigation({
+                      dragPanOptions: {
+                          enableKinetic: true
+                      }
+                  }),
+                  //new OpenLayers.Control.PinchZoom(),
+  */
+
+              ]
+              //scale:2000,
+              //center:[8.92811, 44.41320]
+            },
+            callback:initMap
+          };
+        OpenLayers.Util.extend(options,response);
+
+
+        console.log(options)
+        GisClientMap = new OpenLayers.GisClient(null,'map',options)
+
+      }
+
     })
+
+
+
 
 
 });

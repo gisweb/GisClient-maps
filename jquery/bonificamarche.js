@@ -1,7 +1,6 @@
 var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
-
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
@@ -41,6 +40,7 @@ var sidebarPanel = {
         
         $('#'+panelId, self).hide();
         
+        return;
         self.closeTimeout = setTimeout(function() {
             self.close();
         }, 100);
@@ -130,8 +130,10 @@ var customCreateControlMarkup = function(control) {
 
 
 var initMap = function(){
-    var map=this.map;
+    var map = this.map;
+    var self = this;
     document.title = this.mapsetTitle;
+
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -169,7 +171,7 @@ var initMap = function(){
         $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
         chk.attr("checked",true);
 
-        var self = this;
+
         chk.on("click",function(){
 
             //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
@@ -337,7 +339,6 @@ var initMap = function(){
                     table += '</tr>';
                 }
                 table += '</tbody></table>';
-                
                 $('#DetailsWindow div.modal-body').html(table);
                 var title = event.relation.relationTitle || event.relation.relationName;
                 $('#DetailsWindow h4.modal-title').html(title + ' di ' + fType.title);
@@ -431,7 +432,7 @@ var initMap = function(){
                     minimumInputLength: 0,
                     query: function(query) {
                         $.ajax({
-                            url: '/gisclient/services/xSuggest.php',
+                            url: self.baseUrl + 'services/xSuggest.php',
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId
@@ -702,6 +703,16 @@ var initMap = function(){
                 'deactivate': function(){queryToolbar.deactivate();}
             }
         }),
+        btnSegnalazioni = new OpenLayers.Control.Button({
+            type: OpenLayers.Control.TYPE_TOGGLE,
+            exclusiveGroup: 'sidebar',
+            iconclass:"glyphicon-white glyphicon-tasks", 
+            title:"Ricerca segnalazioni",
+            eventListeners: {
+                'activate': function(){sidebarPanel.show('segnalazioni');},
+                'deactivate': function(){sidebarPanel.hide('segnalazioni');}
+            }
+        }),
         btnLayertree = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE,
             exclusiveGroup: 'sidebar',
@@ -753,6 +764,7 @@ var initMap = function(){
         btnPrint = new OpenLayers.Control.PrintMap({
             tbarpos:"first", 
             //type: OpenLayers.Control.TYPE_TOGGLE, 
+            baseUrl:self.baseUrl,
             formId: 'printpanel',
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
@@ -957,37 +969,19 @@ var initMap = function(){
 
 
 
+    // Define three colors that will be used to style the cluster features
+    // depending on the number of features they contain.
+    var colors = {
+        low: "rgb(181, 226, 140)", 
+        middle: "rgb(241, 211, 87)", 
+        high: "rgb(253, 156, 115)"
+    };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    console.log(this)
-
-            // Define three colors that will be used to style the cluster features
-            // depending on the number of features they contain.
-            var colors = {
-                low: "rgb(181, 226, 140)", 
-                middle: "rgb(241, 211, 87)", 
-                high: "rgb(253, 156, 115)"
-            };
-
-            var filter = new OpenLayers.Filter.Function({
-                evaluate: function(attributes) {
-                    return attributes.baz.dolor === 'sit';
-                }
-            });
+    var filter = new OpenLayers.Filter.Function({
+        evaluate: function(attributes) {
+            return attributes.baz.dolor === 'sit';
+        }
+    });
 
 
 var noClusterFilter = new OpenLayers.Filter.Comparison(
@@ -1390,7 +1384,7 @@ var pointStyle = new OpenLayers.Style({
         projection: new OpenLayers.Projection("EPSG:3857"), 
         protocol: new OpenLayers.Protocol.WFS({
             version: "1.1.0",
-            url: "/cgi-bin/mapserv?map=/apps/GisClient-3.3/map/" + this.mapsetName + ".map&SERVICE=WFS",
+            url: "/cgi-bin/mapserv?map=/home/robystar/gisclient-3/map/" + this.projectName + "/" + this.mapsetName + ".map&SERVICE=WFS",
             featureType: "segnalazioni.segnalazioni",
             featurePrefix : 'ms',
             featureNS: "http://mapserver.gis.umn.edu/mapserver",
@@ -1419,13 +1413,8 @@ var pointStyle = new OpenLayers.Style({
     segnalazioniLayer.id = 'gc_segnalazioni_vector_layer';
     map.addLayer(segnalazioniLayer);
 
-
-    console.log(segnalazioniLayer)
-
-
     var v = map.getControlsByClass("OpenLayers.Control.LayerTree");
     var lTree = v.length && v[0];
-    console.log(lTree.overlayTree)
     var myTree = lTree.overlayTree
     myTree.append()
     myTree.tree('append', {
@@ -1438,170 +1427,291 @@ var pointStyle = new OpenLayers.Style({
                 checked: true,
                 iconCls:"overlay-marker", 
                 attributes:{layer:segnalazioniLayer}
-            },{
-                text: 'todo...'
             }]
         }]
     });
 
     //$(lTree.layersDiv).append('<div class="dataLbl">Segnalazioni</div><ul id="tt" class="easyui-tree"><li><span><a href="#">File 11</a></span></li></ul>');
 
+    //FORM DI RICERCA SEGNALAZIONI
+    fType = GisClientMap.getFeatureType("segnalazioni.segnalazioni");
+    var getFieldKey = function(fieldName){
+        var fieldKey="";
+        switch (fieldName) {
+            case "stato":
+                fieldKey = "idstatosegnalazione";
+                break;
+            case "tipo":
+                fieldKey = "idtiposegnalazione";
+                break;
+            case "comune":
+                fieldKey = "istatcomune";
+                break;
+            case "bacino":
+                fieldKey = "idbacino";
+                break;    
+            case "tipomanutenzione":
+                fieldKey = "idtipomanutenzione";
+                break;   
+            default:
+                fieldKey = fieldName; 
+        } 
+        return fieldKey;
+    }
 
+ 
+    var properties = fType.properties, 
+        len = properties.length, property, i;
+    
 
-
-
-//FORM DI RICERCA SEGNALAZIONI
-            fType = GisClientMap.getFeatureType("segnalazioni.segnalazioni");
-            var getFieldKey = function(fieldName){
-                var fieldKey="";
-                switch (fieldName) {
-                    case "stato":
-                        fieldKey = "idstatosegnalazione";
-                        break;
-                    case "tipo":
-                        fieldKey = "idtiposegnalazione";
-                        break;
-                    case "comune":
-                        fieldKey = "istatcomune";
-                        break;
-                    case "bacino":
-                        fieldKey = "idbacino";
-                        break;    
-                    case "tipomanutenzione":
-                        fieldKey = "idtipomanutenzione";
-                        break;   
-                    default:
-                        fieldKey = fieldName; 
-                } 
-                return fieldKey;
-            }
-
-         
-            var properties = fType.properties, 
-                len = properties.length, property, i;
-            
-           // $('#searchFormTitle').html('Ricerca '+fType.title);
-            
-            //form += '<form role="form">';
-            var form = '';
-            
-            for(i = 0; i < len; i++) {
-                property = properties[i];
-                
-                if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
-                
-                //form += '<div class="form-group">'+
-                //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
-                form += '<label>'+property.header+'</label>';
-                
-                switch(property.searchType) {
-                    case 1:
-                    case 2: //testo
-                        form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
-                    break;
-                    case 3: //lista di valori
-                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:250px;">';
-                    break;
-                    case 4: //numero
-                        form += '<div class="form">'+
-                            '<select name="'+property.name+'_operator" class="form-control">'+
-                            '<option value="'+OpenLayers.Filter.Comparison.EQUAL_TO+'">=</option>'+
-                            '<option value="'+OpenLayers.Filter.Comparison.NOT_EQUAL_TO+'">!=</option>'+
-                            '<option value="'+OpenLayers.Filter.Comparison.LESS_THAN+'">&lt;</option>'+
-                            '<option value="'+OpenLayers.Filter.Comparison.GREATER_THAN+'">&gt;</option>'+
-                            '</select>'+
-                            '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">'+
-                            '</div>';
-                    break;
-                    case 5: //data
-                        form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_da"><input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_a">';
-                    break;
-                    case 6: //lista di valori non wfs
-                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:200px;">';
-                    break;
-                }
-                
-                //form += '</div>';
-            }
+   // $('#searchFormTitle').html('Ricerca '+fType.title);
+    
+    //form += '<form role="form">';
+    var form = '';
+    
+    for(i = 0; i < len; i++) {
+        property = properties[i];
+        if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
         
-            form += '<br><div><button id="filtra_segnalazioni" class="btn btn-default">Filtra le segnalazioni</button></div>';
-            form += '<br><div><button id="stampa_segnalazioni" class="btn btn-default">Stampa le segnalazioni</button></div>';
+        //form += '<div class="form-group">'+
+        //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
+        form += '<label>'+property.header+'</label>';
+        
+        switch(property.searchType) {
+            case 1:
+            case 2: //testo
+                form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
+            break;
+            case 3: //lista di valori
+                form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:250px;">';
+            break;
+            case 4: //numero
+                form += '<div class="form">'+
+                    '<select name="'+property.name+'_operator" class="form-control">'+
+                    '<option value="'+OpenLayers.Filter.Comparison.EQUAL_TO+'">=</option>'+
+                    '<option value="'+OpenLayers.Filter.Comparison.NOT_EQUAL_TO+'">!=</option>'+
+                    '<option value="'+OpenLayers.Filter.Comparison.LESS_THAN+'">&lt;</option>'+
+                    '<option value="'+OpenLayers.Filter.Comparison.GREATER_THAN+'">&gt;</option>'+
+                    '</select>'+
+                    '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">'+
+                    '</div>';
+            break;
+            case 5: //data
+                form += '<br>Da:<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_da">A:<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_a">';
+            break;
+            case 6: //lista di valori non wfs
+                form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:200px;">';
+            break;
+        }
+        
+        //form += '</div>';
+    }
+
+    form += '<br><div><button id="filtra_segnalazioni" class="btn btn-default">Filtra le segnalazioni</button></div>';
+    form += '<br><div><button id="stampa_segnalazioni" class="btn btn-default">Stampa le segnalazioni</button></div>';
 
 
 
-            $("#segnalazioni").html(form)
+    $("#segnalazioni").html(form)
 
-            $('#segnalazioni input[searchType="3"],#segnalazioni input[searchType="6"]').each(function(e, input) {
-                var fieldId = $(input).attr('fieldId');
-                var fieldName = $(input).attr('name');
-                $(input).select2({
-                    minimumInputLength: 0,
-                    allowClear: true,
-                    placeholder: '---',
-                    query: function(query) {
-                        $.ajax({
-                            url: '/gisclient/services/consorziobonifica/xSuggestSegnalazioni.php',
-                            data: {
-                                suggest: query.term,
-                                field_id: fieldId,
-                                field_name: fieldName
-                            },
-                            dataType: 'json',
-                            success: function(data) {
-                                var results = [];
-                                $.each(data.data, function(e, val) {
-                                    results.push({
-                                        id: val.id || 'no value',
-                                        text: val.text || val.id || 'no value'
-                                    });
-                                });
-                                query.callback({results:results});
-                            }
+
+    $('#segnalazioni input[searchType="3"],#segnalazioni input[searchType="6"]').each(function(e, input) {
+        var fieldId = $(input).attr('fieldId');
+        var fieldName = $(input).attr('name');
+        var multiple = (fieldName == 'stato' || fieldName == 'tipo' || fieldName == 'tipomanutenzione');
+        $(input).select2({
+            minimumInputLength: 0,
+            allowClear: true,
+            multiple:multiple,
+            placeholder: '---',
+            query: function(query) {
+                var bacino = '';
+                $.ajax({
+                    url: self.baseUrl + 'services/bonificamarche/xSuggestSegnalazioni.php',
+                    data: {
+                        suggest: query.term,
+                        field_id: fieldId,
+                        field_name: fieldName,
+                        bacino: $("input[name='bacino']").select2("val")
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        var results = [];
+                        $.each(data.data, function(e, val) {
+                            results.push({
+                                id: val.id || 'no value',
+                                text: val.text || val.id || 'no value'
+                            });
                         });
+                        query.callback({results:results});
                     }
                 });
-            });
-            $('#segnalazioni input[searchType="5"]').datepicker({
-                "dateFormat": "dd/mm/yy"
-            });
-
-            $("#filtra_segnalazioni").bind("click",function(){
-                var filters = [], filter;
-                $('#segnalazioni input').each(function(){
-                    if($(this).attr("name") && $(this).val()){
-                        filter = new OpenLayers.Filter.Comparison({
-                            type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                            property: getFieldKey($(this).attr("name")),
-                            value: $(this).val()
-                        });
-                        filters.push(filter)
-                    }
-                })
-
-                if(filters.length == 0)
-                    filter = null;
-                if(filters.length == 1)
-                    filter = filters[0];
-                else
+            }
+        });
+    });
+    $('#segnalazioni input[searchType="5"]').datepicker({
+        dateFormat: "dd/mm/yy",
+    });
+    $('#segnalazioni input[searchType="5"]').datepicker( "option", $.datepicker.regional[ "it" ] ); 
+    $("#filtra_segnalazioni").bind("click",function(){
+        var filters = [], filter;
+        $('#segnalazioni input').each(function(){
+            if($(this).attr("type") == "date"){
+                if($(this).attr("id").slice(-3) == '_da' && $(this).val()){
+                    filter = new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
+                        property: getFieldKey($(this).attr("name")),
+                        value: $(this).val()
+                    });
+                    filters.push(filter)
+                }
+                if($(this).attr("id").slice(-2) == '_a' && $(this).val()){
+                    filter = new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
+                        property: getFieldKey($(this).attr("name")),
+                        value: $(this).val()
+                    });
+                    filters.push(filter)
+                    
+                }
+            }
+            else if(($(this).attr("name") == 'stato' || $(this).attr("name") == 'tipo' || $(this).attr("name") == 'tipomanutenzione') && $(this).val()){
+                var values = $(this).val().split(",");
+                var orFilters = [];
+                for (var i=0;i<values.length;i++) {
+                    filter = new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.EQUAL_TO,
+                        property: getFieldKey($(this).attr("name")),
+                        value: values[i]
+                    });
+                    orFilters.push(filter)
+                };
+                if(values.length>1){
                     filter = new OpenLayers.Filter.Logical({
-                        type: OpenLayers.Filter.Logical.AND,
-                        filters: filters
+                        type: OpenLayers.Filter.Logical.OR,
+                        filters: orFilters
                     })
+                }
+                filters.push(filter)
+            }                   
+            else if($(this).attr("name") && $(this).val()){
+                filter = new OpenLayers.Filter.Comparison({
+                    type: OpenLayers.Filter.Comparison.EQUAL_TO,
+                    property: getFieldKey($(this).attr("name")),
+                    value: $(this).val()
+                });
+                filters.push(filter)
+            }
+        })
 
-                console.log(filter)
-                segnalazioniLayer.filter = filter;
-                segnalazioniLayer.refresh({force: true})
-                console.log(segnalazioniLayer.getDataExtent());
-                //map.zoomToExtent(segnalazioniLayer.getDataExtent(),true)
-
+        if(filters.length == 0)
+            filter = null;
+        if(filters.length == 1)
+            filter = filters[0];
+        else
+            filter = new OpenLayers.Filter.Logical({
+                type: OpenLayers.Filter.Logical.AND,
+                filters: filters
             })
 
+        segnalazioniLayer.filter = filter;
+        segnalazioniLayer.refresh({force: true})
+
+
+    });
+
+    //add Vector results to resultPanel
+    function refreshSegnalazioni(e) {
+        //console.log(fType)
+        //console.log(segnalazioniLayer.features)
+
+        //console.log(e.object.features.length);return;
+        //var layer = e.object
+        //if (layer.features.length == 0) return;
+
+
+        $.each(e.object.features,function(_,el){
+            console.log(el)
+        });
+
+        var extent = e.object.getDataExtent();
+        console.log(extent)
+        if(extent!=null){
+            map.zoomToExtent(extent)
+        }
 
 
 
 
 
 
+    }
+
+
+
+
+
+    //add Popup
+    var selectedFeature;
+    var select = new OpenLayers.Control.SelectFeature(segnalazioniLayer);
+    map.addControl(select);
+    select.activate();
+
+
+    function onPopupClose(evt) {
+        selectControl.unselect(selectedFeature);
+    }
+
+    segnalazioniLayer.events.on({
+        featureselected: function(event) {
+            var feature = event.feature;
+            var popupContent = "<h4><b>Segnalazioni</b></h4>";
+
+            if(feature.cluster && feature.cluster.length > 1){
+                popupContent += '<div>Gruppo di ' + feature.cluster.length + ' segnalazioni,<br> aumentare lo zoom per vedere le singole segnalazioni </div>';
+            }
+            else if(feature.cluster && feature.cluster.length == 1) {
+                var attributes = feature.cluster[0].attributes;
+                var coords = feature.geometry.clone().transform("EPSG:3857","EPSG:3004");
+                popupContent += '<div><label>Id segnalazione:&nbsp; </label><span>' + attributes.id_segnalazione + '</span></div>';
+                popupContent += '<div><label>Comune:&nbsp; </label><span>' + attributes.comune + '</span></div>';
+                popupContent += '<div><label>Tipo segnalazione:&nbsp; </label><span>' + attributes.tipo + '</span></div>';
+                popupContent += '<div><label>Tipo manutenzione:&nbsp; </label><span>' + attributes.tipomanutenzione + '</span></div>';
+                popupContent += '<div><label>Stato segnalazione:&nbsp; </label><span>' + attributes.stato + '</span></div>';
+                popupContent += '<div><label>Data apertura:&nbsp; </label><span>' + attributes.data1 + '</span></div>';
+                popupContent += '<div><label>Data chiusura:&nbsp; </label><span>' + attributes.data2 + '</span></div>';
+                popupContent += '<div><label>Coordinata X:&nbsp; </label><span>' + coords.x.toFixed(2) + '</span></div>';
+                popupContent += '<div><label>Coordinata Y:&nbsp; </label><span>' + coords.y.toFixed(2) + '</span></div>';
+
+            }
+
+            feature.popup = new OpenLayers.Popup.FramedCloud
+                ("pop",
+                feature.geometry.getBounds().getCenterLonLat(),
+                null,
+                popupContent,
+                null,
+                true 
+                );
+            while( map.popups.length ) {
+                map.removePopup( map.popups[0] );
+            }
+            map.addPopup(feature.popup);                    
+        },
+
+        featureunselected: function(event) {
+            var feature = event.feature;
+            map.removePopup(feature.popup);
+            feature.popup.destroy();
+            feature.popup = null;
+        },
+
+        refresh: refreshSegnalazioni
+
+
+    });
+
+    sidebarPanel.show('segnalazioni');
 
 
 
@@ -1621,9 +1731,11 @@ var pointStyle = new OpenLayers.Style({
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
+    var GisClientBaseUrl = "/"
+    GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:"/ows",
+        mapProxyBaseUrl:"/",
+        baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),

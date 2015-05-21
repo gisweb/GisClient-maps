@@ -1,3 +1,5 @@
+OpenLayers.DOTS_PER_INCH = 90.71428571428572;
+
 OpenLayers.Protocol.HTTP.prototype.create = function(features, options) {
         options = OpenLayers.Util.applyDefaults(options, this.options);
 
