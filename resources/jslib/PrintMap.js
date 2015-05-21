@@ -49,7 +49,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
     aaactivate: function(){
 
-        console.log("activate");
+        //console.log("activate");
     },
 
     aadeactivate: function(){
@@ -160,7 +160,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             if (!layer.getVisibility()) return;
             //if (!layer.calculateInRange()) return;
             var tile;
-            console.log(layer)
             if(layer.owsurl) layer.url = layer.owsurl;
             if(layer.CLASS_NAME == 'OpenLayers.Layer.TMS') {
                 tile = {
@@ -242,7 +241,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             params.legend = 'yes';
             
         }
-        console.log(tiles)
         tiles.reverse();
         params.tiles = tiles;
 
