@@ -311,6 +311,17 @@ div.fast-navigate {
     border: 1px solid white;
 }
 
-.overlay-marker {
-  background: url('images/marker16.png') no-repeat;
+
+.link-segnalazioni-attivo{
+
+  color: white;
+
+}
+.segnalazioni {
+  color:#404040;
+}
+
+.segnalazioni p{
+  font-size: 9px;
+  font-weight: normal;
 }

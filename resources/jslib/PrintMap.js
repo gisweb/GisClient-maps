@@ -67,6 +67,10 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             if(query.length) me.loadingControl = query[0];
         }
 
+        $('#'+me.formId).on('click', 'a[role="html"],a[role="pdf"]', function(event) {
+            if($(this).attr("href") == "#") event.preventDefault();
+        });
+
         $('#'+me.formId).on('click', 'button[role="print"]', function(event) {
             event.preventDefault();
             me.doPrint();
@@ -208,16 +212,15 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                     PROJECT: gcConfig.projectName,
                     MAP: gcConfig.mapsetName,
                     FORMAT: 'image/png',
-                    SRS: layer.projection.projCode,
+                    SRS: "EPSG:3857",
                     TRANSPARENT: true,
                     SERVICE: 'WMS',
                     VERSION: '1.1.1'
                 };
                 tile = {
-
-                    url:'services/ows.php',
+                    url:'/services/ows.php',
                     type: 'WMS',
-                    //externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
+                    externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
                     parameters: params,
                     name: layer.name,
                     project: gcConfig.projectName,

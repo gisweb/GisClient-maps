@@ -1421,14 +1421,9 @@ var pointStyle = new OpenLayers.Style({
     myTree.tree('append', {
         data: [{
             text: 'Segnalazioni GIS',
-            state: 'closed',
-            children: [{
-                id: 'gc_segnalazioni_vector_layer',
-                text: 'Segnalazioni aperte',
-                checked: true,
-                iconCls:"overlay-marker", 
-                attributes:{layer:segnalazioniLayer}
-            }]
+            id: 'gc_segnalazioni_vector_layer',
+            checked: true,
+            attributes:{layer:segnalazioniLayer}
         }]
     });
 
@@ -1510,7 +1505,7 @@ var pointStyle = new OpenLayers.Style({
 
     form += '<br><div><button id="filtra_segnalazioni" class="btn btn-default">Filtra le segnalazioni</button></div>';
     form += '<br><div><button id="stampa_segnalazioni" class="btn btn-default">Stampa le segnalazioni</button></div>';
-    form += '<a id="link-segnalazioni" href="#">segnalazioni</a>';
+    form += '<div><a id="link-segnalazioni" target="_blank"><span role="icon" class="glyphicon glyphicon-list-alt print-download-icon"></span><span>Segnalazioni</span></a></div>';
 
 
 
@@ -1624,7 +1619,7 @@ var pointStyle = new OpenLayers.Style({
 
     //add Vector results to resultPanel
     function refreshSegnalazioni(e) {
-
+        return;//NON VA!!!!!!!!!!!!!
         window.setTimeout(function(){
             var ext = e.object.getDataExtent();
             if(ext) map.zoomToExtent(ext)
@@ -1697,6 +1692,7 @@ var pointStyle = new OpenLayers.Style({
 
 
     //STAMPA DELLE SEGNALAZIONI
+    $('#link-segnalazioni').on("click", function(e){e.preventDefault()});
     $("#stampa_segnalazioni").bind("click",function(){
         var ids = [];
         $.each(segnalazioniLayer.features, function(_, el) {
@@ -1705,15 +1701,23 @@ var pointStyle = new OpenLayers.Style({
                 ids.push(feature.attributes.id);
             });
         });
+        
+        var loadingControl = self.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
+        loadingControl.maximizeControl();
+
         $.ajax({
             url: self.baseUrl + 'services/bonificamarche/xStampaSegnalazioni.php',
             data: {
+                extent: map.getExtent().toArray(),
+                srs: map.getProjection(),
                 id: ids.join(",")
             },
             method:"POST",
             success: function(data) {
                 if(data.success=="ok"){
+
                     $('#link-segnalazioni').attr("href",data.file);
+                    $('#link-segnalazioni').addClass("link-segnalazioni-attivo")
                     $('#link-segnalazioni').popupWindow({ 
                         windowName:'segnalazioni',
                         centerScreen:1 ,
@@ -1721,8 +1725,8 @@ var pointStyle = new OpenLayers.Style({
                         height:900,
                         width:1200
                     });
-
                 }
+                loadingControl.minimizeControl();
             }
         });
 
@@ -1731,10 +1735,15 @@ var pointStyle = new OpenLayers.Style({
 
     });
 
-
-
-
     sidebarPanel.show('segnalazioni');
+
+    //LEGENDA SEGNALAZIONI
+    $("#layerlegend").append("<div class='segnalazioni'>Segnalazioni\
+        <p><img src='images/marker32_red.png'>Aperta - presa in carico dal tecnico - in fase di sopralluogo</p>\
+        <p><img src='images/marker32_yel.png'>In fase di valutazione - richiesta di autorizzazioni - realizzazione intervento</p>\
+        <p><img src='images/marker32_blu.png'>In attesa di verifica e controllo lavori eseguiti - verifica lavori da non fare proposti</p>\
+        <p><img src='images/marker32_gre.png'>Chiusa con intervento eseguito</p>\
+        <p><img src='images/marker32_bla.png'>Chiusa senza intervento</p></div>");
 
 
 
