@@ -137,7 +137,7 @@ var initMap = function(){
     document.title = this.mapsetTitle;
 
 
-    var ServiceURL = self.baseUrl + "services/bonificamarche/";
+    var serviceURL = self.baseUrl + "services/bonificamarche/";
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -543,6 +543,8 @@ var initMap = function(){
 
     //RICERCA E INTERROGAZIONE VELOCE DA COMBO IN BASSO
     //popolo la select nel footer per le ricerche veloci
+
+    /*
     var options = [];
     for(var layerId in queryToolbar.wfsCache) {
         var layer = queryToolbar.wfsCache[layerId];
@@ -569,7 +571,7 @@ var initMap = function(){
             control.activate();
         }
     });
-
+    */
 
 
     var measureToolbar = new OpenLayers.Control.Panel({
@@ -1381,7 +1383,7 @@ var pointStyle = new OpenLayers.Style({
         strategies: [
             new OpenLayers.Strategy.Fixed(),
             new OpenLayers.Strategy.AnimatedCluster({
-                distance: 35,
+                distance: 20,
                 animationMethod: OpenLayers.Easing.Expo.easeOut,
                 animationDuration: 10
             })
