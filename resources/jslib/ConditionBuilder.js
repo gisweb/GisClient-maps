@@ -116,7 +116,7 @@ var ConditionBuilder = {
                     },{
                         source: function(query, process) {
                             return $.ajax({
-                                url: '/gisclient/services/xSuggest.php',
+                                url: '/gisclient3/services/xSuggest.php',
                                 data: {
                                     suggest: query,
                                     field_id: fieldId

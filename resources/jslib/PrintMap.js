@@ -127,6 +127,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             date: $('#'+this.formId+' input[name="date"]').val(),
             dpi: $('#'+this.formId+' select[name="print_resolution"]').val(),
             srid: srid,
+            map: this.map.config.mapsetName,
             pixels_distance: pixelsDistance,
             copyrightString: copyrightString
         };
@@ -176,7 +177,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                     VERSION: '1.1.1'
                 };
                 tile = {
-                    url: GisClientMap.mapProxyBaseUrl+'/'+GisClientMap.mapsetName+'/service?',
+                    url: GisClientMap.mapProxyBaseUrl+'/'+ GisClientMap.projectName +'/' + GisClientMap.mapsetName+'/service?',
                     type: 'WMS',
                     parameters: params,
                     opacity: layer.opacity ? (layer.opacity * 100) : 100

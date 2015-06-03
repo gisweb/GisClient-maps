@@ -784,7 +784,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         
         var params = {
             projectName: GisClientMap.projectName,
-            mapsetName: GisClientMap.name,
+            mapsetName: GisClientMap.mapsetName,
             srid: GisClientMap.map.projection,
             featureType: featureType,
             featureId: feature.attributes[pkey],
@@ -792,7 +792,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             action: 'viewdetails'
         };
         var request = OpenLayers.Request.POST({
-            url: '/gisclient/services/xMapQuery.php',
+            url: '/gisclient3/services/xMapQuery.php',
             data: OpenLayers.Util.getParameterString(params),
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"

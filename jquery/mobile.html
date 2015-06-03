@@ -27,7 +27,7 @@
     <script src="../resources/jslib/DynamicMeasure.js"></script>
 
     <script src="../resources/jslib/QueryToolbar.js"></script>   
-    <script src="../../services/iren/pipeSelect.js" type="text/javascript"></script>
+    <script src="../../gisclient3/services/iren/pipeSelect.js" type="text/javascript"></script>
 
 
 
@@ -92,12 +92,12 @@
         
         var params = ConditionBuilder.getQuery();
         params.projectName = GisClientMap.projectName;
-        params.mapsetName = GisClientMap.name;
+        params.mapsetName = GisClientMap.mapsetName;
         params.srid = GisClientMap.map.projection;
         params.featureType = selectedFeatureType;
         
         $.ajax({
-            url: '/gisclient/services/xMapQuery.php',
+            url: '/gisclient3/services/xMapQuery.php',
             method: 'POST',
             dataType: 'json',
             data: params,

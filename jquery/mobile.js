@@ -429,7 +429,7 @@ var initMap = function(){
                     minimumInputLength: 0,
                     query: function(query) {
                         $.ajax({
-                            url: '/gisclient/services/xSuggest.php',
+                            url: '/gisclient3/services/xSuggest.php',
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId
@@ -637,7 +637,7 @@ var initMap = function(){
             OpenLayers.Handler.Click,
             {
                 clearOnDeactivate:false,
-                serviceURL:'../../services/iren/findPipes.php',
+                serviceURL:'../../gisclient3/services/iren/findPipes.php',
                 distance:50,
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
@@ -883,7 +883,7 @@ var initMap = function(){
             e.preventDefault();
 
             $.ajax({
-                url: '/gisclient/login.php',
+                url: '/gisclient3/login.php',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -914,7 +914,7 @@ var initMap = function(){
         event.preventDefault();
         
         $.ajax({
-            url: '/gisclient/logout.php',
+            url: '/gisclient3/logout.php',
             type: 'POST',
             dataType: 'json',
             success: function(response) {
@@ -984,9 +984,9 @@ var initMap = function(){
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
+    GisClientMap = new OpenLayers.GisClient('/gisclient3/services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:"/ows",
+        mapProxyBaseUrl:"/",
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),

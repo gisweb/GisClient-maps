@@ -6,7 +6,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 		* dumpSldUrl - url per il dump di sld
 	*/
 	//TODO : PROBLEMA PATH
-	dumpSldUrl : '/gisclient/services/dumpsld.php',
+	dumpSldUrl : '/gisclient3/services/dumpsld.php',
 	
 
 	/** 
