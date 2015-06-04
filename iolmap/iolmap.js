@@ -57,8 +57,9 @@ $(function() {
           callback(data);
         }
     }).on("change", function(e){
-        console.log(e)
+      console.log(e)
       //$("#civico_nomevia").val(e.added.text);
+      if(!e.added) return;
       $.ajax({
         'url':"resources/elencoCivici",
         'type':'GET',
@@ -100,6 +101,7 @@ $(function() {
         }
     }).on("change", function(e){
         console.log(e.added)
+        if(!e.added) return;
         $('input[name="coordx"]').val(Math.round(e.added.x));
         $('input[name="coordy"]').val(Math.round(e.added.y));
     });
@@ -154,9 +156,9 @@ var initMap = function(){
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
-            maxScale:50000,
+            maxScale:1000,
             editMode: editMode,
-            serviceUrl:'http://geoweb.server2/gisclient/services/print.php',
+            serviceUrl:'http://grg.gisclient.srv1/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
                     var bounds = this.printBox.geometry.getBounds();
@@ -172,7 +174,6 @@ var initMap = function(){
 
 
         });
-
 
     $('select[name="page_layout"]').change(function() {
         btnPrint.pageLayout = $(this).val();
@@ -193,6 +194,8 @@ var initMap = function(){
 
     $('input[name="scale"]').spinner({
       step: 100,
+      min: 100,
+      max: 1000,
       numberFormat: "n",
       change: function( event, ui ) {
         btnPrint.printBoxScale = $(this).val();
@@ -207,7 +210,12 @@ var initMap = function(){
     $('#center-button').on('click',function(){
         var x = Math.round(parseFloat($('input[name="coordx"]').attr('value')));
         var y = Math.round(parseFloat($('input[name="coordy"]').attr('value')));
-        if(x && y) btnPrint.movePrintBox(new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857"));
+        if(x && y) {
+          var position = new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857");
+          btnPrint.movePrintBox(new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857"));
+          map.zoomToExtent(btnPrint.getBounds(),true);
+          //map.setCenter(position,22,false,false);
+        }
     })
 
     btnPrint.pageLayout = $('[name="page_layout"]').attr('value');
@@ -218,10 +226,13 @@ var initMap = function(){
     var x = Math.round(parseFloat($('[name="coordx"]').attr('value')));
     var y = Math.round(parseFloat($('[name="coordy"]').attr('value')));
     btnPrint.printBoxScale = Math.round(parseFloat($('[name="scale"]').attr('value')));
-    if(x && y) btnPrint.centerBox = new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857");
-
     map.addControl(btnPrint);
     btnPrint.activate();
+    if(x && y){
+      btnPrint.centerBox = new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857");
+      btnPrint.movePrintBox(btnPrint.centerBox);
+      map.zoomToExtent(btnPrint.getBounds(),true);
+    } 
 
     //VISUALIZZAZIONE DELLE COORDINATE
     var projection = this.mapOptions.displayProjection || this.mapOptions.projection;
@@ -231,56 +242,107 @@ var initMap = function(){
         prefix: '<a target="_blank" ' + 'href="http://spatialreference.org/ref/epsg/' + v[1] + '/">' + projection + '</a> coordinate: '
     }));
 
+    if(editMode){
+      map.events.register("moveend", map, function(){
+        if($('[name="opt_ricentra"]').attr("checked")){
+          var center = map.getCenter();
+          btnPrint.movePrintBox(center);
+          center = center.transform("EPSG:3857","EPSG:3003");
+          $('input[name="coordx"]').val(Math.round(center.lon));
+          $('input[name="coordy"]').val(Math.round(center.lat));
+        } 
+      });
+    }
+
+
+
+
+
 }//END initMap
 
     initDialog();
-    OpenLayers.ImgPath = "http://geoweb.server2/gisclient/template/resources/themes/openlayers/img/";
+
+    OpenLayers.ImgPath = "/gisclient/template/resources/themes/openlayers/img/";
+    var GisClientBaseUrl = "/gisclient/"
+
     $.ajax({
-      url: 'http://geoweb.server2/gisclient/services/gcmap.php',
+      url: 'http://grg.gisclient.srv1/gisclient/services/gcmap.php',
       dataType: "jsonp",
       data:{"mapset":"test"},
-      jsonpCallback: "callback",
+      jsonpCallback: "jsoncallback",
       async: false,
       success: function( response ) {
         //TODO gestire errori da server
-
-        options = {
-          useMapproxy:true,
-          mapProxyBaseUrl:"/ows",
-          mapOptions:{
-              controls:[
-                  new OpenLayers.Control.Navigation(),
-                  new OpenLayers.Control.Attribution(),
-                  new OpenLayers.Control.LoadingPanel(),
-                  new OpenLayers.Control.PanZoomBar(),
-                  new OpenLayers.Control.ScaleLine()
-                  /*
-                  new OpenLayers.Control.TouchNavigation({
-                      dragPanOptions: {
-                          enableKinetic: true
-                      }
-                  }),
-                  //new OpenLayers.Control.PinchZoom(),
-  */
-
-              ]
-              //scale:2000,
-              //center:[8.92811, 44.41320]
-            },
-            callback:initMap
-          };
-        OpenLayers.Util.extend(options,response);
-
-
-        console.log(options)
-        GisClientMap = new OpenLayers.GisClient(null,'map',options)
-
+        var googleCallback;
+        if (response.mapProviders && response.mapProviders.length>0) {
+            for (var i = 0, len = response.mapProviders.length; i < len; i++) {
+                script = document.createElement('script');
+                script.type = "text/javascript";
+                script.src = response.mapProviders[i];
+                if(response.mapProviders[i].indexOf('google')>0){
+                    script.src += "&callback=OpenLayers.GisClient.CallBack";
+                    OpenLayers.GisClient.CallBack = createDelegate(initGC,response);
+                    googleCallback=true;
+                } 
+                document.getElementsByTagName('head')[0].appendChild(script);
+            }   
+        }
+        if(!googleCallback) initGC.apply(response);      
       }
 
     })
 
+  function initGC(){
+
+    //console.log(this)
+    //In this c'è l'oggetto response
+    Proj4js.defs["EPSG:3857"] = Proj4js.defs["GOOGLE"];
+    if(this.projdefs){
+      for (key in this.projdefs){
+        if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
+      }
+    }
+    var options = {
+      useMapproxy:true,
+      mapProxyBaseUrl:"/",
+      baseUrl: GisClientBaseUrl,
+      mapOptions:{
+        controls:[
+            new OpenLayers.Control.Navigation(),
+            new OpenLayers.Control.Attribution(),
+            new OpenLayers.Control.LoadingPanel(),
+            new OpenLayers.Control.PanZoomBar(),
+            new OpenLayers.Control.ScaleLine()
+
+            /*
+            new OpenLayers.Control.TouchNavigation({
+                dragPanOptions: {
+                    enableKinetic: true
+                }
+            }),
+            //new OpenLayers.Control.PinchZoom(),
+*/
+
+        ]
+        //scale:2000,
+        //center:[8.92811, 44.41320]
+      },
+      callback:initMap
+    };
+    OpenLayers.Util.extend(options,this);
+    GisClientMap = new OpenLayers.GisClient(null,'map',options)
+
+  }
 
 
 
+
+  function createDelegate(handler, obj)
+  {
+      obj = obj || this;
+      return function() {
+          handler.apply(obj, arguments);
+      }
+  }
 
 });

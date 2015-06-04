@@ -124,6 +124,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         }
         
         var srid = this.map.getProjection();
+        console.log(srid);
         if(srid == 'ESPG:900913') srid = 'EPSG:3857';
         
         var params = {

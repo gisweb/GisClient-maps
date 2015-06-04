@@ -21,8 +21,8 @@
     //PER LE PROVE E LA CACHE DI FIREFOX
     $('input').val('');
 
-    var host = "http://testsit.bonificamarche.it";
-    var serviceURL = host + "/services/bonificamarche/xServiceInfo.php";
+    var host = "http://sit.bonificamarche.it";
+    var serviceURL = host + "/services/bonificamarche/testServiceInfo.php";
     var gisclientUrl = host + "/services/ows.php?PROJECT=bonificamarche&MAP=consorziobonifica";
     var mapBaseURL = host + "/bonificamarche/consorziobonifica";
     var tileGridName = "epsg3857";
@@ -279,7 +279,6 @@
         jsonpCallback: "callback",
         async: false,
         success: function( response ) {
-
           if(response.success){
             for(var key in response.results){
               $("[data-bind$=':" + key + "']").val(response.results[key]);
@@ -579,7 +578,7 @@
       /****************** CAMPO DESCIZIONE SU POPUP *************************/
       function getDrawingShapes (){
 
-        var id = $("campoid").val(); id=1321;
+        var id = $("campoid").val(); id=3000;
         var editable = true; //todo!!!!!!!!!!!!!!
         var data = {
           request:"getdata",
@@ -819,7 +818,7 @@
       getDrawingShapes ();
       //DA CHIAMARE VIA CODICE IL BUTTON SOLO PER I TEST
       $("#draw-save-button").bind("click",function(){
-        saveDrawingShapes({"id":1321})
+        saveDrawingShapes({"id":3000})
       });
   
 
@@ -1001,11 +1000,11 @@
       var dx = cfg.width * resolution / 2;
       var dy = cfg.height * resolution / 2;
       var projSource = new Proj4js.Proj("EPSG:4326"); 
-      var projDest = new Proj4js.Proj("EPSG:900913"); 
+      var projDest = new Proj4js.Proj("EPSG:3857"); 
       var p = new Proj4js.Point(cfg.lng,cfg.lat);  
       Proj4js.transform(projSource, projDest, p);
       var bbox = (p.x - dx) + ',' + (p.y - dy) + ',' + (p.x + dx) + ',' + (p.y + dy);
-      var url = gisclientUrl + "&LAYERS=" + cfg.layers + segnalazioni  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:900913&BBOX=" + bbox + "&width=" + cfg.width + "&height=" + cfg.height;
+      var url = gisclientUrl + "&LAYERS=" + cfg.layers + segnalazioni  + "&SERVICE=WMS&TRANSPARENT=TRUE&VERSION=1.1.1&EXCEPTIONS=XML&REQUEST=GetMap&STYLES=default&FORMAT=image%2Fpng&SRS=EPSG:3857&BBOX=" + bbox + "&width=" + cfg.width + "&height=" + cfg.height;
 
     }
 

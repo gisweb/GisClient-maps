@@ -15,6 +15,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     printResolution:150,
     maxPrintScale:null,
     layerBox:null,
+    editMode:false,
 
     //waitFor: null, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
     pages: null,
@@ -34,7 +35,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         $('#'+me.formId+' span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
         
         $.ajax({
-            url: 'http://geoweb.server2/gisclient/services/print.php',
+            url: this.serviceUrl,
             jsonpCallback: "callback",
             async: false,
             type: 'POST',
@@ -75,11 +76,12 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         this.layerbox = new OpenLayers.Layer.Vector("LayerBox");    
         this.map.addLayer(this.layerbox);
 
-        this.modifyControl = new OpenLayers.Control.ModifyFeature(this.layerbox);
-        this.modifyControl.mode = OpenLayers.Control.ModifyFeature.RESIZE | OpenLayers.Control.ModifyFeature.DRAG;
-        this.map.addControl(this.modifyControl);
-        this.layerbox.events.register('featuremodified', this, this.onUpdateBox);
-
+        if(this.editMode){
+            this.modifyControl = new OpenLayers.Control.ModifyFeature(this.layerbox);
+            this.modifyControl.mode = OpenLayers.Control.ModifyFeature.RESIZE | OpenLayers.Control.ModifyFeature.DRAG;
+            this.map.addControl(this.modifyControl);
+            this.layerbox.events.register('featuremodified', this, this.onUpdateBox);
+        }        
 
         //this.modifyControl.activate();
         
@@ -94,16 +96,15 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             dataType: 'jsonp',
             data: params,
             success: function(response) {
+
                 if(typeof(response) != 'object' || response == null || typeof(response.result) != 'string' || response.result != 'ok' || typeof(response.pages) != 'object') {
                     return alert(OpenLayers.i18n('System error'));
                 }
-
-                console.log(response)
                 me.pages = response.pages;
 
-
-
-                if(me.active) me.drawPrintBox();
+                //console.log(me.active)
+                //if(me.active) 
+                    me.drawPrintBox();
 
  
             },
@@ -378,10 +379,18 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     },
 
     movePrintBox: function(position){
+        if(!this.editMode) return;
         if(this.modifyControl.feature) this.modifyControl.unselectFeature(this.printBox);
         this.printBox.move(position);
 
+    },
+
+    getBounds: function(){
+        return this.printBox.geometry.getBounds();
+
     }
+
+
 
     
 });
