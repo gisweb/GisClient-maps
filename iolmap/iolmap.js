@@ -57,7 +57,6 @@ $(function() {
           callback(data);
         }
     }).on("change", function(e){
-      console.log(e)
       //$("#civico_nomevia").val(e.added.text);
       if(!e.added) return;
       $.ajax({
@@ -100,7 +99,6 @@ $(function() {
           callback(data);
         }
     }).on("change", function(e){
-        console.log(e.added)
         if(!e.added) return;
         $('input[name="coordx"]').val(Math.round(e.added.x));
         $('input[name="coordy"]').val(Math.round(e.added.y));
@@ -161,6 +159,7 @@ var initMap = function(){
             serviceUrl:'http://grg.gisclient.srv1/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
+
                     var bounds = this.printBox.geometry.getBounds();
                     var center = bounds.getCenterLonLat().clone().transform("EPSG:3857","EPSG:3003");
                     $('input[name="scale"]').val(Math.round(this.printBoxScale));
@@ -230,7 +229,7 @@ var initMap = function(){
     btnPrint.activate();
     if(x && y){
       btnPrint.centerBox = new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857");
-      btnPrint.movePrintBox(btnPrint.centerBox);
+      btnPrint.movePrintBox(new OpenLayers.LonLat(x,y).transform("EPSG:3003","EPSG:3857"));
       map.zoomToExtent(btnPrint.getBounds(),true);
     } 
 
@@ -243,6 +242,7 @@ var initMap = function(){
     }));
 
     if(editMode){
+
       map.events.register("moveend", map, function(){
         if($('[name="opt_ricentra"]').attr("checked")){
           var center = map.getCenter();
@@ -252,7 +252,16 @@ var initMap = function(){
           $('input[name="coordy"]').val(Math.round(center.lat));
         } 
       });
+
+      var bounds = btnPrint.printBox.geometry.getBounds();
+      var center = bounds.getCenterLonLat().clone().transform("EPSG:3857","EPSG:3003");
+      $('input[name="coordx"]').val(Math.round(center.lon));
+      $('input[name="coordy"]').val(Math.round(center.lat));
+      $('input[name="boxw"]').val(Math.round(bounds.getWidth()));
+      $('input[name="boxh"]').val(Math.round(bounds.getHeight()));
     }
+
+
 
 
 

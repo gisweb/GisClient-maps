@@ -1,7 +1,6 @@
 var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
-
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
@@ -131,7 +130,12 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
+    var self = this;
+
     document.title = this.mapsetTitle;
+
+    var serviceURL = self.baseUrl + "services/bonificamarche/";
+
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -429,7 +433,7 @@ var initMap = function(){
                     minimumInputLength: 0,
                     query: function(query) {
                         $.ajax({
-                            url: '/gisclient/services/xSuggest.php',
+                            url: self.baseUrl + 'services/xSuggest.php',
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId
@@ -766,6 +770,7 @@ var initMap = function(){
         btnPrint = new OpenLayers.Control.PrintMap({
             tbarpos:"first", 
             //type: OpenLayers.Control.TYPE_TOGGLE, 
+            baseUrl:self.baseUrl,
             formId: 'printpanel',
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-print", 
@@ -883,7 +888,7 @@ var initMap = function(){
             e.preventDefault();
 
             $.ajax({
-                url: '/gisclient/login.php',
+                url: self.baseUrl + 'login.php',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -914,7 +919,7 @@ var initMap = function(){
         event.preventDefault();
         
         $.ajax({
-            url: '/gisclient/logout.php',
+            url: self.baseUrl + 'logout.php',
             type: 'POST',
             dataType: 'json',
             success: function(response) {
@@ -984,9 +989,11 @@ var initMap = function(){
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/gisclient/services/gcmap.php' + window.location.search,'map',{
+    var GisClientBaseUrl = "/gisclient/"
+    GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
         mapProxyBaseUrl:"/ows",
+        baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),

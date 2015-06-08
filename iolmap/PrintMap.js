@@ -83,7 +83,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             this.layerbox.events.register('featuremodified', this, this.onUpdateBox);
         }        
 
-        //this.modifyControl.activate();
         
         var params = this.getConfigParams();
         params.request_type = 'get-box';
@@ -256,6 +255,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     
     onUpdateBox: function(e){
 
+
         var pageSize=this.pages[this.pageLayout][this.pageFormat];
         //si dovrebbero passare già in float
         var pageW = parseFloat(pageSize.w);
@@ -339,11 +339,14 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
 
         //DA CAPIRE PERCHE NON SONO  RIUSCITO A FARE UN SEMPLICE MOVE
-        if(this.centerBox) bounds = new OpenLayers.Bounds(this.centerBox.lon - boxW/2, this.centerBox.lat - boxH/2, this.centerBox.lon + boxW/2,  this.centerBox.lat + boxH/2);
+        //if(this.centerBox) bounds = new OpenLayers.Bounds(this.centerBox.lon - boxW/2, this.centerBox.lat - boxH/2, this.centerBox.lon + boxW/2,  this.centerBox.lat + boxH/2);
 
         this.printBox = new OpenLayers.Feature.Vector(bounds.toGeometry());
         this.layerbox.addFeatures(this.printBox);
-        if(this.editMode) this.modifyControl.activate();
+        if(this.editMode) {
+            this.modifyControl.activate();
+            //this.events.triggerEvent("updatebox");
+        }
 
     },
     
@@ -379,8 +382,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     },
 
     movePrintBox: function(position){
-        if(!this.editMode) return;
-        if(this.modifyControl.feature) this.modifyControl.unselectFeature(this.printBox);
+        //if(!this.editMode) return;
+        if(this.modifyControl && this.modifyControl.feature) this.modifyControl.unselectFeature(this.printBox);
         this.printBox.move(position);
 
     },
