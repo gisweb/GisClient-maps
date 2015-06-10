@@ -247,10 +247,10 @@ OpenLayers.GisClient = OpenLayers.Class({
                     oLayer = new OpenLayers.Layer.WMTS(cfgLayer.parameters);
                 break;
                 case 6:
-                    //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
+                    //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY
                     cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
                     //cfgLayer.options.serverResolutions = this.map.resolutions;
-                    cfgLayer.options.resolutions = this.map.resolutions;
+                    //cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.TMS(cfgLayer.name,cfgLayer.url,cfgLayer.options);
                 break;
                 case 5:
