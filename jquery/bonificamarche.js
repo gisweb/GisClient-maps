@@ -894,7 +894,7 @@ var initMap = function(){
                 dataType: 'json',
                 data: {
                     username: $('#LoginWindow input[name="username"]').val(),
-                    password: $('#LoginWindow input[name="password"]').val()
+                    password: md5($('#LoginWindow input[name="password"]').val())
                 },
                 success: function(response) {
                     if(response && typeof(response) == 'object' && response.result == 'ok') {

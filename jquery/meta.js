@@ -1,6 +1,7 @@
 var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
+
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
@@ -130,12 +131,8 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
-    var self = this;
-
     document.title = this.mapsetTitle;
-
-    var serviceURL = self.baseUrl + "services/bonificamarche/";
-
+    var self = this;
 
     //SETTO IL BASE LAYER SE IMPOSTATO
     /*
@@ -637,20 +634,6 @@ var initMap = function(){
         saveState:true,
     })
 
-    var pSelect = new OpenLayers.Control.PIPESelect(
-            OpenLayers.Handler.Click,
-            {
-                clearOnDeactivate:false,
-                serviceURL:'../../services/iren/findPipes.php',
-                distance:50,
-                highLight: true,
-                iconclass:"glyphicon-white glyphicon-tint", 
-                tbarpos:"last", 
-                title:"Ricerca valvole",
-                eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
-            }
-        );
-
     //******************** TOOLBAR VERTICALE *****************************************
 
     var sideBar = new OpenLayers.GisClient.Toolbar({
@@ -765,11 +748,10 @@ var initMap = function(){
             }
         }),
         
-        pSelect,
 
         btnPrint = new OpenLayers.Control.PrintMap({
             tbarpos:"first", 
-            //type: OpenLayers.Control.TYPE_TOGGLE, 
+            //type: OpenLayers.Control.TYPE_TOGGLE,
             baseUrl:self.baseUrl,
             formId: 'printpanel',
             exclusiveGroup: 'sidebar',
@@ -896,6 +878,7 @@ var initMap = function(){
                     password: md5($('#LoginWindow input[name="password"]').val())
                 },
                 success: function(response) {
+                   //console.log(response);return;
                     if(response && typeof(response) == 'object' && response.result == 'ok') {
                         window.location.reload();
                     } else {
@@ -989,10 +972,9 @@ var initMap = function(){
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    var GisClientBaseUrl = "/gisclient/"
+    var GisClientBaseUrl = "/"
     GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
-        useMapproxy:true,
-        mapProxyBaseUrl:"/ows",
+        mapProxyBaseUrl:"/",
         baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[
