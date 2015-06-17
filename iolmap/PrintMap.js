@@ -86,7 +86,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         
         var params = this.getConfigParams();
         params.request_type = 'get-box';
-
+console.log(params)
         $.ajax({
             url: this.serviceUrl,
             jsonpCallback: "callback",
@@ -125,8 +125,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var topRight = new OpenLayers.Geometry.Point(bounds.top, bounds.right);
         var distance = topLeft.distanceTo(topRight);
         var pixelsDistance  = size.w / distance;
-        var scaleMode = $('#'+this.formId+' input[name="scale_mode"]:checked').val();
-        var scale = $('#'+this.formId+' input[name="scale"]').val();
+        var scaleMode = $('input[name="scale_mode"]:checked').val() || 'user';
+        var scale = $('input[name="scale"]').val();
         var currentScale = this.map.getScale();
         if(scaleMode == 'user') {
             pixelsDistance = pixelsDistance / (scale/currentScale);

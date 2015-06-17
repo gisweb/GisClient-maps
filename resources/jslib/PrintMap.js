@@ -124,8 +124,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         }
         
         var srid = this.map.getProjection();
-        console.log(srid);
-        if(srid == 'ESPG:900913') srid = 'EPSG:3857';
+        if(srid == 'EPSG:900913') srid = 'EPSG:3857';
         
         var params = {
             viewport_size: [size.w, size.h],
@@ -144,6 +143,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             pixels_distance: pixelsDistance,
             copyrightString: copyrightString
         };
+
         return params;
         
     },
@@ -161,16 +161,17 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             if (!layer.getVisibility()) return;
             //if (!layer.calculateInRange()) return;
             var tile;
-            if(layer.owsurl) layer.url = layer.owsurl;
+            var layerUrl = layer.url;
+            if(layer.owsurl) layerUrl = layer.owsurl;
             if(layer.CLASS_NAME == 'OpenLayers.Layer.TMS') {
                 tile = {
-                    url: layer.url.replace('/tms/', '/wms/'),
+                    url: layerUrl,//.replace('/tms/', '/wms/'),
                     parameters: {
                         service: 'WMS',
                         request: 'GetMap',
                         project: gcConfig.projectName,
                         map: gcConfig.mapsetName,
-                        layers: [layer.layername.substr(0, layer.layername.indexOf('@'))],
+                        layers: [layer.layername.substr(0, layer.layername.indexOf('/'))],
                         version: '1.1.1',
                         format: 'image/png'
                     },
@@ -181,8 +182,10 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
                 layer.params.project = gcConfig.projectName;
                 layer.params.map  = gcConfig.mapsetName;
+                if(typeof(layer.params["LAYERS"])!='object')
+                    layer.params["LAYERS"] = layer.params["LAYERS"].split(",");
                 tile = {
-                    url: layer.url,
+                    url: layerUrl,
                     type: 'WMS',
                     parameters: layer.params,
                     opacity: layer.opacity ? (layer.opacity * 100) : 100
@@ -198,9 +201,10 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                     SERVICE: 'WMS',
                     VERSION: '1.1.1'
                 };
+
                 tile = {
                     //url: gcConfig.mapProxyBaseUrl+'/'+gcConfig.projectName+'/'+gcConfig.mapsetName+'/service?',
-                    url:layer.url,
+                    url:layerUrl,
                     type: 'WMS',
                     parameters: params,
                     opacity: layer.opacity ? (layer.opacity * 100) : 100
@@ -218,7 +222,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                     VERSION: '1.1.1'
                 };
                 tile = {
-                    url:'/services/ows.php',
+                    url:layerUrl,
                     type: 'WMS',
                     externalProvider: layer.CLASS_NAME.replace('OpenLayers.Layer.', ''),
                     parameters: params,

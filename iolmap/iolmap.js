@@ -156,6 +156,7 @@ var initMap = function(){
             title:"Pannello di stampa",
             maxScale:1000,
             editMode: editMode,
+            
             serviceUrl:'http://grg.gisclient.srv1/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
