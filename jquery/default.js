@@ -821,7 +821,8 @@ var initMap = function(){
         option = $("<option></option>");
         option.val(zoomLevel);
         zoomLevel += 1;
-        option.text('Scala 1:'+ parseInt(scale));
+        scale = scale<1001?Math.round(scale/10)*10:Math.round(scale/1000)*1000;
+        option.text('Scala 1:'+ scale);
         $('#map-select-scale').append(option);
     }
     $('#map-select-scale').val(map.getZoom());
