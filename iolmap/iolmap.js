@@ -226,6 +226,9 @@ var initMap = function(){
     var x = Math.round(parseFloat($('[name="coordx"]').attr('value')));
     var y = Math.round(parseFloat($('[name="coordy"]').attr('value')));
     btnPrint.printBoxScale = Math.round(parseFloat($('[name="scale"]').attr('value')));
+
+console.log(btnPrint.printBoxScale)
+
     map.addControl(btnPrint);
     btnPrint.activate();
     if(x && y){

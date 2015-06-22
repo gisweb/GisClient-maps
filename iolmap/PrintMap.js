@@ -125,8 +125,8 @@ console.log(params)
         var topRight = new OpenLayers.Geometry.Point(bounds.top, bounds.right);
         var distance = topLeft.distanceTo(topRight);
         var pixelsDistance  = size.w / distance;
-        var scaleMode = $('input[name="scale_mode"]:checked').val() || 'user';
-        var scale = $('input[name="scale"]').val();
+        var scaleMode = $('[name="scale_mode"]:checked').attr('value') || 'user';
+        var scale = $('[name="scale"]').attr('value');
         var currentScale = this.map.getScale();
         if(scaleMode == 'user') {
             pixelsDistance = pixelsDistance / (scale/currentScale);
