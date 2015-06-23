@@ -127,8 +127,6 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
-    document.title = this.mapsetTitle;
-
     //SE HO SETTATO LA NAVIGAZIONE VELOCE????
     if(this.mapsetTiles){
         for(i=0;i<map.layers.length;i++){
@@ -143,7 +141,47 @@ var initMap = function(){
     }
 
     var editMode = $('input[name="coordx"]').length;
-    if(editMode==0) $('#center-button').hide();
+    if(editMode==0){
+      $('#center-button').hide();
+      map.getControlsByClass("OpenLayers.Control.Navigation")[0].disableZoomWheel();
+    } 
+
+
+    var styleBox = new OpenLayers.StyleMap({
+            'select': {
+                fill: true,
+                fillColor: "#ff00FF",
+                fillOpacity: 0.1,
+                strokeColor: "yellow",
+                strokeOpacity: 0.4,
+                strokeWidth: 4,
+                strokeLinecap: "round",
+                pointRadius: 6,
+                hoverPointRadius: 1,
+                hoverPointUnit: "%",
+                pointerEvents: "visiblePainted",
+                cursor: "inherit"
+            },
+            'default': {
+                fill: true,
+                fillColor: "#ff00FF",
+                fillOpacity: 0.2,
+                strokeColor: "red",
+                strokeOpacity: 1,
+                strokeWidth: 4,
+                strokeLinecap: "round",
+                strokeDashstyle: "solid",
+                hoverStrokeColor: "red",
+                hoverStrokeOpacity: 1,
+                hoverStrokeWidth: 0.4,
+                pointRadius: 8,
+                hoverPointRadius: 1,
+                hoverPointUnit: "%",
+                pointerEvents: "visiblePainted",
+                cursor: "pointer"
+            }
+        });
+
 
 
 
@@ -156,6 +194,7 @@ var initMap = function(){
             title:"Pannello di stampa",
             maxScale:1000,
             editMode: editMode,
+            styleBox: styleBox,
             
             serviceUrl:'http://grg.gisclient.srv1/gisclient/services/print.php',
             eventListeners: {
@@ -227,8 +266,6 @@ var initMap = function(){
     var y = Math.round(parseFloat($('[name="coordy"]').attr('value')));
     btnPrint.printBoxScale = Math.round(parseFloat($('[name="scale"]').attr('value')));
 
-console.log(btnPrint.printBoxScale)
-
     map.addControl(btnPrint);
     btnPrint.activate();
     if(x && y){
@@ -264,11 +301,6 @@ console.log(btnPrint.printBoxScale)
       $('input[name="boxw"]').val(Math.round(bounds.getWidth()));
       $('input[name="boxh"]').val(Math.round(bounds.getHeight()));
     }
-
-
-
-
-
 
 
 }//END initMap

@@ -16,6 +16,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     maxPrintScale:null,
     layerBox:null,
     editMode:false,
+    styleBox:null,
 
     //waitFor: null, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
     pages: null,
@@ -73,7 +74,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
         OpenLayers.Control.prototype.setMap.apply(me, arguments);
 
-        this.layerbox = new OpenLayers.Layer.Vector("LayerBox");    
+        this.layerbox = new OpenLayers.Layer.Vector("LayerBox",{styleMap:me.styleBox});    
         this.map.addLayer(this.layerbox);
 
         if(this.editMode){
@@ -86,7 +87,6 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         
         var params = this.getConfigParams();
         params.request_type = 'get-box';
-console.log(params)
         $.ajax({
             url: this.serviceUrl,
             jsonpCallback: "callback",
@@ -291,6 +291,9 @@ console.log(params)
         //console.log(this.pages)
         //console.log(this.pageLayout)
         //console.log(this.pageFormat)
+
+
+
 
 
         //calcolo l'area libera per il box di stampa
