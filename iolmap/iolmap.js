@@ -196,7 +196,7 @@ var initMap = function(){
             editMode: editMode,
             styleBox: styleBox,
             
-            serviceUrl:'http://grg.gisclient.srv1/gisclient/services/print.php',
+            serviceUrl:'/gisclient/services/print.php',
             eventListeners: {
                 updatebox: function(e){
 
@@ -307,11 +307,11 @@ var initMap = function(){
 
     initDialog();
 
-    OpenLayers.ImgPath = "/gisclient/template/resources/themes/openlayers/img/";
+    OpenLayers.ImgPath = "/gisclient/maps/resources/themes/openlayers/img/";
     var GisClientBaseUrl = "/gisclient/"
 
     $.ajax({
-      url: 'http://grg.gisclient.srv1/gisclient/services/gcmap.php',
+      url: '/gisclient/services/gcmap.php',
       dataType: "jsonp",
       data:{"mapset":"test"},
       jsonpCallback: "jsoncallback",

@@ -709,16 +709,6 @@ var initMap = function(){
                 'deactivate': function(){queryToolbar.deactivate();}
             }
         }),
-        btnSegnalazioni = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE,
-            exclusiveGroup: 'sidebar',
-            iconclass:"glyphicon-white glyphicon-tasks", 
-            title:"Ricerca segnalazioni",
-            eventListeners: {
-                'activate': function(){sidebarPanel.show('segnalazioni');},
-                'deactivate': function(){sidebarPanel.hide('segnalazioni');}
-            }
-        }),
         btnLayertree = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE,
             exclusiveGroup: 'sidebar',
@@ -729,6 +719,16 @@ var initMap = function(){
                 'deactivate': function(){sidebarPanel.hide('layertree');}
             }
         }),
+        btnSegnalazioni = new OpenLayers.Control.Button({
+            type: OpenLayers.Control.TYPE_TOGGLE,
+            exclusiveGroup: 'sidebar',
+            iconclass:"glyphicon-white glyphicon-tasks", 
+            title:"Ricerca segnalazioni",
+            eventListeners: {
+                'activate': function(){sidebarPanel.show('segnalazioni');},
+                'deactivate': function(){sidebarPanel.hide('segnalazioni');}
+            }
+        }),        
         btnResult = new OpenLayers.Control.Button({
             type: OpenLayers.Control.TYPE_TOGGLE, 
             exclusiveGroup: 'sidebar',
@@ -1379,7 +1379,14 @@ var pointStyle = new OpenLayers.Style({
     }
 });
 
-
+    var segnalazioniContentLayer = new OpenLayers.Layer.Vector("contentSegnalazioni",{
+        styleMap: new OpenLayers.StyleMap({
+            strokeColor: "#FFAA00",
+            strokeWidth: 2,
+            strokeOpacity: 1,
+            fillOpacity: 0
+        })
+    });
     var segnalazioniLayer = new OpenLayers.Layer.Vector("Segnalazioni", { 
         strategies: [
             new OpenLayers.Strategy.Fixed(),
@@ -1420,6 +1427,7 @@ var pointStyle = new OpenLayers.Style({
 
     segnalazioniLayer.id = 'gc_segnalazioni_vector_layer';
     map.addLayer(segnalazioniLayer);
+    map.addLayer(segnalazioniContentLayer);
 
     var v = map.getControlsByClass("OpenLayers.Control.LayerTree");
     var lTree = v.length && v[0];
@@ -1500,7 +1508,7 @@ var pointStyle = new OpenLayers.Style({
                     '</div>';
             break;
             case 5: //data
-                form += '<br>Da:<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_da">A:<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_a">';
+                form += '<br>Da:<input name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_da">A:<input  name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'_a">';
             break;
             case 6: //lista di valori non wfs
                 form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:200px;">';
@@ -1511,8 +1519,8 @@ var pointStyle = new OpenLayers.Style({
     }
 
     form += '<br><div><button id="filtra_segnalazioni" class="btn btn-default">Filtra le segnalazioni</button></div>';
-    form += '<br><div><button id="stampa_segnalazioni" class="btn btn-default">Stampa le segnalazioni</button></div>';
-    form += '<div><a id="link-segnalazioni" target="_blank"><span role="icon" class="glyphicon glyphicon-list-alt print-download-icon"></span><span>Segnalazioni</span></a></div>';
+    form += '<br><div><button id="stampa_segnalazioni" class="btn btn-default">Elenco da stampare</button>';
+    form += '<a id="link-segnalazioni" target="_blank"><span role="icon" class="glyphicon glyphicon-list-alt print-download-icon"></span></a></div>';
 
 
 
@@ -1533,6 +1541,7 @@ var pointStyle = new OpenLayers.Style({
                 $.ajax({
                     url: serviceURL + 'xSuggestSegnalazioni.php',
                     data: {
+                        srs:map.getProjection(),
                         suggest: query.term,
                         field_id: fieldId,
                         field_name: fieldName,
@@ -1559,6 +1568,7 @@ var pointStyle = new OpenLayers.Style({
     $('#segnalazioni input[searchType="5"]').datepicker( "option", $.datepicker.regional[ "it" ] ); 
     $("#filtra_segnalazioni").bind("click",function(){
         var filters = [], filter;
+        var zoomTo = false;
         $('#segnalazioni input').each(function(){
             if($(this).attr("type") == "date"){
                 if($(this).attr("id").slice(-3) == '_da' && $(this).val()){
@@ -1599,6 +1609,8 @@ var pointStyle = new OpenLayers.Style({
                 filters.push(filter)
             }                   
             else if($(this).attr("name") && $(this).val()){
+                if($(this).attr("name") == 'bacino') zoomTo = $(this).attr("name");
+                if($(this).attr("name") == 'comune') zoomTo = $(this).attr("name");
                 filter = new OpenLayers.Filter.Comparison({
                     type: OpenLayers.Filter.Comparison.EQUAL_TO,
                     property: getFieldKey($(this).attr("name")),
@@ -1619,18 +1631,66 @@ var pointStyle = new OpenLayers.Style({
             })
 
         segnalazioniLayer.filter = filter;
+        segnalazioniLayer.zoomTo = zoomTo;
         segnalazioniLayer.refresh({force: true})
-
 
     });
 
-    //add Vector results to resultPanel
+    
     function refreshSegnalazioni(e) {
-        return;//NON VA!!!!!!!!!!!!!
-        window.setTimeout(function(){
-            var ext = e.object.getDataExtent();
-            if(ext) map.zoomToExtent(ext)
-        }, 1500);
+        //add Vector results to resultPanel
+        //$("#resultpanel").html("asdfasfasdfasf");
+        //Zoom to extent
+        var ext = e.object.getDataExtent();
+        var wfsFilter = false;
+        if(e.object.zoomTo == 'bacino'){
+            var id = $("input[name='bacino']").select2("val");
+            wfsFilter = "<Filter><PropertyIsEqualTo><PropertyName>gc_objid</PropertyName><Literal>" + id + "</Literal></PropertyIsEqualTo></Filter>";
+            var ftype = "grp_comprensori.lay_comprensori";
+        }
+        if(e.object.zoomTo == 'comune'){
+            var id = $("input[name='comune']").select2("val");
+            wfsFilter = "<Filter><PropertyIsEqualTo><PropertyName>istat</PropertyName><Literal>11" + id + "</Literal></PropertyIsEqualTo></Filter>";
+            var ftype = "grp_confini_comunali.lay_confini_comunali";
+        }
+        //http://sit.bonificamarche.srv1/cgi-bin/mapserv?map=/apps/gisclient-3/map/bonificamarche/consorziobonifica.map&
+        segnalazioniContentLayer.removeAllFeatures();
+        if(wfsFilter){
+            var options = {
+                url: "http://sit.bonificamarche.srv1/cgi-bin/mapserv",
+                params: {
+                    map:"/apps/gisclient-3/map/bonificamarche/consorziobonifica.map",
+                    SERVICE:"WFS",
+                    SRS:map.getProjection(),
+                    VERSION:"1.0.0",
+                    REQUEST:"GetFeature",
+                    TYPENAME:ftype,
+                    FILTER:wfsFilter
+                },
+                callback: function(response) {
+                    var doc = response.responseXML;
+                    if (!doc || !doc.documentElement) {
+                        doc = response.responseText;
+                    }
+                    var format = new OpenLayers.Format.GML();
+                    var features = format.read(doc);
+                    if(features.length > 0){
+                        segnalazioniContentLayer.addFeatures(features);
+                        map.zoomToExtent(segnalazioniContentLayer.getDataExtent())
+                    }
+                }
+            }
+
+            OpenLayers.Request.GET(options);   
+
+        }
+        else{
+            window.setTimeout(function(){
+                var ext = segnalazioniLayer.getDataExtent();
+                if(ext) map.zoomToExtent(ext)
+
+            }, 1500);
+        }
 
     }
 
@@ -1638,12 +1698,11 @@ var pointStyle = new OpenLayers.Style({
 
 
 
-    //add Popup
+    //add Popup NON VA !!!!! perde gli eventi
     var selectedFeature;
     var select = new OpenLayers.Control.SelectFeature(segnalazioniLayer);
     map.addControl(select);
     select.activate();
-
 
     function onPopupClose(evt) {
         selectControl.unselect(selectedFeature);
@@ -1693,6 +1752,7 @@ var pointStyle = new OpenLayers.Style({
             feature.popup.destroy();
             feature.popup = null;
         },
+
         refresh: refreshSegnalazioni
         
     });
@@ -1732,6 +1792,8 @@ var pointStyle = new OpenLayers.Style({
                         height:900,
                         width:1200
                     });
+
+
                 }
                 loadingControl.minimizeControl();
             }

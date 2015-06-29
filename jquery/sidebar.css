@@ -311,6 +311,10 @@ div.fast-navigate {
     border: 1px solid white;
 }
 
+#link-segnalazioni {
+  margin-top: -15px;
+  float: right;
+}
 
 .link-segnalazioni-attivo{
 

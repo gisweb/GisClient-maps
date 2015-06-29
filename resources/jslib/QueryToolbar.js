@@ -105,6 +105,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         if(result) {
             this.map.defaultControl.activate();
             this.map.currentControl = this.map.defaultControl;
+            this.deactivateVectorControl();
         } else {
             return false;
         }
