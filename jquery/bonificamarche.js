@@ -1657,7 +1657,7 @@ var pointStyle = new OpenLayers.Style({
         segnalazioniContentLayer.removeAllFeatures();
         if(wfsFilter){
             var options = {
-                url: "http://sit.bonificamarche.srv1/cgi-bin/mapserv",
+                url: "/cgi-bin/mapserv",
                 params: {
                     map:"/apps/gisclient-3/map/bonificamarche/consorziobonifica.map",
                     SERVICE:"WFS",
