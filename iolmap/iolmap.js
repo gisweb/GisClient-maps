@@ -69,6 +69,17 @@ $(function() {
           $('input[name="civico"]').select2('data', elencoCivici);
           $('input[name="civico"]').select2('val', null);
           //$("#civico_geometry").val('');
+          if(e.added.coords){
+            var v = e.added.coords.split(";");
+            var p1 = v[0].split(",");
+            var p2 = v[1].split(",");
+            var x = parseFloat(p1[0]) + (parseFloat(p2[0]) - parseFloat(p1[0]))/2;
+            var y = parseFloat(p1[1]) + (parseFloat(p2[1]) - parseFloat(p1[1]))/2;
+            if (x && y){
+              $('input[name="coordx"]').val(Math.round(x));
+              $('input[name="coordy"]').val(Math.round(y));
+            }
+          }
         }
       });
     });
