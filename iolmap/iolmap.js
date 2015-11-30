@@ -10,10 +10,18 @@ $(function() {
     var elencoVie = [];
     var elencoCivici = [];
 
+	function matchStart (term, text) {
+	  if (text.toUpperCase().indexOf(term.toUpperCase()) == 0) {
+		return true;
+	  }
+	  return false;
+	}
+
 
     $('select[name="comune"]').select2({
       allowClear: true,
-      placeholder: '---'
+      placeholder: '---',
+      matcher: matchStart
     }).on("change", function(e) { 
       $.ajax({
         'url':"resources/elencoVie",
