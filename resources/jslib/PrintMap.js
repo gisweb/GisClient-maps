@@ -20,7 +20,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         $('#'+me.formId+' span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
         
         $.ajax({
-            url: me.baseUrl + 'services/print.php',
+            url: me.baseUrl + '/services/print.php',
             type: 'POST',
             data: params,
             dataType: 'json',
@@ -248,7 +248,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         params.request_type = 'get-box';
         
         $.ajax({
-            url: me.baseUrl + 'services/print.php',
+            url: me.baseUrl + '/services/print.php',
             type: 'POST',
             dataType: 'json',
             data: params,

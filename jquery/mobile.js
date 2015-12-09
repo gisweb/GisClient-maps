@@ -1,6 +1,9 @@
 var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
+//document.writeln("<script type='text/javascript' src='../config/config.js'><" + "/script>");
+//var GISCLIENT_URL = '/gisclient3';
+//var MAPPROXY_URL = 'http://172.16.5.72/';
 
 var sidebarPanel = {
     closeTimeout: null,
@@ -215,8 +218,12 @@ var initMap = function(){
 
     //
     
-    if(ConditionBuilder) ConditionBuilder.init('.query');
+    if(ConditionBuilder) {
+        ConditionBuilder.baseUrl = GISCLIENT_URL;
+        ConditionBuilder.init('.query');
+    }
     var queryToolbar = new OpenLayers.GisClient.queryToolbar({
+        baseUrl: GISCLIENT_URL,
         createControlMarkup:customCreateControlMarkup,
         resultTarget:document.getElementById("resultpanel"),
         resultLayout:"TABLE",
@@ -247,6 +254,7 @@ var initMap = function(){
             },
             'featureTypeSelected': function(fType) {
                 if(ConditionBuilder) {
+                    ConditionBuilder.baseUrl = GISCLIENT_URL;
                     ConditionBuilder.setFeatureType(fType);
                 }
             },
@@ -388,7 +396,7 @@ var initMap = function(){
                         form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
                     break;
                     case 3: //lista di valori
-                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
+                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" fieldFilter="'+property.fieldFilter+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
                     break;
                     case 4: //numero
                         form += '<div class="form-inline">'+
@@ -405,7 +413,7 @@ var initMap = function(){
                         form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
                     break;
                     case 6: //lista di valori non wfs
-                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:300px;">';
+                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" fieldFilter="'+property.fieldFilter+'" id="search_form_input_'+i+'" style="width:300px;">';
                     break;
                 }
                 
@@ -424,15 +432,26 @@ var initMap = function(){
             
             $('#ricerca input[searchType="3"],#ricerca input[searchType="6"]').each(function(e, input) {
                 var fieldId = $(input).attr('fieldId');
-                
+                var fieldFilter = $(input).attr('fieldFilter');
+                        
                 $(input).select2({
                     minimumInputLength: 0,
                     query: function(query) {
+                        var filterValue = null;
+
+                        if (fieldFilter !== 'undefined'){
+                            if (typeof $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data') !== null)
+                                filterValue =  $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data').text;
+                        }
+                        if (typeof $('#ricerca input[fieldIFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
+                            $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data', null);
+                        
                         $.ajax({
-                            url: '/gisclient3/services/xSuggest.php',
+                            url: GISCLIENT_URL + '/services/xSuggest.php',
                             data: {
                                 suggest: query.term,
-                                field_id: fieldId
+                                field_id: fieldId,
+                                filtervalue: filterValue
                             },
                             dataType: 'json',
                             success: function(data) {
@@ -497,9 +516,19 @@ var initMap = function(){
                 }
                 
                 var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
+                var oldQueryFeatureType = null;
+                var oldOnlyVisibleLayers = null;
+                var oldLayers = null;
+                
                 if(mode == 'fast') {
+                    oldLayers = control.layers;
+                    oldQueryFeatureType = control.queryFeatureType;
+                    oldOnlyVisibleLayers = control.onlyVisibleLayers;
                     control.layers = [queryToolbar.getLayerFromFeature(fType.typeName)];
+                    control.queryFeatureType = fType.typeName;
+                    control.onlyVisibleLayers = false;
                 }
+                
                 var oldQueryFilters = control.queryFilters[fType.typeName];
                 control.queryFilters[fType.typeName] = filter;
                 //var oldHighlight = control.highLight;
@@ -508,6 +537,11 @@ var initMap = function(){
                 control.select(geometry, mode);
                 
                 control.queryFilters[fType.typeName] = oldQueryFilters;
+                if (mode == 'fast'){
+                    control.layers = oldLayers;
+                    control.queryFeatureType = oldQueryFeatureType;
+                    control.onlyVisiblelayers = oldOnlyVisibleLayers;
+                }
                 //control.highLight = oldHighlight;
 
                 $('#SearchWindow').modal('hide');
@@ -637,7 +671,7 @@ var initMap = function(){
             OpenLayers.Handler.Click,
             {
                 clearOnDeactivate:false,
-                serviceURL:'../../gisclient3/services/iren/findPipes.php',
+                serviceURL:GISCLIENT_URL + '/services/iren/findPipes.php',
                 distance:50,
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
@@ -764,6 +798,7 @@ var initMap = function(){
         pSelect,
 
         btnPrint = new OpenLayers.Control.PrintMap({
+            baseUrl:GISCLIENT_URL,
             tbarpos:"first", 
             //type: OpenLayers.Control.TYPE_TOGGLE, 
             formId: 'printpanel',
@@ -843,6 +878,8 @@ var initMap = function(){
     });
     map.events.register('zoomend', null, function(){
         $('#map-select-scale').val(map.getZoom());
+        if (queryToolbar.active)
+            queryToolbar.redraw();
     });
 
 
@@ -883,7 +920,7 @@ var initMap = function(){
             e.preventDefault();
 
             $.ajax({
-                url: '/gisclient3/login.php',
+                url: GISCLIENT_URL + '/login.php',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -914,7 +951,7 @@ var initMap = function(){
         event.preventDefault();
         
         $.ajax({
-            url: '/gisclient3/logout.php',
+            url: GISCLIENT_URL + '/logout.php',
             type: 'POST',
             dataType: 'json',
             success: function(response) {
@@ -984,9 +1021,9 @@ var initMap = function(){
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    GisClientMap = new OpenLayers.GisClient('/gisclient3/services/gcmap.php' + window.location.search,'map',{
+    GisClientMap = new OpenLayers.GisClient(GISCLIENT_URL + '/services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:"/",
+        mapProxyBaseUrl:MAPPROXY_URL,
         mapOptions:{
             controls:[
                 new OpenLayers.Control.Navigation(),
