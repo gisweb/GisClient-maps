@@ -247,13 +247,20 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var self = this;
         var inRange;
         var node = self.overlayTree.tree('find',layer.id);
-
+        var skipIndex = 0;
+        
         if(node){
             inRange = layer.inRange;
             self.changeNodeState(node,inRange);
             jQuery.each(self.overlayTree.tree('getChildren',(node.target)),function(index,childNode){
-                inRange = layer.nodes && layer.nodes[index] && self.isChildNodeinRange(layer.nodes[index]);
-                self.changeNodeState(childNode,inRange);
+                if (layer.nodes && layer.nodes[index-skipIndex]){
+                    if (layer.nodes[index-skipIndex].title != childNode.text){
+                        skipIndex++;
+                        return;
+                    }    
+                    inRange = self.isChildNodeinRange(layer.nodes[index-skipIndex]);
+                    self.changeNodeState(childNode,inRange);
+                }
             })
 /*  NON DISABILITO MAI IL NODO DEL TEMA 
             parentNode = self.overlayTree.tree('getParent',(node.target));
@@ -484,12 +491,34 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 lvNodes.push(resNode);
             }
         }
-        return resNode;
+        if (resNode)
+            return resNode.children;
+        else
+            return nodes;
     },
     
+    sortNode: function(nodeA,nodeB){
+        var valueA, valueB;
+        if (nodeA.attributes.order)
+            valueA = nodeA.attributes.order;
+        else if (nodeA.attributes.layer.order)
+            valueA = nodeA.attributes.layer.order;
+        else
+            valueA = nodeA.text;
+
+        if (nodeB.attributes.order)
+            valueB = nodeB.attributes.order;
+        else if (nodeB.attributes.layer.order)
+            valueB = nodeB.attributes.layer.order;
+        else
+            valueB = nodeB.text;
+
+        return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+     },
+
     //build baselayerData and overlayData
     initTreeData: function(oLayer){
-        var oLayer,thNode,chNode,leafNode,leaf_leafNode,layerParam;
+        var oLayer,thNode,chNode,leafNode,leaf_leafNode,layerParam, layerOrder;
 
         var layerTree = oLayer.isBaseLayer? this.baselayerData  :this.overlayData;
         var rootPath = oLayer.hasOwnProperty('rootPath') ? oLayer.rootPath : oLayer.theme;
@@ -504,9 +533,9 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             chNode.children = [];
             for (var j = 0; j < oLayer.nodes.length; j++) {
                 layerParam = oLayer.nodes[j].layer;
+                layerOrder = oLayer.nodes[j].order;
 
-
-                leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam}}
+                leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam, order:layerOrder}}
                 if(typeof(oLayer.nodes[j].visibility)) leafNode.checked = oLayer.nodes[j].visibility;
                 if(oLayer.theme == oLayer.title) fTypes = this.getFetureTypes(layerParam);  //SINGOLO TEMA
                 if((fTypes.length > 0 && oLayer.theme == oLayer.title) || (fTypes.length > 0 && fTypes[0].typeName == layerParam)){
@@ -540,13 +569,26 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         }
 
         thNode = this.getThemeNode(layerTree, rootPath);
-        if (thNode){
-            thNode.children.push(chNode);    
-        }
-        else {
-            layerTree.push(chNode);
-        }
-            
+        var idxNode = 0;
+        var tot_i = thNode.length;
+        while ( idxNode < tot_i) { 
+            if (thNode[idxNode].text == chNode.text) {
+                if (typeof(thNode[idxNode].attributes) == 'undefined' ){
+                    chNode.children = chNode.children.concat(thNode[idxNode].children);
+                    chNode.children.sort(this.sortNode);
+                    thNode[idxNode] = chNode;
+                }
+                break;
+            } 
+            idxNode++;
+        } 
+        
+        if (idxNode == tot_i)
+            thNode.push(chNode);
+        
+        if(rootPath){
+            thNode.sort(this.sortNode);
+        }    
     },
 
     CLASS_NAME: "OpenLayers.Control.LayerTree"
