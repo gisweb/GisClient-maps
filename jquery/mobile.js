@@ -8,6 +8,8 @@ var mycontrol,ismousedown;
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
+    // **** Avoid ghost chicks from JQuery/Openlayers conflicts in mobile browsers
+    handleEvent: false,
     
     init: function(selector) {
         var self = this;
@@ -23,6 +25,12 @@ var sidebarPanel = {
         });
         $('.panel-collapse', self.$element).click(function(){
             self.collapse();
+        });  
+
+        // **** Avoid ghost chicks from JQuery/Openlayers conflicts in mobile browsers
+        $("#map-sidebar").unbind('mouseup').mouseup(function(e){
+            self.handleEvent = true;
+            return false;
         });
     },
     
@@ -50,7 +58,10 @@ var sidebarPanel = {
     },
     
     open: function() {
-        if(this.closeTimeout) clearTimeout(this.closeTimeout);
+        if(this.closeTimeout) {
+            clearTimeout(this.closeTimeout);
+            this.closeTimeout = null;
+        }
         
         var el = $("#map-overlay-panel");
         //var w = width || 300;
@@ -738,43 +749,84 @@ var initMap = function(){
         geolocateControl,
 
         btnSearch = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
             iconclass:"glyphicon-white  glyphicon-info-sign", 
             title:"Pannello di ricerca",
             tbarpos:"first",
-            eventListeners: {
-                'activate': function(){queryToolbar.activate();},
-                'deactivate': function(){queryToolbar.deactivate();}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        queryToolbar.deactivate();
+                    }
+                    else
+                    {
+                        this.activate();
+                        queryToolbar.activate();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
         btnLayertree = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE,
+            id: 'button-layertree',
             exclusiveGroup: 'sidebar',
             iconclass:"icon-layers", 
             title:"Pannello dei livelli",
-            eventListeners: {
-                'activate': function(){sidebarPanel.show('layertree');},
-                'deactivate': function(){sidebarPanel.hide('layertree');}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        sidebarPanel.hide('layertree');
+                    }
+                    else
+                    {
+                        this.activate();
+                        sidebarPanel.show('layertree');
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
-        btnResult = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
+        btnResult = new OpenLayers.Control.Button({ 
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-list-alt", 
             title:"Tabella dei risultati",
             tbarpos:"last",
-            eventListeners: {
-                'activate': function(){sidebarPanel.show('resultpanel');},
-                'deactivate': function(){sidebarPanel.hide('resultpanel');}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        sidebarPanel.hide('resultpanel');
+                    }
+                    else
+                    {
+                        this.activate();
+                        sidebarPanel.show('resultpanel');
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
 
-        new OpenLayers.Control.Button({tbarpos:"first",iconclass:"glyphicon-white glyphicon-resize-small", type: OpenLayers.Control.TYPE_TOGGLE, title:"Misure",
-
-            eventListeners: {
-                'activate': function(){measureToolbar.activate();},
-                'deactivate': function(){measureToolbar.deactivate();}
-            }
+        new OpenLayers.Control.Button({tbarpos:"first",iconclass:"glyphicon-white glyphicon-resize-small", title:"Misure",
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        measureToolbar.deactivate();
+                    }
+                    else
+                    {
+                        this.activate();
+                        measureToolbar.activate();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
 
 /*
@@ -787,12 +839,22 @@ var initMap = function(){
         }),
         
    */     
-        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", type: OpenLayers.Control.TYPE_TOGGLE, title:"Redline",
-
-            eventListeners: {
-                'activate': function(){redlineToolbar.activate();},
-                'deactivate': function(){redlineToolbar.deactivate();}
-            }
+        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", title:"Redline",
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        redlineToolbar.deactivate();
+                    }
+                    else
+                    {
+                        this.activate();
+                        redlineToolbar.activate();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }      
         }),
         
         pSelect,
@@ -806,32 +868,49 @@ var initMap = function(){
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
             waitFor: 'panelready',
-            eventListeners: {
-                'activate': function(){
-                    var me = this;
-                    
-                    if($.trim($('#printpanel').html()) == '') {
-                        $("#printpanel").load('print_panel.html', function() {
-                            me.events.triggerEvent('panelready');
-                        });
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        sidebarPanel.hide('printpanel');
                     }
-                    sidebarPanel.show('printpanel');
-                },
-                'deactivate': function(){
-                    sidebarPanel.hide('printpanel');
+                    else
+                    {
+                        this.activate();
+                        var me = this;
+                    
+                        if($.trim($('#printpanel').html()) == '') {
+                            $("#printpanel").load('print_panel.html', function() {
+                                me.events.triggerEvent('panelready');
+                            });
+                        }
+                        sidebarPanel.show('printpanel');
+                    }
+                    sidebarPanel.handleEvent = false;
                 }
-            }
+            }      
         }),
         
-        new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
+        new OpenLayers.Control.Button({ 
             iconclass:"glyphicon-white  glyphicon-eye-open", 
             title:"Mappa di riferimento",
             tbarpos:"last",
-            eventListeners: {
-                'activate': function(){GisClientMap.overviewMap.show();},
-                'deactivate': function(){GisClientMap.overviewMap.hide();}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        GisClientMap.overviewMap.hide();
+                    }
+                    else
+                    {
+                        this.activate();
+                        GisClientMap.overviewMap.show();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }      
         })
         
    /*     
@@ -1078,4 +1157,13 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
         OpenLayers.Control.Panel.prototype.activateControl.apply(this, [control]);
     }
 });
-
+/*
+$(document).on('pagebeforeshow', null, function(){       
+    $(document).on('click', null,function(e) {
+        alert('Button click');
+    }); 
+    $(document).on('mouseup', null,function(e) {
+        alert('Button click');
+    }); 
+});
+*/

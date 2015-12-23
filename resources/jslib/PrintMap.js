@@ -1,5 +1,5 @@
 OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
-    type: OpenLayers.Control.TYPE_TOGGLE,
+    //type: OpenLayers.Control.TYPE_TOGGLE,
     formId: undefined, //id del form di stampa
     loadingControl: undefined,
     baseUrl:null,
