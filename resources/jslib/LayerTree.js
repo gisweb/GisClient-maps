@@ -208,9 +208,17 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var childs = jQuery(this.overlayTree).tree('getChildren',node.target);
         if(childs.length > 0){
             var layers = [];
+            var childs_ext = [];
             var tileLayer = layer.map.getLayersByName(layer.name + '_tiles') && layer.map.getLayersByName(layer.name + '_tiles')[0];
             jQuery.each(childs ,function(_,child){
-                if(child.checked) layers.push(child.attributes.layerParam)
+                if (child.attributes.layerParam){
+                    if(child.checked){
+                        layers.push(child.attributes.layerParam);
+                    }
+                }
+                else {
+                    if (child.attributes.layer) childs_ext.push(child);
+                }
             });
 
             //controllo qui se devo accendere i figli oppure il tile-layer mapproxy 
@@ -222,6 +230,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 if(tileLayer) tileLayer.setVisibility(false);
                 if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
                 layer.setVisibility(layers.length > 0);
+                
+                for (var i = 0, tot_l = childs_ext.length; i < tot_l; i++) {
+                    childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
+                }                    
             } 
         }
         else{
@@ -235,13 +247,20 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var self = this;
         var inRange;
         var node = self.overlayTree.tree('find',layer.id);
-
+        var skipIndex = 0;
+        
         if(node){
             inRange = layer.inRange;
             self.changeNodeState(node,inRange);
             jQuery.each(self.overlayTree.tree('getChildren',(node.target)),function(index,childNode){
-                inRange = layer.nodes && layer.nodes[index] && self.isChildNodeinRange(layer.nodes[index]);
-                self.changeNodeState(childNode,inRange);
+                if (layer.nodes && layer.nodes[index-skipIndex]){
+                    if (layer.nodes[index-skipIndex].title != childNode.text){
+                        skipIndex++;
+                        return;
+                    }    
+                    inRange = self.isChildNodeinRange(layer.nodes[index-skipIndex]);
+                    self.changeNodeState(childNode,inRange);
+                }
             })
 /*  NON DISABILITO MAI IL NODO DEL TEMA 
             parentNode = self.overlayTree.tree('getParent',(node.target));
@@ -256,7 +275,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
     isChildNodeinRange: function(node){
         var scale = this.map.getScale();
-        var inRange = ( (!node.maxScale || node.maxScale >= scale) && (!node.minScale || node.minScale >= scale) );
+        var inRange = ( (!node.maxScale || node.maxScale <= scale) && (!node.minScale || node.minScale >= scale) );
         return inRange;
     },
 
@@ -288,7 +307,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(this.emptyTitle == '')
             this.baselayerData = this.baselayerData.slice(1);
         else{
-            this.baselayerData[0] = this.baselayerData[0].children[0];
+            //this.baselayerData[0] = this.baselayerData[0].children[0];
             this.baselayerData[0].text = this.emptyTitle;
         }
 
@@ -430,7 +449,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         return result
     },
 
-
+    /*
     getThemeNode: function(nodes,text){
         var node;
         for (var i = 0; i < nodes.length; i++) { if (nodes[i].text == text) node = nodes[i]; }; 
@@ -440,15 +459,71 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         } 
         return node;
     },
+    */
 
+    getThemeNode: function(nodes,rootPath){
+        var resNode = null;
+        var lvNodes = null;
+        var pathComponents = [];
+        if (rootPath){
+            pathComponents = rootPath.split("/");
+        }
+            
+        for (var j = 0, tot_j = pathComponents.length; j < tot_j; j++)
+        {
+            var text = pathComponents[j];
+            if (resNode){
+                lvNodes = resNode.children;
+                resNode = null;
+            }
+            else
+            {
+                lvNodes = nodes;
+            }
+            for (var i = 0, tot_i = lvNodes.length; i < tot_i; i++) { 
+                if (lvNodes[i].text == text) {
+                    resNode = lvNodes[i];
+                    break;
+                } 
+            } 
+            if(!resNode){
+                resNode =  {id:OpenLayers.Util.createUniqueID("base_theme_"), text:text, state:'closed', children:[]};
+                lvNodes.push(resNode);
+            }
+        }
+        if (resNode)
+            return resNode.children;
+        else
+            return nodes;
+    },
+    
+    sortNode: function(nodeA,nodeB){
+        var valueA, valueB;
+        if (nodeA.attributes.order)
+            valueA = nodeA.attributes.order;
+        else if (nodeA.attributes.layer.order)
+            valueA = nodeA.attributes.layer.order;
+        else
+            valueA = nodeA.text;
+
+        if (nodeB.attributes.order)
+            valueB = nodeB.attributes.order;
+        else if (nodeB.attributes.layer.order)
+            valueB = nodeB.attributes.layer.order;
+        else
+            valueB = nodeB.text;
+
+        return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+     },
 
     //build baselayerData and overlayData
     initTreeData: function(oLayer){
-        var oLayer,thNode,chNode,leafNode,leaf_leafNode,layerParam;
+        var oLayer,thNode,chNode,leafNode,leaf_leafNode,layerParam, layerOrder;
 
         var layerTree = oLayer.isBaseLayer? this.baselayerData  :this.overlayData;
+        var rootPath = oLayer.hasOwnProperty('rootPath') ? oLayer.rootPath : oLayer.theme;
         var fTypes = [];
-        thNode = this.getThemeNode(layerTree,oLayer.theme);
+
         chNode = {id:oLayer.id, text:oLayer.title, state:'closed', iconCls:oLayer.isBaseLayer?"overlay-param":"overlay", attributes:{layer:oLayer}};
         if(!oLayer.isBaseLayer && oLayer.theme != oLayer.title) chNode.checked = oLayer.visibility;
         if(oLayer.theme != oLayer.title) fTypes = this.getFetureTypes(oLayer.name); //NO SINGOLO TEMA
@@ -458,9 +533,9 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             chNode.children = [];
             for (var j = 0; j < oLayer.nodes.length; j++) {
                 layerParam = oLayer.nodes[j].layer;
+                layerOrder = oLayer.nodes[j].order;
 
-
-                leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam}}
+                leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam, order:layerOrder}}
                 if(typeof(oLayer.nodes[j].visibility)) leafNode.checked = oLayer.nodes[j].visibility;
                 if(oLayer.theme == oLayer.title) fTypes = this.getFetureTypes(layerParam);  //SINGOLO TEMA
                 if((fTypes.length > 0 && oLayer.theme == oLayer.title) || (fTypes.length > 0 && fTypes[0].typeName == layerParam)){
@@ -493,8 +568,27 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             chNode.state = 'open';
         }
 
-        thNode.children.push(chNode);    
-
+        thNode = this.getThemeNode(layerTree, rootPath);
+        var idxNode = 0;
+        var tot_i = thNode.length;
+        while ( idxNode < tot_i) { 
+            if (thNode[idxNode].text == chNode.text) {
+                if (typeof(thNode[idxNode].attributes) == 'undefined' ){
+                    chNode.children = chNode.children.concat(thNode[idxNode].children);
+                    chNode.children.sort(this.sortNode);
+                    thNode[idxNode] = chNode;
+                }
+                break;
+            } 
+            idxNode++;
+        } 
+        
+        if (idxNode == tot_i)
+            thNode.push(chNode);
+        
+        if(rootPath){
+            thNode.sort(this.sortNode);
+        }    
     },
 
     CLASS_NAME: "OpenLayers.Control.LayerTree"

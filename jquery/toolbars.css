@@ -110,7 +110,7 @@ div.olMapViewport {
 
 .map-layout #map-toolbars {
     height: auto;
-    width: :auto;
+    width: auto;
     float: left;
     top:2px;
     left:2px;
@@ -172,6 +172,7 @@ olOptionDisabled
 
 .map-layout  #map-toolbars .olToolbarsControl a[class*="ItemActive"] {
     background-color: #000000;
+    border: 1px white solid;
 }
 .map-layoutxx  #map-toolbars .olToolbarsControl a[class*="ItemInactive"] {
     background-color: #FF00FF;
@@ -243,7 +244,7 @@ olOptionDisabled
     th { 
         background: #ff0000; 
         font-weight: bold; 
-        color: :#ffffff;
+        color: #ffffff;
     }
     td, th { 
         padding: 6px; 
@@ -291,6 +292,7 @@ olOptionDisabled
             left: 6px;
             width: 45%; 
             padding-right: 10px; 
+            content: attr(feature-col);
             /*white-space: nowrap;*/
         }
         

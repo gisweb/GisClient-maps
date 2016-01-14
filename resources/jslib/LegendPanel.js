@@ -25,6 +25,10 @@
  */
 OpenLayers.Control.LegendPanel = OpenLayers.Class(OpenLayers.Control, {
 
+    /**
+    // **** baseUrl - Gisclient service URL
+    */
+    baseUrl : '/gisclient',
     /**  
      * Property: layerStates 
      * {Array(Object)} Basically a copy of the "state" of the map's layers 
@@ -500,8 +504,9 @@ console.log(layer)
 		
 			//console.log(this.map.mapConfig.nodes[i])
 	
-			var url = "http://localhost/gisclient3/services/ows.php?PROJECT=geoweb_genova&MAP=test&EXCEPTIONS=application%2Fvnd.ogc.se_xml&TRANSPARENT=TRUE&GISCLIENT_MAP=1&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&LAYER=" + this.map.mapConfig.nodes[i].legend.join(',');;
-			var imgElem = document.createElement("img");
+			//var url = "http://localhost/gisclient3/services/ows.php?PROJECT=geoweb_genova&MAP=test&EXCEPTIONS=application%2Fvnd.ogc.se_xml&TRANSPARENT=TRUE&GISCLIENT_MAP=1&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&LAYER=" + this.map.mapConfig.nodes[i].legend.join(',');;
+			var url = this.baseUrl + "/services/ows.php?PROJECT=geoweb_genova&MAP=test&EXCEPTIONS=application%2Fvnd.ogc.se_xml&TRANSPARENT=TRUE&GISCLIENT_MAP=1&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&LAYER=" + this.map.mapConfig.nodes[i].legend.join(',');;
+                        var imgElem = document.createElement("img");
 			imgElem.src=url;
 			console.log(url);
 			/*

@@ -1,5 +1,7 @@
 OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     
+    // **** baseUrl - Gisclient service URL
+    baseUrl : '/gisclient',
     resultLayer:null,
     queryLayers:[],
     queryFilters:{},
@@ -29,6 +31,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             new OpenLayers.Control.QueryMap(
                 OpenLayers.Handler.RegularPolygon,
                 {
+                    baseUrl: this.baseUrl,
                     wfsCache:this.wfsCache,
                     layers:this.visibleLayers,       
                     queryFilters:this.queryFilters, 
@@ -48,6 +51,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             new OpenLayers.Control.QueryMap(
                 OpenLayers.Handler.RegularPolygon,
                 {
+                    baseUrl: this.baseUrl,
                     wfsCache:this.wfsCache,
                     layers:this.visibleLayers,                    
                     queryFilters:this.queryFilters, 
@@ -67,6 +71,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             new OpenLayers.Control.QueryMap(
                 OpenLayers.Handler.Polygon,
                 {
+                    baseUrl: this.baseUrl,
                     wfsCache:this.wfsCache,
                     layers:this.visibleLayers,                    
                     queryFilters:this.queryFilters, 
@@ -198,7 +203,17 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 
                 if(this.wfsCache[layer.id]) {
                     if(GisClientMap.mapsetTiles && GisClientMap.mapsetTileLayer.getVisibility()) {
-                        if(GisClientMap.default_layers.indexOf(layer.name) > -1) {
+                        if (layer.nodes)
+                        {
+                            var tot_layer_nodes = layer.nodes.length;
+                            for (var k = 0; k < tot_layer_nodes; k++){
+                                if(GisClientMap.default_layers.indexOf(layer.nodes[k].layer) > -1){
+                                    layers.push(layer);
+                                    break;
+                                }
+                            }
+                        }
+                        else if(GisClientMap.default_layers.indexOf(layer.name) > -1) {
                             layers.push(layer);
                         }
                     } else {
@@ -484,68 +499,58 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     },
 
     writeDataTable: function(featureType){
-        var col, colIndex, values, htmlTable, htmlHeaders = '', cssHeaders = '', aCols = [], relation;
+        var col, colIndex, values, htmlTable, htmlHeaders = '', aCols = [], relation;
         
-        aCols.push('gc_actions');
-        colIndex = aCols.length;
+        if(featureType.features.length == 0) return false;//VEDERE DI METTRE NELLE OPZIONI SE AGGIUNGERE COMUNQUE GLI HEADERS        
+                
         htmlHeaders += '<th>Azioni</th>';
-        cssHeaders += '.smalltable td:nth-of-type(' + colIndex + '):before { content: "Azioni";}\n';
         
         for (var i = 0; i < featureType.properties.length; i++) {
             col = featureType.properties[i];
-            if(col.header && col.resultType!=4){
+            if(col.header && col.resultType!=4 && col.relationType!=2){
                 htmlHeaders += '<th>' + col.header + '</th>';
                 aCols.push(col.name);
-                colIndex = aCols.length;
-                cssHeaders += '.smalltable td:nth-of-type(' + colIndex + '):before { content: "' + col.header + '";}\n'
-            }
-            if(col.relationType && col.relationType == 2) {
-                if(relations1n.indexOf(col.relationName) == -1) relations1n.push(col.relationName);
             }
         }; 
-        if(aCols.length == 0) return false;
-        if(featureType.features.length == 0) return false;//VEDERE DI METTRE NELLE OPZIONI SE AGGIUNGERE COMUNQUE GLI HEADERS
-
-        cssHeaders = '<style>' + cssHeaders + '</style>';
-
+        
+        colIndex = aCols.length;
+        //if(colIndex == 0) return false;
+               
         var fLen = featureType.features.length;
         htmlTable = '<span>'+featureType.title+ ' ('+fLen+')';
         //link a tutte le features disabilitato per adesso... vediamo prima se serve
         if(false) htmlTable += ' <a href="#" zoomFType="'+featureType.typeName+'">Zoom</a>';
         htmlTable += '</span><table class="featureTypeData"><thead><tr>' + htmlHeaders + '</tr><tbody>';
         for (var j = 0; j < fLen; j++) {
-            values = '';
-            for (var i = 0; i < aCols.length; i++) {
-                var fieldName = aCols[i];
-                if(fieldName == 'gc_actions') {
-                    values += '<td><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+(featureType.zoomBuffer || 0)+'" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
-                    if(featureType.relations) {
-                        for(var f = 0; f < featureType.relations.length; f++) {
-                            relation = featureType.relations[f];
-                            if(relation.relationType != 2) continue;
-                            
-                            values += '| <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails" relationName="'+relation.relationName+'">'+relation.relationTitle+'</a>';
-                            
-                        }
-                    }
-                    values += '</td>';
-                    
-                } else {
-                    var field = this.getFieldByName(featureType, fieldName);
-                    values += '<td>'+ this.writeDataAttribute(field.fieldType, featureType.features[j].attributes[fieldName]) +'</td>';
+            values = '<td feature-col="Azioni"><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+(featureType.zoomBuffer || 0)+'" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
+            if(featureType.relations) {
+                for(var f = 0; f < featureType.relations.length; f++) {
+                    relation = featureType.relations[f];
+                    if(relation.relationType != 2) continue;
+
+                    values += '| <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails" relationName="'+relation.relationName+'">'+relation.relationTitle+'</a>';
+
                 }
+            }
+            values += '</td>';
+                    
+            for (var i = 0; i < colIndex; i++) {
+                var fieldName = aCols[i];
+                var field = this.getFieldByName(featureType, fieldName);
+                values += '<td feature-col="' + field.header + '">'+ this.writeDataAttribute(field.fieldType, featureType.features[j].attributes[fieldName]) +'</td>';
             }
             htmlTable +=  '<tr featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'">'+values+'</tr>';        
         }
 
         htmlTable += '</tbody></table>';
 
-        return cssHeaders + htmlTable;
+        return htmlTable;
+        /*
         var featureTypeDiv = document.createElement("div");
         OpenLayers.Element.addClass(featureTypeDiv, "featureTypeTitle");
         featureTypeDiv.innerHTML = cssHeaders + htmlTable;
         return featureTypeDiv;
-
+        */
     },
     
     getFieldByName: function(featureType, fieldName) {
@@ -785,7 +790,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         
         var params = {
             projectName: GisClientMap.projectName,
-            mapsetName: GisClientMap.name,
+            mapsetName: GisClientMap.mapsetName,
             srid: GisClientMap.map.projection,
             featureType: featureType,
             featureId: feature.attributes[pkey],
@@ -793,7 +798,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             action: 'viewdetails'
         };
         var request = OpenLayers.Request.POST({
-            url: '/gisclient/services/xMapQuery.php',
+            url: this.baseUrl + '/services/xMapQuery.php',
             data: OpenLayers.Util.getParameterString(params),
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"

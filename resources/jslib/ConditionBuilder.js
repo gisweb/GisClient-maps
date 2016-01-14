@@ -1,4 +1,9 @@
 var ConditionBuilder = {
+    
+
+    // **** baseUrl - Gisclient service URL
+    baseUrl : '/gisclient',
+    
     rootCondition: '<table>'+
             '<tr><td class="seperator" ><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" /><select><option value="and">And</option><option value="or">Or</option></select></td>' +
             '<td><div class="querystmts"></div><div><img class="add" src="../resources/themes/icons/add.png" alt="Add" /> <button class="addroot">+()</button></div>' +
@@ -116,7 +121,7 @@ var ConditionBuilder = {
                     },{
                         source: function(query, process) {
                             return $.ajax({
-                                url: '/gisclient/services/xSuggest.php',
+                                url: self.baseUrl + '/services/xSuggest.php',
                                 data: {
                                     suggest: query,
                                     field_id: fieldId
@@ -138,7 +143,7 @@ var ConditionBuilder = {
             options = [], fieldOption,
             operator, statement, suggest;
 
-        statement = '<div cbcontainer="yes"><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" />'
+        statement = '<div class="form-control" cbcontainer="yes"><img src="../resources/themes/icons/remove.png" alt="Remove" class="remove" />'
 
         suggest = false;
         for(i = 0; i < len; i++) {

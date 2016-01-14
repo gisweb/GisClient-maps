@@ -4,6 +4,8 @@ var mycontrol,ismousedown;
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
+    // **** Avoid ghost chicks from JQuery/Openlayers conflicts in mobile browsers
+    handleEvent: false,
     
     init: function(selector) {
         var self = this;
@@ -19,6 +21,12 @@ var sidebarPanel = {
         });
         $('.panel-collapse', self.$element).click(function(){
             self.collapse();
+        });  
+
+        // **** Avoid ghost chicks from JQuery/Openlayers conflicts in mobile browsers
+        $("#map-sidebar").unbind('mouseup').mouseup(function(e){
+            self.handleEvent = true;
+            return false;
         });
     },
     
@@ -46,7 +54,10 @@ var sidebarPanel = {
     },
     
     open: function() {
-        if(this.closeTimeout) clearTimeout(this.closeTimeout);
+        if(this.closeTimeout) {
+            clearTimeout(this.closeTimeout);
+            this.closeTimeout = null;
+        }
         
         var el = $("#map-overlay-panel");
         //var w = width || 300;
@@ -219,8 +230,12 @@ var initMap = function(){
 
     //
     
-    if(ConditionBuilder) ConditionBuilder.init('.query');
+    if(ConditionBuilder) {
+        ConditionBuilder.baseUrl = GISCLIENT_URL;
+        ConditionBuilder.init('.query');
+    }
     var queryToolbar = new OpenLayers.GisClient.queryToolbar({
+        baseUrl: GISCLIENT_URL,
         createControlMarkup:customCreateControlMarkup,
         resultTarget:document.getElementById("resultpanel"),
         resultLayout:"TABLE",
@@ -251,6 +266,7 @@ var initMap = function(){
             },
             'featureTypeSelected': function(fType) {
                 if(ConditionBuilder) {
+                    ConditionBuilder.baseUrl = GISCLIENT_URL;
                     ConditionBuilder.setFeatureType(fType);
                 }
             },
@@ -392,7 +408,7 @@ var initMap = function(){
                         form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
                     break;
                     case 3: //lista di valori
-                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
+                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" fieldFilter="'+property.fieldFilter+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
                     break;
                     case 4: //numero
                         form += '<div class="form-inline">'+
@@ -409,7 +425,7 @@ var initMap = function(){
                         form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
                     break;
                     case 6: //lista di valori non wfs
-                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'" style="width:300px;">';
+                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" fieldFilter="'+property.fieldFilter+'" id="search_form_input_'+i+'" style="width:300px;">';
                     break;
                 }
                 
@@ -428,15 +444,26 @@ var initMap = function(){
             
             $('#ricerca input[searchType="3"],#ricerca input[searchType="6"]').each(function(e, input) {
                 var fieldId = $(input).attr('fieldId');
-                
+                var fieldFilter = $(input).attr('fieldFilter');
+                        
                 $(input).select2({
                     minimumInputLength: 0,
                     query: function(query) {
+                        var filterValue = null;
+
+                        if (fieldFilter !== 'undefined'){
+                            if (typeof $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data') !== null)
+                                filterValue =  $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data').text;
+                        }
+                        if (typeof $('#ricerca input[fieldIFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
+                            $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data', null);
+                        
                         $.ajax({
                             url: self.baseUrl + 'services/xSuggest.php',
                             data: {
                                 suggest: query.term,
-                                field_id: fieldId
+                                field_id: fieldId,
+                                filtervalue: filterValue
                             },
                             dataType: 'json',
                             success: function(data) {
@@ -501,9 +528,19 @@ var initMap = function(){
                 }
                 
                 var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
+                var oldQueryFeatureType = null;
+                var oldOnlyVisibleLayers = null;
+                var oldLayers = null;
+                
                 if(mode == 'fast') {
+                    oldLayers = control.layers;
+                    oldQueryFeatureType = control.queryFeatureType;
+                    oldOnlyVisibleLayers = control.onlyVisibleLayers;
                     control.layers = [queryToolbar.getLayerFromFeature(fType.typeName)];
+                    control.queryFeatureType = fType.typeName;
+                    control.onlyVisibleLayers = false;
                 }
+                
                 var oldQueryFilters = control.queryFilters[fType.typeName];
                 control.queryFilters[fType.typeName] = filter;
                 //var oldHighlight = control.highLight;
@@ -512,6 +549,11 @@ var initMap = function(){
                 control.select(geometry, mode);
                 
                 control.queryFilters[fType.typeName] = oldQueryFilters;
+                if (mode == 'fast'){
+                    control.layers = oldLayers;
+                    control.queryFeatureType = oldQueryFeatureType;
+                    control.onlyVisiblelayers = oldOnlyVisibleLayers;
+                }
                 //control.highLight = oldHighlight;
 
                 $('#SearchWindow').modal('hide');
@@ -641,7 +683,7 @@ var initMap = function(){
             OpenLayers.Handler.Click,
             {
                 clearOnDeactivate:false,
-                serviceURL:'../../services/iren/findPipes.php',
+                serviceURL:GISCLIENT_URL + '/services/iren/findPipes.php',
                 distance:50,
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
@@ -708,43 +750,84 @@ var initMap = function(){
         geolocateControl,
 
         btnSearch = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
             iconclass:"glyphicon-white  glyphicon-info-sign", 
             title:"Pannello di ricerca",
             tbarpos:"first",
-            eventListeners: {
-                'activate': function(){queryToolbar.activate();},
-                'deactivate': function(){queryToolbar.deactivate();}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        queryToolbar.deactivate();
+                    }
+                    else
+                    {
+                        this.activate();
+                        queryToolbar.activate();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
         btnLayertree = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE,
+            id: 'button-layertree',
             exclusiveGroup: 'sidebar',
             iconclass:"icon-layers", 
             title:"Pannello dei livelli",
-            eventListeners: {
-                'activate': function(){sidebarPanel.show('layertree');},
-                'deactivate': function(){sidebarPanel.hide('layertree');}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        sidebarPanel.hide('layertree');
+                    }
+                    else
+                    {
+                        this.activate();
+                        sidebarPanel.show('layertree');
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
-        btnResult = new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
+        btnResult = new OpenLayers.Control.Button({ 
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-list-alt", 
             title:"Tabella dei risultati",
             tbarpos:"last",
-            eventListeners: {
-                'activate': function(){sidebarPanel.show('resultpanel');},
-                'deactivate': function(){sidebarPanel.hide('resultpanel');}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        sidebarPanel.hide('resultpanel');
+                    }
+                    else
+                    {
+                        this.activate();
+                        sidebarPanel.show('resultpanel');
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
 
-        new OpenLayers.Control.Button({tbarpos:"first",iconclass:"glyphicon-white glyphicon-resize-small", type: OpenLayers.Control.TYPE_TOGGLE, title:"Misure",
-
-            eventListeners: {
-                'activate': function(){measureToolbar.activate();},
-                'deactivate': function(){measureToolbar.deactivate();}
-            }
+        new OpenLayers.Control.Button({tbarpos:"first",iconclass:"glyphicon-white glyphicon-resize-small", title:"Misure",
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        measureToolbar.deactivate();
+                    }
+                    else
+                    {
+                        this.activate();
+                        measureToolbar.activate();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }  
         }),
 
 /*
@@ -757,17 +840,28 @@ var initMap = function(){
         }),
         
    */     
-        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", type: OpenLayers.Control.TYPE_TOGGLE, title:"Redline",
-
-            eventListeners: {
-                'activate': function(){redlineToolbar.activate();},
-                'deactivate': function(){redlineToolbar.deactivate();}
-            }
+        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", title:"Redline",
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        redlineToolbar.deactivate();
+                    }
+                    else
+                    {
+                        this.activate();
+                        redlineToolbar.activate();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }      
         }),
         
         pSelect,
 
         btnPrint = new OpenLayers.Control.PrintMap({
+            baseUrl:GISCLIENT_URL,
             tbarpos:"first", 
             //type: OpenLayers.Control.TYPE_TOGGLE, 
             baseUrl:self.baseUrl,
@@ -776,32 +870,49 @@ var initMap = function(){
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
             waitFor: 'panelready',
-            eventListeners: {
-                'activate': function(){
-                    var me = this;
-                    
-                    if($.trim($('#printpanel').html()) == '') {
-                        $("#printpanel").load('print_panel.html', function() {
-                            me.events.triggerEvent('panelready');
-                        });
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        sidebarPanel.hide('printpanel');
                     }
-                    sidebarPanel.show('printpanel');
-                },
-                'deactivate': function(){
-                    sidebarPanel.hide('printpanel');
+                    else
+                    {
+                        this.activate();
+                        var me = this;
+                    
+                        if($.trim($('#printpanel').html()) == '') {
+                            $("#printpanel").load('print_panel.html', function() {
+                                me.events.triggerEvent('panelready');
+                            });
+                        }
+                        sidebarPanel.show('printpanel');
+                    }
+                    sidebarPanel.handleEvent = false;
                 }
-            }
+            }      
         }),
         
-        new OpenLayers.Control.Button({
-            type: OpenLayers.Control.TYPE_TOGGLE, 
+        new OpenLayers.Control.Button({ 
             iconclass:"glyphicon-white  glyphicon-eye-open", 
             title:"Mappa di riferimento",
             tbarpos:"last",
-            eventListeners: {
-                'activate': function(){GisClientMap.overviewMap.show();},
-                'deactivate': function(){GisClientMap.overviewMap.hide();}
-            }
+            trigger: function() {
+                if (sidebarPanel.handleEvent)
+                {
+                    if (this.active) {
+                        this.deactivate();
+                        GisClientMap.overviewMap.hide();
+                    }
+                    else
+                    {
+                        this.activate();
+                        GisClientMap.overviewMap.show();
+                    }
+                    sidebarPanel.handleEvent = false;
+                }
+            }      
         })
         
    /*     
@@ -849,6 +960,8 @@ var initMap = function(){
     });
     map.events.register('zoomend', null, function(){
         $('#map-select-scale').val(map.getZoom());
+        if (queryToolbar.active)
+            queryToolbar.redraw();
     });
 
 
@@ -1049,4 +1162,13 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
         OpenLayers.Control.Panel.prototype.activateControl.apply(this, [control]);
     }
 });
-
+/*
+$(document).on('pagebeforeshow', null, function(){       
+    $(document).on('click', null,function(e) {
+        alert('Button click');
+    }); 
+    $(document).on('mouseup', null,function(e) {
+        alert('Button click');
+    }); 
+});
+*/

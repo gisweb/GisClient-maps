@@ -1,5 +1,5 @@
 OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
-    type: OpenLayers.Control.TYPE_TOGGLE,
+    //type: OpenLayers.Control.TYPE_TOGGLE,
     formId: undefined, //id del form di stampa
     loadingControl: undefined,
     baseUrl:null,
@@ -20,7 +20,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         $('#'+me.formId+' span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
         
         $.ajax({
-            url: me.baseUrl + 'services/print.php',
+            url: me.baseUrl + '/services/print.php',
             type: 'POST',
             data: params,
             dataType: 'json',
@@ -140,6 +140,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             date: $('#'+this.formId+' input[name="date"]').val(),
             dpi: $('#'+this.formId+' select[name="print_resolution"]').val(),
             srid: srid,
+            map: this.map.config.mapsetName,
             pixels_distance: pixelsDistance,
             copyrightString: copyrightString
         };
@@ -286,7 +287,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         params.request_type = 'get-box';
         
         $.ajax({
-            url: me.baseUrl + 'services/print.php',
+            url: me.baseUrl + '/services/print.php',
             type: 'POST',
             dataType: 'json',
             data: params,

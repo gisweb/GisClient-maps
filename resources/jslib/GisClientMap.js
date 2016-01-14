@@ -293,7 +293,7 @@ OpenLayers.GisClient = OpenLayers.Class({
     
     //SERVIVA PER IL TEMA UNICO IN CACHE
     addThemeLayer: function(oLayer){
-        var baseUrl = this.mapProxyBaseUrl + "/" + this.mapsetName +"/wmts/";
+        var baseUrl = this.mapProxyBaseUrl + this.projectName + "/" + "/" + this.mapsetName +"/wmts/";
         var layerParams = {
             "name": oLayer.name + '_tiles',
             "layer": oLayer.name + '_tiles',
@@ -318,20 +318,21 @@ OpenLayers.GisClient = OpenLayers.Class({
 
     //LAYER MAPSET WMTS COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
     addMapsetWMTS: function(){
-        var baseUrl = this.mapProxyBaseUrl + "/" + this.mapsetName +"/wmts/";
+        var baseUrl = this.mapProxyBaseUrl + "/"  + this.projectName + "/" + this.mapsetName +"/wmts/";
         var layerParams = {
             "name": this.mapsetName,
             "layer": this.mapsetName + '_tiles',
-            "url": baseUrl + "/" + this.mapsetName + "_tiles/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+            "url": baseUrl + this.mapsetName + "_tiles/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
             "style": "",
             "matrixSet": this.mapOptions.matrixSet,
             "requestEncoding": "REST",
             "maxExtent": this.mapOptions.tilesExtent, 
-            "zoomOffset": this.mapOptions.minZoomLevel,
+            "zoomOffset": this.mapOptions.levelOffset,
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
             "visibility":false,
             "serverResolutions":this.mapOptions.serverResolutions,
+            "gridResolution": this.mapOptions.resolutions[0],
             "isBaseLayer":false
         };
         this.mapsetTileLayer = new OpenLayers.Layer.WMTS(layerParams);
@@ -340,7 +341,7 @@ OpenLayers.GisClient = OpenLayers.Class({
 
     //LAYER MAPSET WMS COMPLETO IN CONFIGURAZINE DI AVVIO IN CACHE
     addMapsetWMS: function(){
-        var baseUrl = this.mapProxyBaseUrl + "/" + this.mapsetName + "/service";
+        var baseUrl = this.mapProxyBaseUrl + "/" + this.projectName + "/" + this.mapsetName + "/service";
         var layerParams = {
             "map": this.mapsetName,
             "exceptions": "xml",
