@@ -3,10 +3,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
 
 	/** 
-		* dumpSldUrl - url per il dump di sld
+	**** baseUrl - Gisclient service URL
 	*/
-	//TODO : PROBLEMA PATH
-	dumpSldUrl : '/gisclient/services/dumpsld.php',
+	baseUrl : '/gisclient',
 	
 
 	/** 
@@ -292,6 +291,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 					featureTypes=[];
 					for(var j=0, lenj=layer.nodes.length; j<lenj; j++) {
 						node = layer.nodes[j];
+                                                if (layer.params["LAYERS"].indexOf(node.layer) < 0){
+                                                    continue;
+                                                }
 						if(!(node.minScale && node.minScale < scale) && !(node.maxScale && node.maxScale > scale)){
 							//console.log(node.layer)
 							for(k in this.wfsCache[layer.id].featureTypes){
@@ -407,7 +409,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 						selectionLayer.mergeNewParams({SLD_BODY:sld});
 					else
 						var request = OpenLayers.Request.POST({
-							url: this.dumpSldUrl,
+							url: this.baseUrl + '/services/dumpsld.php',
 							data: sld,
 							callback: function(response){
 								selectionLayer.mergeNewParams({SLD: response.responseText});

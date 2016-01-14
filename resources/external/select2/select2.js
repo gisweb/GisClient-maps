@@ -350,6 +350,9 @@ the specific language governing permissions and limitations under the Apache Lic
 
 
     function markMatch(text, term, markup, escapeMarkup) {
+        if (typeof text !== 'string') {
+         text = ""+text;   
+        }
         var match=stripDiacritics(text.toUpperCase()).indexOf(stripDiacritics(term.toUpperCase())),
             tl=term.length;
 
