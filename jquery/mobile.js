@@ -1,6 +1,17 @@
 var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
+function adjustPanZoomBar(olControl, toolOffset){
+    var cZoom = $('.olControlPanZoomBar').offset();
+    if (toolOffset)
+    {
+        if (olControl.active)
+            $('.olControlPanZoomBar').offset({top: cZoom.top + toolOffset, left: cZoom.left } );
+        else
+            $('.olControlPanZoomBar').offset({top: cZoom.top - toolOffset, left: cZoom.left } );
+    }
+}
+
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
@@ -145,7 +156,7 @@ var initMap = function(){
 
     document.title = this.mapsetTitle;
 
-    var serviceURL = self.baseUrl + "services/bonificamarche/";
+    var serviceURL = self.baseUrl + "services/";
 
 
     //SETTO IL BASE LAYER SE IMPOSTATO
@@ -231,11 +242,11 @@ var initMap = function(){
     //
     
     if(ConditionBuilder) {
-        ConditionBuilder.baseUrl = GISCLIENT_URL;
+        ConditionBuilder.baseUrl = self.baseUrl;
         ConditionBuilder.init('.query');
     }
     var queryToolbar = new OpenLayers.GisClient.queryToolbar({
-        baseUrl: GISCLIENT_URL,
+        baseUrl: self.baseUrl,
         createControlMarkup:customCreateControlMarkup,
         resultTarget:document.getElementById("resultpanel"),
         resultLayout:"TABLE",
@@ -266,12 +277,19 @@ var initMap = function(){
             },
             'featureTypeSelected': function(fType) {
                 if(ConditionBuilder) {
-                    ConditionBuilder.baseUrl = GISCLIENT_URL;
+                    ConditionBuilder.baseUrl = self.baseUrl;
                     ConditionBuilder.setFeatureType(fType);
                 }
             },
             'featureselected': function(event) {
 
+                var self = this;
+                if(self.popupOpenTimeout) {
+                    clearTimeout(self.popupOpenTimeout);
+                    self.popupOpenTimeout = null;
+                    self.removePopup(event);
+                }
+                
                 var feature = event.feature,
                     featureType = feature.featureTypeName;
 
@@ -307,16 +325,24 @@ var initMap = function(){
                 $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]').css('background-color', 'white');
             },
             'featurehighlighted': function(event) {
-                var feature = event.feature,
-                    featureTypeName = feature.featureTypeName,
-                    featureType = GisClientMap.getFeatureType(featureTypeName);
+                var feature = event.feature;
 
-                if(featureType && featureType.title) {
-                    $('#sidebar-panel div.panel-title').html(featureType.title);
+                var self = this;
+                var queryResLayer = map.getLayersByName("wfsResults")[0];
+                if (queryResLayer.selectedFeatures.indexOf(feature) < 0 && POPUP_TIMEOUT > 0)
+                {
+                    self.popupOpenTimeout = setTimeout(function() {
+                        if (self.popup)
+                            self.map.addPopup(self.popup);
+                    }, POPUP_TIMEOUT);
                 }
             },
             'featureunhighlighted': function(event) {
-                $('#sidebar-panel div.panel-title').empty();
+                var self = this;
+                if(self.popupOpenTimeout) {
+                    clearTimeout(self.popupOpenTimeout);
+                    self.popupOpenTimeout = null;
+                }
             },
             'viewdetails': function(event) {
                 var featureType = event.featureType,
@@ -683,7 +709,7 @@ var initMap = function(){
             OpenLayers.Handler.Click,
             {
                 clearOnDeactivate:false,
-                serviceURL:GISCLIENT_URL + '/services/iren/findPipes.php',
+                serviceURL:self.baseUrl + 'services/iren/findPipes.php',
                 distance:50,
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
@@ -759,11 +785,14 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         queryToolbar.deactivate();
+                        adjustPanZoomBar(queryToolbar, 60);
                     }
                     else
                     {
                         this.activate();
                         queryToolbar.activate();
+                        adjustPanZoomBar(queryToolbar, 60);
+                        
                     }
                     sidebarPanel.handleEvent = false;
                 }
@@ -819,11 +848,13 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         measureToolbar.deactivate();
+                        adjustPanZoomBar(measureToolbar, 27);
                     }
                     else
                     {
                         this.activate();
                         measureToolbar.activate();
+                        adjustPanZoomBar(measureToolbar, 27);
                     }
                     sidebarPanel.handleEvent = false;
                 }
@@ -847,11 +878,13 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         redlineToolbar.deactivate();
+                        adjustPanZoomBar(redlineToolbar, 27);
                     }
                     else
                     {
                         this.activate();
                         redlineToolbar.activate();
+                        adjustPanZoomBar(redlineToolbar, 27);
                     }
                     sidebarPanel.handleEvent = false;
                 }
@@ -861,7 +894,6 @@ var initMap = function(){
         pSelect,
 
         btnPrint = new OpenLayers.Control.PrintMap({
-            baseUrl:GISCLIENT_URL,
             tbarpos:"first", 
             //type: OpenLayers.Control.TYPE_TOGGLE, 
             baseUrl:self.baseUrl,
@@ -887,6 +919,10 @@ var initMap = function(){
                                 me.events.triggerEvent('panelready');
                             });
                         }
+                        else {
+                            this.drawPrintArea();
+                        }
+                            
                         sidebarPanel.show('printpanel');
                     }
                     sidebarPanel.handleEvent = false;
@@ -1103,10 +1139,10 @@ var initMap = function(){
     });
 
     OpenLayers.ImgPath = "../resources/themes/openlayers/img/";
-    var GisClientBaseUrl = "/gisclient/"
+    var GisClientBaseUrl = GISCLIENT_URL + "/"
     GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:"",
+        mapProxyBaseUrl:MAPPROXY_URL,
         baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[

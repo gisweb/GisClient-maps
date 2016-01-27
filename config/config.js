@@ -6,5 +6,6 @@
 
 var GISCLIENT_URL = '/gisclient3';
 var MAPPROXY_URL = 'http://172.16.5.72/';
+var POPUP_TIMEOUT = 2000;
 
 

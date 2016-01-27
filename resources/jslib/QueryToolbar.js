@@ -21,6 +21,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     resultTarget:null,
     resultLayout:'TABLE',//LIST POPUP
     searchButtonHander: null,
+    popup: null,
+    popupOpenTimeout: null,
     
     vectorFeaturesOverLimit: [], //oggetti non renderizzati per il maxVectorFeatures
 
@@ -566,12 +568,89 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         return field;
     },
 
-    writeDataPopup: function(featureType){
+    writeDataPopup: function (event) {
+        var col, colIndex, values, aCols = [], relation;
+        var feature = event.feature;
+        var featureType = GisClientMap.getFeatureType(feature.featureTypeName);
 
-        //SCRIVE IL POPUP PER OGNI FEATURE
+        // **** fill popupInfo ****
 
+        for (var i = 0; i < featureType.properties.length; i++) {
+            col = featureType.properties[i];
+            if(col.header && col.resultType!=4 && col.resultType != 20 && col.relationType!=2){
+                aCols.push(col.name);
+            }
+        }; 
+        colIndex = aCols.length;
+        
+        var htmlPopup = '<span>' +featureType.title+ '</span><table class="featureTypeData"><tbody>';
+
+        
+        values = '';
+                    
+        for (var i = 0; i < colIndex; i++) {
+            var fieldName = aCols[i];
+            var field = this.getFieldByName(featureType, fieldName);
+            values += '<td feature-col="' + field.header + '">'+ this.writeDataAttribute(field.fieldType, feature.attributes[fieldName]) +'</td>';
+         }
+         
+        htmlPopup +=  '<tr featureType="'+featureType.typeName+'" featureId="'+feature.id+'">'+values+'</tr>';        
+
+        htmlPopup += '</tbody></table>';
+        
+        var popupInfo = '<div class="smalltable"><div class="featureTypeTitle">' + htmlPopup + '</div></div>';
+
+        var pPosX = event.object.handlers.feature.evt.layerX;
+        var pPosY = event.object.handlers.feature.evt.layerY;
+        var nMapXCenter = this.map.getExtent().getCenterPixel().x;
+        var nMapYCenter = this.map.getExtent().getCenterPixel().y;
+        
+        var oPopupPos = this.map.getLonLatFromPixel(new OpenLayers.Pixel(pPosX, pPosY));
+
+        var popup = new OpenLayers.Popup.FramedCloud(
+                "gcPopup",
+                oPopupPos,
+                new OpenLayers.Size(50, 50),
+                popupInfo,
+                new OpenLayers.Icon(
+        '',
+        new OpenLayers.Size(0, 0),
+        new OpenLayers.Pixel(0, 0)
+    ),
+    true,
+    null
+);
+popup.minSize = new OpenLayers.Size(300, 40);
+popup.maxSize = new OpenLayers.Size(300, 500);
+popup.autoSize = true;
+//popup.offset = 20;
+        popup.setBackgroundColor('#6a6a6a');
+        popup.setOpacity(.9);
+        //popup.anchor.offset.x = 5;
+        //popup.anchor.offset.y =  -8;
+        popup.padding = new OpenLayers.Bounds(2,2,2,2);
+        popup.keepInMap = true; 
+        //popup.contentDiv.className = "smalltable olPopupContent";
+        feature.popup = popup;
+        var self = this;
+        popup.onclick = function () {
+            return false
+        };
+
+        if (self.popup)
+            this.map.removePopup(self.popup);
+
+        self.popup = popup;
     },
 
+    removePopup: function (e) {
+		var feature=e.feature;
+		if(!feature) return;
+		if(feature.popup) this.map.removePopup(feature.popup);
+                feature.popup.blocks = new Array();
+		feature.popup.destroy();
+		feature.popup = null;
+    },
 
     initResultPanel: function(e) {
         var loadingControl = this.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
@@ -825,6 +904,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var me = this,
             feature = event.feature;
         
+        me.writeDataPopup(event);
         me.events.triggerEvent('featureselected', {feature:feature});
     },
     
@@ -839,6 +919,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var me = this,
             feature = event.feature;
 
+        me.writeDataPopup(event);
         me.events.triggerEvent('featurehighlighted', {feature:feature});
     },
     

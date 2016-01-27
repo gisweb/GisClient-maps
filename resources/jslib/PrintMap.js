@@ -36,6 +36,9 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
                         $('#'+me.formId+' a[role="pdf"] span[role="icon"]').removeClass('glyphicon-disabled').addClass('glyphicon-white');
                     }
                     
+                    var win = window.open(response.file, '_blank');
+                    win.focus();
+                    
                 } else alert(OpenLayers.i18n('Error'));
                 
                 if(me.loadingControl) me.loadingControl.minimizeControl();
@@ -91,6 +94,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
         me.events.register(waitForEvent, me, me.onToolReady);
         me.events.register('deactivate', me, me.removePrintArea);
+        me.events.register('show', me, me.drawPrintArea);
         
         me.map.events.register('moveend', me, me.boxMoved);
     },
@@ -340,7 +344,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         this.printBox = [lb.lon, lb.lat, rt.lon, rt.lat];
     },
     
-    removePrintarea: function() {
+    removePrintArea: function() {
         $('#print_box').hide();
     }
 });
