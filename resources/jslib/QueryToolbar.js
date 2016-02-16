@@ -522,6 +522,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         htmlTable = '<span>'+featureType.title+ ' ('+fLen+')';
         //link a tutte le features disabilitato per adesso... vediamo prima se serve
         if(false) htmlTable += ' <a href="#" zoomFType="'+featureType.typeName+'">Zoom</a>';
+        // **** Add links for xml/pdf export
+        htmlTable += ' <a href="#" " featureType="'+featureType.typeName+'" action="xls" style="float:right"><img src="../resources/themes/icons/xls.gif">&nbsp;</a>';
+        htmlTable += ' <a href="#" " featureType="'+featureType.typeName+'" action="pdf" style="float:right"><img src="../resources/themes/icons/acrobat.gif">&nbsp;</a>';
         htmlTable += '</span><table class="featureTypeData"><thead><tr>' + htmlHeaders + '</tr><tbody>';
         for (var j = 0; j < fLen; j++) {
             values = '<td feature-col="Azioni"><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+(featureType.zoomBuffer || 0)+'" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
@@ -797,6 +800,12 @@ popup.autoSize = true;
                                     me.getFeatureDetails(featureType, feature, relationName);
                                 }
                             break;
+                            case 'xls':
+                                me.getFeatureTypeXLS(featureType);
+                            break;
+                            case 'pdf':
+                            break;
+                         
                         }
                     }
                     
@@ -839,6 +848,73 @@ popup.autoSize = true;
             this.resultLayer.addFeatures([feature]);
         }
         return feature;
+    },
+    
+    getFeatureTypeXLS: function (featureType){
+        var data = [], fields = [], propLen, featLen;
+        var fType = GisClientMap.getFeatureType(featureType);
+        
+        if(!fType) return alert('Errore: il featureType '+featureType+' non esiste');
+        
+        propLen = fType.properties.length;
+        
+        for (var i = 0; i < propLen; i++) {
+            var col = fType.properties[i];
+            if(col.header && col.resultType!=4 && col.relationType!=2){
+                fields.push({field_name:col.name, title:col.header, type:col.fieldType});
+            }
+        }; 
+        
+        featLen = this.resultLayer.features.length;
+        
+        for (var j = 0; j < featLen; j++){
+            var feat = this.resultLayer.features[j];
+            if (feat.featureTypeName == featureType) {
+                var tmpArr = new Object;
+                for (var k = 0; k < fields.length; k++) {
+                    var field = fields[k];
+                    tmpArr [field.field_name] = feat.attributes[field.field_name];
+                }
+                data.push(tmpArr);
+            } 
+        }
+        
+        var params = {
+            export_format: 'xls',
+            feature_type: featureType,
+            data: data,
+            fields: fields
+        };
+        
+        var request = OpenLayers.Request.POST({
+            url: this.baseUrl + '/services/export.php',
+            data: JSON.stringify(params),
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            callback: function(response) {
+                    if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
+                        return alert('Errore di sistema');
+                    }
+                
+                    if (!response.responseText) {
+                        return alert('Nessun file genrato, errore non previsto');
+                    }
+                    
+                    var responseObj = JSON.parse(response.responseText);
+                    
+                    if (!responseObj.result || responseObj.result != 'ok') {
+                        var errMessage = 'Errore in generazione file xls';
+                        if (responseObj.error)
+                            errMessage += ' - Dettagli: ' + responseObj.error;
+                        return alert (errMessage);
+                    }
+                    
+                    window.location.assign(responseObj.file);
+
+            },
+            scope: this
+        });
     },
     
     getFeatureDetails: function(featureType, feature, relationName) {

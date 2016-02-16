@@ -188,7 +188,8 @@ var initMap = function(){
        // console.log(this.activeLayers)
 
         var chk = $("<input class='fast-navigate' type='checkbox'>");
-        $(".baseLbl").html("Livelli di base")
+        //$(".baseLbl").html("Livelli di base");
+        $(".baseLbl :checkbox").addClass('fast-navigate');
         $(".dataLbl")
         .html(" Naviga veloce sulla mappa")
         .append(chk);
@@ -791,6 +792,7 @@ var initMap = function(){
                     {
                         this.activate();
                         queryToolbar.activate();
+                        queryToolbar.controls[0].activate();
                         adjustPanZoomBar(queryToolbar, 60);
                         
                     }
@@ -1160,7 +1162,7 @@ var initMap = function(){
                 //new OpenLayers.Control.PinchZoom(),
 */
                 new OpenLayers.Control.LayerTree({
-                    emptyTitle:'Base vuota', 
+                    emptyTitle:'', 
                     div:OpenLayers.Util.getElement('layertree-tree')
                 }),
                 layerLegend

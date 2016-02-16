@@ -294,6 +294,27 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
 
+    toggleBaseLayerEnabled: function (obj, enable) {
+                var radios = document.getElementsByName(obj.id + "_radio");
+                jQuery.each(obj.baseTree.tree('getRoots'),function(index,node){
+                    titleSpan = jQuery(node.target).find(".tree-title");
+                    if (enable) {
+                        titleSpan.removeClass("tree-title-disabled");
+                    }
+                    else {
+                        titleSpan.addClass("tree-title-disabled");
+                        for (var i = 0; i< radios.length;  i++){
+                            radios[i].checked = false;
+                        }
+                        obj.baseTree.tree('collapseAll');
+                    }
+                });
+                for (var i = 0; i< radios.length;  i++){
+                    radios[i].disabled = !enable;
+                }
+                if (!enable)
+                    obj.map.setBaseLayer(obj.map.getLayersByName('EMPTY_BASE_LAYER')[0]);
+    },
 
     createBaseTree: function(){
 
@@ -304,13 +325,23 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         //SE HO IL TITOLO DEL BASELAYER VUOTO AGGIUNGO IL TITOLO AL NODO DELL'ALBERO E SPSOSTO IL NODO IN ROOT 
         //ALTRIMENTI ELIMINO IL NODO DALL'ALBERO (BASE VUOTA NASCOSTO)
-        if(this.emptyTitle == '')
+        if(this.emptyTitle == '') {
+            
+            var chkEnableBaseLayers = document.createElement('input');
+            chkEnableBaseLayers.type = 'checkbox';
+            chkEnableBaseLayers.id = 'enableBaseLayers';
+            chkEnableBaseLayers.onchange = function () {
+                self.toggleBaseLayerEnabled(self, this.checked);
+            }
+
+            this.baseLbl.innerText = ' Usa sfondo cartografico';
+            this.baseLbl.appendChild(chkEnableBaseLayers);
+            
             this.baselayerData = this.baselayerData.slice(1);
-        else{
+        } else {
             //this.baselayerData[0] = this.baselayerData[0].children[0];
             this.baselayerData[0].text = this.emptyTitle;
         }
-
 
         var ulbaseElem = document.createElement("ul");
         OpenLayers.Element.addClass(ulbaseElem, "easyui-tree");
@@ -349,6 +380,9 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         jQuery('input:radio[name="' + radioName+ '"]').change(function(){
             self.map.setBaseLayer(self.map.getLayer(this.id));
         });
+        
+      if(this.emptyTitle == '')
+          this.toggleBaseLayerEnabled(self, false);
 
     },
 
