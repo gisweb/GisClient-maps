@@ -152,9 +152,20 @@ div.olMapViewport {
     display: block;
     height: 25px;
     width: 23em;
-    margin-left: -1px;
+    //margin-left: -1px;
 }
 .map-layout #map-toolbars .olControlQueryMapSelect .olOptionDisabled {
+    color:#aaaaaa;
+}
+
+.map-layout #map-toolbars .olControlReportMapSelect {
+    font-size: 10px;
+    display: block;
+    height: 25px;
+    width: 23em;
+    //margin-left: -1px;
+}
+.map-layout #map-toolbars .olControlReportMapSelect .olOptionDisabled {
     color:#aaaaaa;
 }
 

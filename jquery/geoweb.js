@@ -138,7 +138,7 @@ var customCreateControlMarkup = function(control) {
     var button = document.createElement('a'),
         icon = document.createElement('span'),
         textSpan = document.createElement('span');
-    //icon.className="myicon glyphicon-white ";
+    //icon.className="myicon glyphicon-whitLIKEe ";
     if(control.tbarpos) button.className += control.tbarpos;
     if(control.iconclass) icon.className += control.iconclass;
     button.appendChild(icon);
@@ -172,7 +172,7 @@ var initMap = function(){
 
     sidebarPanel.init('#sidebar-panel');
 
-    
+
     //SE HO SETTATO LA NAVIGAZIONE VELOCE????
     if(this.mapsetTiles){
         for(i=0;i<map.layers.length;i++){
@@ -187,17 +187,21 @@ var initMap = function(){
 
        // console.log(this.activeLayers)
 
-        $(".dataLbl").html('<input type="checkbox" name="checkbox_fastNavigate" id="checkbox_fastNavigate" class="custom" data-mini="true"><label for="checkbox_fastNavigate">Attiva navigazione veloce</label>');
-        $("#checkbox_fastNavigate").checkboxradio();                     
-        $("#checkbox_fastNavigate").prop( "checked", true ).checkboxradio( "refresh" );
-                
+        var chk = $("<input class='fast-navigate' type='checkbox'>");
+        //$(".baseLbl").html("Livelli di base");
+        $(".baseLbl :checkbox").addClass('fast-navigate');
+        $(".dataLbl")
+        .html(" Naviga veloce sulla mappa")
+        .append(chk);
         $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
-        
+        chk.attr("checked",true);
+
         var self = this;
-        $("#checkbox_fastNavigate").change(function(){
-              
+        chk.on("click",function(){
+
             //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
-            if(this.checked){
+
+            if($(this).is(':checked')){
                 $(".dataLayersDiv").hide();
                 $("div.fast-navigate").show();
                 self.activeLayers = [];
@@ -218,11 +222,14 @@ var initMap = function(){
                     self.activeLayers[i].setVisibility(true);
                 }
             }
-            
-            $("#checkbox_fastNavigate").checkboxradio("refresh");
-        });
 
-    }
+
+
+        })
+
+
+
+  }
 
 /*
     var vectorEditor = new OpenLayers.Editor(map, {
@@ -317,7 +324,7 @@ var initMap = function(){
             }
             form += '</table>';
 
-            form += '<button type="submit" class="btn btn-default ui-btn ui-shadow ui-corner-all">Filtra</button>'+
+            form += '<button type="submit" class="btn btn-default">Filtra</button>'+
                 '</form>';
              
             $('#ricerca-report').empty().append(form);
@@ -344,7 +351,7 @@ var initMap = function(){
                                 suggest: query.term,
                                 field_id: fieldId,
                                 filtervalue: filterValue
-        },
+                            },
                             dataType: 'json',
                             success: function(data) {
                                 var results = [];
@@ -455,7 +462,7 @@ var initMap = function(){
                             var elemTop = rowMarker[0].offsetTop;
                             if (elemTop <= docViewTop && me.dataLoading == false){
                                 me.currentPage += 1;
-                                    me.getReportData(event.reportID, self.currentPage, event.filter);
+                                me.getReportData(event.reportID, self.currentPage, event.filter);
                             }
                         }
                     });
@@ -633,7 +640,7 @@ var initMap = function(){
             } else {
                 $('li[role="advanced-search"]').hide();
             }
-                
+                          
             if(selectedFeatureType == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS ||
                 selectedFeatureType == OpenLayers.GisClient.queryToolbar.ALL_LAYERS) {
                 return alert('Seleziona un livello prima');
@@ -700,7 +707,7 @@ var initMap = function(){
             if(mode == 'default') {
                 form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>';
             }
-            form += '<button type="submit" class="btn btn-default ui-btn ui-shadow ui-corner-all">Cerca</button>'+
+            form += '<button type="submit" class="btn btn-default">Cerca</button>'+
                 '</form>';
             
             $('#ricerca').empty().append(form);

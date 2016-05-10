@@ -198,18 +198,29 @@
 
 }
 .olControlQueryMapSelect {
-  position: absolute;
+  position: static;
   width: 200px;
   height:80px;
 
-  left:8px;
-  top:35px;
+  margin-left:8px;
+  margin-top:2px;
 }
 .olControlQueryMapSelect select{
   width:250px;
 }
 
+.olControlReportMapSelect {
+  position: static;
+  width: 200px;
+  height:80px;
 
+  margin-left:8px;
+  margin-right:8px;
+  margin-top:2px;
+}
+.olControlReportMapSelect select{
+  width:250px;
+}
 
 #map-sidebarsss .olButton .icon {
     margin: 10px;
@@ -328,4 +339,13 @@ div.fast-navigate {
 .segnalazioni p{
   font-size: 9px;
   font-weight: normal;
+}
+
+.ui-checkbox-partial:after {
+    background-image: url("../resources/themes/default/images/check-partial.png");
+    background-color: #38c !important;
+    border-color: #38c !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #059 !important;
+    opacity: 1 !important;
 }

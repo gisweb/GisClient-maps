@@ -3,6 +3,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     formId: undefined, //id del form di stampa
     loadingControl: undefined,
     baseUrl:null,
+    defaultLayers: [],
     waitFor: undefined, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
     //passare l'url del servizio stampa per non doverlo cablare!
     
@@ -161,9 +162,17 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         //Setto i tiles
         var tiles = [];
 
+        var layers = this.map.layers;
+        var mapsetTilesActive = false;
         
-        $.each(this.map.layers, function(key, layer) {
-            if (!layer.getVisibility()) return;
+        if (GisClientMap.mapsetTiles){
+            if (GisClientMap.mapsetTileLayer.getVisibility()) {
+                mapsetTilesActive = true;
+                layers = self.defaultLayers;
+            }
+        }
+        $.each(layers, function(key, layer) {
+            if (!layer.getVisibility() && !mapsetTilesActive) return;
             //if (!layer.calculateInRange()) return;
             var tile;
             var layerUrl = layer.url;

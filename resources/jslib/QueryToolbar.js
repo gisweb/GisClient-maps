@@ -801,9 +801,10 @@ popup.autoSize = true;
                                 }
                             break;
                             case 'xls':
-                                me.getFeatureTypeXLS(featureType);
+                                me.exportFeatureType(featureType, 'xls');
                             break;
                             case 'pdf':
+                                me.exportFeatureType(featureType, 'pdf');
                             break;
                          
                         }
@@ -850,7 +851,7 @@ popup.autoSize = true;
         return feature;
     },
     
-    getFeatureTypeXLS: function (featureType){
+    exportFeatureType: function (featureType, format){
         var data = [], fields = [], propLen, featLen;
         var fType = GisClientMap.getFeatureType(featureType);
         
@@ -880,7 +881,7 @@ popup.autoSize = true;
         }
         
         var params = {
-            export_format: 'xls',
+            export_format: format,
             feature_type: featureType,
             data: data,
             fields: fields
@@ -893,25 +894,31 @@ popup.autoSize = true;
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             callback: function(response) {
+                    var fmt = format;
                     if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
                         return alert('Errore di sistema');
                     }
                 
                     if (!response.responseText) {
-                        return alert('Nessun file genrato, errore non previsto');
+                        return alert('Nessun file generato, errore non previsto');
                     }
                     
                     var responseObj = JSON.parse(response.responseText);
                     
                     if (!responseObj.result || responseObj.result != 'ok') {
-                        var errMessage = 'Errore in generazione file xls';
+                        var errMessage = 'Errore in generazione file';
                         if (responseObj.error)
                             errMessage += ' - Dettagli: ' + responseObj.error;
                         return alert (errMessage);
                     }
                     
-                    window.location.assign(responseObj.file);
-
+                    if (fmt == 'xls') {
+                        window.location.assign(responseObj.file);
+                    }
+                    else {
+                        var win = window.open(responseObj.file, '_blank');
+                        win.focus();
+                    }
             },
             scope: this
         });
