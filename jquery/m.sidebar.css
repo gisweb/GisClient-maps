@@ -338,3 +338,20 @@ div.fast-navigate {
   font-size: 9px;
   font-weight: normal;
 }
+
+.ui-checkbox-partial:after {
+    background-image: url("../resources/themes/default/images/check-partial.png");
+    background-color: #38c !important;
+    border-color: #38c !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #059 !important;
+    opacity: 1 !important;
+}
+
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
+    text-shadow: none
+}
+
+.ui-btn.close {
+    opacity: .7
+}

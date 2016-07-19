@@ -36,9 +36,11 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
             node.style.display = (this.layerIsVisible(layer) ? 'block' : 'none');
             nodeHtml = '<p>'+layer.title+'</p>';
             for(j = 0; j < legendUrls.length; j++) {
-                nodeHtml += '<img src="'+legendUrls[j]+'"><br>';
+                var itemID = 'legend_'+layer.id+'_url_'+j;
+                this.checkImgSize(legendUrls[j], itemID);
+                nodeHtml += '<div id='+itemID+'><img src="'+legendUrls[j]+'"><br></div>';
             }
-            node.innerHTML = nodeHtml;
+            node.innerHTML = nodeHtml + '<br>';
             
             legendNodes.push(node);
         }
@@ -74,7 +76,8 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                     OpenLayers.Util.extend(params, layer.params);
                     OpenLayers.Util.extend(params, {
                         REQUEST: 'GetLegendGraphic',
-                        LAYER: layerName
+                        LAYER: layerName,
+                        WIDTH: 500
                     });
                     delete params.LAYERS;
                     
@@ -127,6 +130,27 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
             }
         }
         return visible;
+    },
+    
+    // **** Remove elements with empty legend
+    checkImgSize: function(imgUrl, itemID) {
+        var img = new Image();
+        img.src = imgUrl;
+        img.itemID = itemID;
+        img.onload = function() {
+            if (this.height <=1) {
+                var item = document.getElementById(this.itemID);
+                if (item) {
+                    var parentDiv = item.parentNode;
+                    item.remove();
+                    if (parentDiv.getElementsByTagName('div').length == 0)
+                        parentDiv.remove();
+                }
+            }
+        }
+
     }
+
+    
     
 });

@@ -25,6 +25,8 @@ var sidebarPanel = {
         self.$element = $(selector);
         
         $('.panel-close', self.$element).click(function(){
+            GisClientMap.map.getControlsBy('id', 'button-layertree')[0].deactivate();
+            GisClientMap.map.getControlsBy('id', 'button-resultpanel')[0].deactivate();
             self.close();
         });
         $('.panel-expand', self.$element).click(function(){
@@ -152,6 +154,7 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
+    map.Z_INDEX_BASE['Popup'] = 950;
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -963,7 +966,9 @@ var initMap = function(){
         createControlMarkup:customCreateControlMarkup
     });
     
-    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
+    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){
+                map.currentControl && map.currentControl.deactivate();
+                map.currentControl=this}}});
     map.defaultControl = defaultControl;
     
     var geolocateControl = new OpenLayers.Control.Geolocate({
@@ -976,13 +981,23 @@ var initMap = function(){
             enableHighAccuracy: true, // required to turn on gps requests!
             maximumAge: 3000,
             timeout: 50000
+        },
+        eventListeners: {
+            'activate': function(){
+                var self=this;
+                self.panel_div.innerHTML +='<span class="floating-message">Rilevamento posizione in corso</span>';
+            }
         }
     });
     geolocateControl.events.register('locationfailed', self, function() {
-        alert('Impossibile ottenere la posizione dal GPS');
+        alert('Posizione GPS non acquisita');
+        $('.floating-message').remove();
+        map.getControlsByClass("OpenLayers.Control.Geolocate")[0].deactivate();
     });
     geolocateControl.events.register('locationuncapable', self, function() {
-        alert('Impossibile ottenere la posizione dal GPS');
+        alert('Acquisizione della posizione GPS non supportata dal browser');
+        $('.floating-message').remove();
+        map.getControlsByClass("OpenLayers.Control.Geolocate")[0].deactivate();
     });
     geolocateControl.events.register('locationupdated', self, function(event) {
         var point = event.point;
@@ -998,7 +1013,14 @@ var initMap = function(){
     sideBar.addControls([
         //new OpenLayers.Control.ZoomIn({tbarpos:"first", iconclass:"glyphicon-white glyphicon-white glyphicon-plus", title:"Zoom avanti"}),
 
-        new OpenLayers.Control.ZoomBox({tbarpos:"first", iconclass:"glyphicon-white glyphicon-zoom-in", title:"Zoom riquadro", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}}),
+        new OpenLayers.Control.ZoomBox({tbarpos:"first", iconclass:"glyphicon-white glyphicon-zoom-in", title:"Zoom riquadro", eventListeners: {
+                'activate': function(){
+                    map.currentControl && map.currentControl.deactivate();
+                    map.getControlsByClass("OpenLayers.Control.TouchNavigation")[0].dragPan.deactivate();
+                    map.currentControl=this},
+                'deactivate': function(){
+                    map.getControlsByClass("OpenLayers.Control.TouchNavigation")[0].dragPan.activate();}
+            }}),
         new OpenLayers.Control.ZoomOut({iconclass:"glyphicon-white glyphicon-zoom-out", title:"Zoom indietro"}),
         defaultControl,
         new OpenLayers.Control.Button({
@@ -1022,14 +1044,14 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         queryToolbar.deactivate();
-                        adjustPanZoomBar(queryToolbar, 60);
+                        //adjustPanZoomBar(queryToolbar, 60);
                     }
                     else
                     {
                         this.activate();
                         queryToolbar.activate();
                         queryToolbar.controls[0].activate();
-                        adjustPanZoomBar(queryToolbar, 60);
+                        //adjustPanZoomBar(queryToolbar, 60);
                         
                     }
                     sidebarPanel.handleEvent = false;
@@ -1057,7 +1079,8 @@ var initMap = function(){
                 }
             }  
         }),
-        btnResult = new OpenLayers.Control.Button({ 
+        btnResult = new OpenLayers.Control.Button({
+            id: 'button-resultpanel',
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-list-alt", 
             title:"Tabella dei risultati",
@@ -1088,14 +1111,14 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         reportToolbar.deactivate();
-                        adjustPanZoomBar(reportToolbar, 60);
+                        //adjustPanZoomBar(reportToolbar, 60);
                     }
                     else
                     {
                         this.activate();
                         reportToolbar.activate();
                         //queryToolbar.controls[0].activate();
-                        adjustPanZoomBar(reportToolbar, 60);
+                        //adjustPanZoomBar(reportToolbar, 60);
                         
                     }
                     sidebarPanel.handleEvent = false;
@@ -1110,13 +1133,13 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         measureToolbar.deactivate();
-                        adjustPanZoomBar(measureToolbar, 27);
+                        //adjustPanZoomBar(measureToolbar, 27);
                     }
                     else
                     {
                         this.activate();
                         measureToolbar.activate();
-                        adjustPanZoomBar(measureToolbar, 27);
+                        //adjustPanZoomBar(measureToolbar, 27);
                     }
                     sidebarPanel.handleEvent = false;
                 }
@@ -1140,13 +1163,13 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         redlineToolbar.deactivate();
-                        adjustPanZoomBar(redlineToolbar, 27);
+                        //adjustPanZoomBar(redlineToolbar, 27);
                     }
                     else
                     {
                         this.activate();
                         redlineToolbar.activate();
-                        adjustPanZoomBar(redlineToolbar, 27);
+                        //adjustPanZoomBar(redlineToolbar, 27);
                     }
                     sidebarPanel.handleEvent = false;
                 }
@@ -1409,19 +1432,17 @@ var initMap = function(){
         baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[
-                new OpenLayers.Control.Navigation(),
+                //new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
-                new OpenLayers.Control.PanZoomBar(),
+                //new OpenLayers.Control.PanZoomBar(),
                 new OpenLayers.Control.ScaleLine(),
-                /*
                 new OpenLayers.Control.TouchNavigation({
                     dragPanOptions: {
                         enableKinetic: true
                     }
                 }),
                 //new OpenLayers.Control.PinchZoom(),
-*/
                 new OpenLayers.Control.LayerTree({
                     emptyTitle:'', 
                     div:OpenLayers.Util.getElement('layertree-tree')

@@ -501,4 +501,13 @@ olOptionDisabled
     0% { opacity: 1.0; }
     50% { opacity: 0.3; }
     100% { opacity: 1.0; }
-} 
+}
+
+.floating-message {
+    position: absolute;
+    top: 10px;
+    background: silver;
+    padding: 4px;
+    left: -250px;
+    white-space: nowrap;
+}

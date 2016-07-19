@@ -25,6 +25,8 @@ var sidebarPanel = {
         self.$element = $(selector);
         
         $('.panel-close', self.$element).click(function(){
+            GisClientMap.map.getControlsBy('id', 'button-layertree')[0].deactivate();
+            GisClientMap.map.getControlsBy('id', 'button-resultpanel')[0].deactivate();
             self.close();
         });
         $('.panel-expand', self.$element).click(function(){
@@ -152,6 +154,7 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
+    map.Z_INDEX_BASE['Popup'] = 950;
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -983,13 +986,21 @@ var initMap = function(){
             enableHighAccuracy: true, // required to turn on gps requests!
             maximumAge: 3000,
             timeout: 50000
+        },
+        eventListeners: {
+            'activate': function(){
+                var self=this;
+                self.title="Rilevamento posizione in corso";
+            }
         }
     });
     geolocateControl.events.register('locationfailed', self, function() {
-        alert('Impossibile ottenere la posizione dal GPS');
+        alert('Posizione GPS non acquisita');
+        map.getControlsByClass("OpenLayers.Control.Geolocate")[0].deactivate();
     });
     geolocateControl.events.register('locationuncapable', self, function() {
-        alert('Impossibile ottenere la posizione dal GPS');
+        alert('Acquisizione della posizione GPS non supportata dal browser');
+        map.getControlsByClass("OpenLayers.Control.Geolocate")[0].deactivate();
     });
     geolocateControl.events.register('locationupdated', self, function(event) {
         var point = event.point;
@@ -1065,6 +1076,7 @@ var initMap = function(){
             }  
         }),
         btnResult = new OpenLayers.Control.Button({ 
+            id: 'button-resultpanel',
             exclusiveGroup: 'sidebar',
             iconclass:"glyphicon-white glyphicon-list-alt", 
             title:"Tabella dei risultati",

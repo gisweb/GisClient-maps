@@ -576,6 +576,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var feature = event.feature;
         var featureType = GisClientMap.getFeatureType(feature.featureTypeName);
 
+        if (!event.object.handlers.feature.hasOwnProperty('evt'))
+            return;
         // **** fill popupInfo ****
 
         for (var i = 0; i < featureType.properties.length; i++) {
