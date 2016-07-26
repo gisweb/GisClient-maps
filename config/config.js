@@ -8,4 +8,9 @@ var GISCLIENT_URL = '/gisclient3';
 var MAPPROXY_URL = 'http://172.16.5.72/';
 var POPUP_TIMEOUT = 2000;
 
+// **** Numero massimo di oggetti per layer in interrogazione
+var MAX_LAYER_FEATURES = 100;
+// **** Numero massimo totale di oggetti in interrogazione
+var MAX_QUERY_FEATURES = 500;
+
 

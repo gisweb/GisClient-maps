@@ -339,6 +339,10 @@ div.fast-navigate {
   font-weight: normal;
 }
 
+.olControlPIPESelectActive {
+    cursor:crosshair;
+}
+
 .ui-checkbox-partial:after {
     background-image: url("../resources/themes/default/images/check-partial.png");
     background-color: #38c !important;

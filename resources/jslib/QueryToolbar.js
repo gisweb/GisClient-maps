@@ -38,7 +38,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     layers:this.visibleLayers,       
                     queryFilters:this.queryFilters, 
                     resultLayer:this.resultLayer, 
-                    maxWfsFeatures:this.maxWfsFeatures,   
+                    maxFeatures:this.maxWfsFeatures,   
                     maxVectorFeatures:this.maxVectorFeatures,       
                     handlerOptions: {
                         irregular: true
@@ -58,7 +58,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     layers:this.visibleLayers,                    
                     queryFilters:this.queryFilters, 
                     resultLayer:this.resultLayer, 
-                    maxWfsFeatures:this.maxWfsFeatures,   
+                    maxFeatures:this.maxWfsFeatures,   
                     maxVectorFeatures:this.maxVectorFeatures,   
                     handlerOptions: {
                         sides: 30
@@ -78,7 +78,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     layers:this.visibleLayers,                    
                     queryFilters:this.queryFilters, 
                     resultLayer:this.resultLayer, 
-                    maxWfsFeatures:this.maxWfsFeatures,   
+                    maxFeatures:this.maxWfsFeatures,   
                     maxVectorFeatures:this.maxVectorFeatures,   
                     handlerOptions: {
                         irregular: false,

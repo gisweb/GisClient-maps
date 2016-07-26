@@ -36,6 +36,8 @@ var sidebarPanel = {
             self.collapse();
         });  
 
+        $('.panel-clearresults').hide();
+        
         // **** Avoid ghost chicks from JQuery/Openlayers conflicts in mobile browsers
         $("#map-sidebar").unbind('mouseup').mouseup(function(e){
             self.handleEvent = true;
@@ -154,7 +156,8 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
-    map.Z_INDEX_BASE['Popup'] = 950;
+    map.Z_INDEX_BASE['Popup'] = 1500;
+    map.Z_INDEX_BASE['Control'] = 1550;
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -498,6 +501,8 @@ var initMap = function(){
         div:document.getElementById("map-toolbar-query"),
         autoActivate:false,
         saveState:true,
+        maxWfsFeatures:MAX_LAYER_FEATURES,
+        maxVectorFeatures:MAX_QUERY_FEATURES,
         eventListeners: {
             //'startQueryMap': function() { sidebarPanel.show('resultpanel');},
             'endQueryMap': function(event) {        //Aggiungo l'animazione (???? da spostare sulla pagina)
@@ -511,6 +516,8 @@ var initMap = function(){
                     if(event.vectorFeaturesOverLimit) {
                         alert('I risultati dell\'interrogazione sono troppi: alcuni oggetti non sono stati disegnati su mappa ');
                     }
+                    
+                    $('.panel-clearresults').show();
                     //console.log(event.mode);
                     //console.log(event.layer.getDataExtent());
                     if(event.mode == 'fast') {
@@ -846,7 +853,9 @@ var initMap = function(){
         event.preventDefault();
         
         queryToolbar.clearResults();
-        
+        if ($('#resultpanel').is(":visible"))
+            sidebarPanel.hide();
+        this.style.display = 'none';
         //sidebarPanel.close();
     });
 
@@ -955,14 +964,25 @@ var initMap = function(){
     var pSelect = new OpenLayers.Control.PIPESelect(
             OpenLayers.Handler.Click,
             {
-                clearOnDeactivate:false,
+                clearOnDeactivate:true,
                 serviceURL:self.baseUrl + 'services/iren/findPipes.php',
                 distance:50,
                 highLight: true,
                 iconclass:"glyphicon-white glyphicon-tint", 
                 tbarpos:"last", 
                 title:"Ricerca valvole",
-                eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
+                trigger: function() {
+                    if (this.active) {
+                        this.deactivate();
+                    }
+                    else
+                    {
+                        sidebarPanel.close();
+                        map.currentControl.deactivate();
+                        map.currentControl=this;
+                        this.activate();
+                    }
+                }
             }
         );
 

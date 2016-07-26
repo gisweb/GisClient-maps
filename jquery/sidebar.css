@@ -338,3 +338,7 @@ div.fast-navigate {
   font-size: 9px;
   font-weight: normal;
 }
+
+.olControlPIPESelectActive {
+    cursor:crosshair;
+}
