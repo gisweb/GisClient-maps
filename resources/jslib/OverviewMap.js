@@ -56,8 +56,17 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         //console.log(this)
 
         var options = {};
-        OpenLayers.Util.extend(options, GisClientMap.mapOptions);
-
+        
+        // **** Add resolution levels
+        options['resolutions'] = [];
+        for (var l=0; l< GisClientMap.mapOptions.resolutions.length; l++)
+            options.resolutions[l] = GisClientMap.mapOptions.resolutions[l];
+        
+        for (var l=0; l<this.ovMapAddResolutions; l++)
+            options.resolutions.unshift(options.resolutions[0]*2);
+        
+        OpenLayers.Util.applyDefaults(options, GisClientMap.mapOptions);
+        
         OpenLayers.Util.extend(options, {
             controls: [],
             //maxResolution: 'auto',
@@ -66,10 +75,6 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
             resolutions: GisClientMap.mapOptions.serverResolutions,
             projection: this.map.projection
         });
-
-        // **** Add resolution levels
-        for (var l=0; l<this.ovMapAddResolutions; l++)
-            options.resolutions.unshift(options.resolutions[0]*2);
 
         var layers = [],
             len = this.layers.length, layer, i, olLayer, refMapOptions;

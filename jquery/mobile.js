@@ -965,15 +965,19 @@ var initMap = function(){
                 tbarpos:"last", 
                 title:"Ricerca valvole",
                 trigger: function() {
-                    if (this.active) {
-                        this.deactivate();
-                    }
-                    else
+                    if (sidebarPanel.handleEvent)
                     {
-                        sidebarPanel.close();
-                        map.currentControl.deactivate();
-                        map.currentControl=this;
-                        this.activate();
+                        if (this.active) {
+                            this.deactivate();
+                        }
+                        else
+                        {
+                            sidebarPanel.close();
+                            map.currentControl.deactivate();
+                            map.currentControl=this;
+                            this.activate();
+                        }
+                        sidebarPanel.handleEvent = false;
                     }
                 }
             }
