@@ -1,6 +1,7 @@
 OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewMap, {
 
-
+    ovMapAddResolutions: 3,
+    
     initialize: function(options) {
         //OpenLayers.Control.OverviewMap.prototype.initialize.apply(this, [options]);
         this.layers = [];
@@ -65,6 +66,10 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
             resolutions: GisClientMap.mapOptions.serverResolutions,
             projection: this.map.projection
         });
+
+        // **** Add resolution levels
+        for (var l=0; l<this.ovMapAddResolutions; l++)
+            options.resolutions.unshift(options.resolutions[0]*2);
 
         var layers = [],
             len = this.layers.length, layer, i, olLayer, refMapOptions;
