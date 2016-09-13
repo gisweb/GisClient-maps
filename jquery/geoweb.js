@@ -891,25 +891,27 @@ var initMap = function(){
         }
     });
 
-
+    var isGeodesicMeasure = (this.map.projection == 'EPSG:3857' || this.map.projection == 'EPSG:4326')?true:false;
 
     var measureToolbar = new OpenLayers.Control.Panel({
         createControlMarkup:customCreateControlMarkup,
         div:document.getElementById("map-toolbar-measure"),
         autoActivate:false,
-        saveState:true
+        saveState:true,
     })
     var controls = [
             new OpenLayers.Control.DynamicMeasure(OpenLayers.Handler.Path,{
                 iconclass:"glyphicon-white glyphicon-resize-horizontal", 
                 text:"Misura distanza", 
                 title:"Misura distanza",
+                geodesic:isGeodesicMeasure,
                 eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
             }),
             new OpenLayers.Control.DynamicMeasure(OpenLayers.Handler.Polygon,{
                 iconclass:"glyphicon-white glyphicon-retweet", 
                 text:"Misura superficie", 
                 title:"Misura superficie",
+                geodesic:isGeodesicMeasure,
                 eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
             })
         ]
