@@ -1204,6 +1204,8 @@ var initMap = function(){
             iconclass:"glyphicon-white glyphicon-print", 
             title:"Pannello di stampa",
             waitFor: 'panelready',
+            defaultTemplateHTML: PRINT_TEMPLATE_HTML,
+            defaultTemplatePDF: PRINT_TEMPLATE_PDF,
             trigger: function() {
                 if (sidebarPanel.handleEvent)
                 {

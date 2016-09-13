@@ -3,6 +3,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
     formId: undefined, //id del form di stampa
     loadingControl: undefined,
     baseUrl:null,
+    defaultTemplateHTML: null,
+    defaultTemplatePDF: null,
     defaultLayers: [],
     waitFor: undefined, //se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
     //passare l'url del servizio stampa per non doverlo cablare!
@@ -109,7 +111,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var pixelsDistance  = size.w / distance;
         var scaleMode = $('#'+this.formId+' input[name="scale_mode"]:checked').val();
         var scale = $('#'+this.formId+' input[name="scale"]').val();
-        var currentScale = this.map.getScale();
+        var currentScale = this.map.getScale()
         if(scaleMode == 'user') {
             pixelsDistance = pixelsDistance / (scale/currentScale);
         }
@@ -121,7 +123,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             var center = this.map.getCenter();
         }
         
-        
+        var pFormat = $('#'+this.formId+' input[name="format"]:checked').val();
+
         var copyrightString = null;
         var searchControl = this.map.getControlsByClass('OpenLayers.Control.Attribution');
         if(searchControl.length > 0) {
@@ -134,7 +137,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var params = {
             viewport_size: [size.w, size.h],
             center: [center.lon, center.lat],
-            format: $('#'+this.formId+' input[name="format"]:checked').val(),
+            format: pFormat,
             printFormat: $('#'+this.formId+' select[name="formato"]').val(),
             direction: $('#'+this.formId+' input[name="direction"]:checked').val(),
             scale_mode: scaleMode,
@@ -150,6 +153,11 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
             copyrightString: copyrightString
         };
 
+        if (pFormat == 'HTML' && this.defaultTemplateHTML)
+            params['template'] = this.defaultTemplateHTML;
+        else if (pFormat == 'PDF' && this.defaultTemplatePDF)
+            params['template'] = this.defaultTemplatePDF;
+        
         return params;
         
     },
