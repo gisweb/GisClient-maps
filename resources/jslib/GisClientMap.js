@@ -93,6 +93,8 @@ OpenLayers.GisClient = OpenLayers.Class({
     mapsetWMS: null,
 
     mapsetWMTS: null,
+    
+    useGMaps: false,
 
     initialize : function(url, map, options){
 
@@ -138,7 +140,7 @@ OpenLayers.GisClient = OpenLayers.Class({
 
         var responseJSON = new OpenLayers.Format.JSON().read(response.responseText);
         //stop waiting
-        var script,googleCallback = false;
+        var script = false;
         if (!responseJSON) {
             this.showStatus('error', OpenLayers.i18n('noJSON'))
         } else if (responseJSON.error) {
@@ -148,28 +150,6 @@ OpenLayers.GisClient = OpenLayers.Class({
             OpenLayers.Util.extend(responseJSON.mapOptions, this.mapOptions);
             OpenLayers.Util.extend(this, responseJSON);
 
-            /*//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
-            for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
-                this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
-            };
-            */
-
-            //this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
-
-            if (this.mapProviders && this.mapProviders.length>0) {
-                for (var i = 0, len = this.mapProviders.length; i < len; i++) {
-                    script = document.createElement('script');
-                    script.type = "text/javascript";
-                    script.src = this.mapProviders[i];
-                    if(this.mapProviders[i].indexOf('google')>0){
-                        script.src += "&callback=OpenLayers.GisClient.CallBack";
-                        OpenLayers.GisClient.CallBack = this.createDelegate(this.initGCMap,this);
-                        googleCallback=true;
-                    } 
-                    document.getElementsByTagName('head')[0].appendChild(script);
-                }   
-            }
-
             //FIX Proj4js bug ??
             Proj4js.defs["EPSG:3857"] = Proj4js.defs["GOOGLE"];
             if(this.projdefs){
@@ -177,10 +157,50 @@ OpenLayers.GisClient = OpenLayers.Class({
                     if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
                 }
             }
-            if(!googleCallback) this.initGCMap();   
+            /*//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
+            for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
+                this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
+            };
+            */
+
+            //this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
+            var nProviders = 0;
+            if (this.mapProviders && this.mapProviders.length>0) {
+                for (var i = 0, len = this.mapProviders.length; i < len; i++) {
+                    var self = this;
+                    $.ajax({
+                        url: this.mapProviders[i],
+                        type: 'HEAD',
+                        dataType: 'jsonp',
+                        complete: function(jqXHR, testStatus){
+                            nProviders++;
+                            if (jqXHR.readyState == 4 && jqXHR.status == 200) {
+                            var script = document.createElement('script');
+                                script.type = "text/javascript";
+                                script.src = this.url;
+                                if(this.url.indexOf('google')>0){                        
+                                    script.src += "&callback=OpenLayers.GisClient.CallBack";
+                                    OpenLayers.GisClient.CallBack = self.createDelegate(self.initGCMap,self);
+                                    self.useGMaps=true;
+                                }
+
+                                document.getElementsByTagName('head')[0].appendChild(script);
+                            }
+                            if (!self.useGMaps && nProviders == self.mapProviders.length)
+                                self.initGCMap(); 
+ 
+                        }
+                    });
+                    
+                }   
+            }
+            else {
+                this.initGCMap();
+            }
+            
         }
     },
-
+    
     initGCMap: function(){
 
         OpenLayers.DOTS_PER_INCH = this.dpi;
@@ -229,7 +249,7 @@ OpenLayers.GisClient = OpenLayers.Class({
         
         for (var i = 0, len = this.layers.length; i < len; i++) {
             cfgLayer =  this.layers[i];
-            
+            oLayer = null;
             switch(cfgLayer.typeId){
                 case 1:
                 case 3:
@@ -260,8 +280,10 @@ OpenLayers.GisClient = OpenLayers.Class({
                     oLayer = new OpenLayers.Layer.OSM(cfgLayer.name,null,cfgLayer.options);
                 break;  
                 case 7:
-                    cfgLayer.options.resolutions = this.map.resolutions;
-                    oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
+                    if (this.useGMaps) {
+                        cfgLayer.options.resolutions = this.map.resolutions;
+                        oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
+                    }
                 break;          
                 case 8:
                     cfgLayer.options.resolutions = this.map.resolutions;
@@ -283,7 +305,8 @@ OpenLayers.GisClient = OpenLayers.Class({
             }
             //var theme_id = (cfgLayer.parameters && cfgLayer.parameters.theme_id) || cfgLayer.options.theme_id;
             //oLayer.id = theme_id+"_"+cfgLayer.name;
-            this.map.addLayer(oLayer);
+            if (oLayer)
+                this.map.addLayer(oLayer);
         }
         
         if(this.mapsetTiles == 2) this.addMapsetWMTS();
