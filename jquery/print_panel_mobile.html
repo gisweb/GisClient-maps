@@ -1,0 +1,75 @@
+<form role="form">
+    <!-- fieldset cose generali stampa -->
+    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Testo</legend>
+        <textarea name="text" class="form-control" id="print_panel_text"></textarea>
+    </fieldset>
+    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Data</legend>
+        <input type="date" name="date" class="form-control" id="print_panel_date">
+    </fieldset>
+    <!-- fieldset proprietà di stampa -->
+    <fieldset id="print_panel_legend" data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Genera Legenda</legend>
+        <input type="radio" name="legend" id="print_panel_legend_yes" value="yes" checked>
+        <label for="print_panel_legend_yes">Si</label>
+        <input type="radio" name="legend" id="print_panel_legend_no" value="no">
+        <label for="print_panel_legend_no">No</label>
+    </fieldset>
+    
+    <fieldset id="print_panel_layout" data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Layout di stampa</legend>
+        <input type="radio" name="direction" id="print_panel_layout_v" value="vertical" checked> 
+        <label for="print_panel_layout_v">Verticale</label>
+        <input type="radio" name="direction" id="print_panel_layout_o" value="horizontal"> 
+        <label for="print_panel_layout_o">Orizzontale</label>
+    </fieldset>
+    
+    <fieldset id="print_panel_printformat" data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Formato di stampa</legend>
+        <select name="formato" id="print_panel_printformat_select" class="form-control">
+            <option value="A4" selected>A4</option>
+            <option value="A3">A3</option>
+            <option value="A2">A2</option>
+        </select>
+    </fieldset>
+    
+    <fieldset id="print_panel_format" data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Formato</legend>
+        <input type="radio" name="format" id="print_panel_format_html" value="HTML" checked>
+        <label for="print_panel_format_html">HTML</label>
+        <input type="radio" name="format" id="print_panel_format_pdf" value="PDF">
+        <label for="print_panel_format_pdf">PDF</label>
+    </fieldset>
+    
+    <fieldset id="print_panel_scalemode" data-role="controlgroup" data-mini="true">
+        <legend>Scala</legend>
+        <input type="radio" name="scale_mode" id="print_panel_scalemode_auto" checked value="auto">
+        <label for="print_panel_scalemode_auto">Automatica</label>
+        <input type="radio" name="scale_mode" id="print_panel_scalemode_user" value="user" >
+        <label for="print_panel_scalemode_user">Manuale
+            <input type="text" name="scale" style="color:black; position:relative;"> 
+        </label>
+    </fieldset>
+    
+    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+        <legend>Risoluzione</legend>
+        <select id="print_panel_resolution" name="print_resolution" class="form-control">
+            <option value="150" selected>Media</option>
+            <option value="300">Alta</option>
+        </select>
+    </fieldset>
+    
+    <p>
+        <button type="button" role="print" class="btn btn-default">Stampa</button>
+        <a href="#" target="_blank" role="html"><span role="icon" class="glyphicon-disabled glyphicon-file print-download-icon"></span><span></span></a>
+        <a href="#" target="_blank" role="pdf"><span role="icon" class="glyphicon-disabled glyphicon-print print-download-icon"></span><span></span> </a>
+    </p>
+    
+    <div class="results" style="display: none;">
+        <span name="result">
+            
+        </span>
+    </div>
+    
+</form>

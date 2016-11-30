@@ -467,7 +467,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         this.highlightControl = highlightControl;
         //this.modifyControl = modifyControl;
         
-        this.resultLayer = resultLayer;
+        this.resultLayer = resultLayer;        
 
     },
 
