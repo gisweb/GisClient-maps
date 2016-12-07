@@ -1074,7 +1074,8 @@ var initMap = function(){
                     {
                         this.activate();
                         queryToolbar.activate();
-                        queryToolbar.controls[0].activate();
+                        if (this.map.currentControl != queryToolbar.controls[0])
+                            queryToolbar.controls[0].activate();
                         adjustPanZoomBar(queryToolbar, 60);
                         
                     }

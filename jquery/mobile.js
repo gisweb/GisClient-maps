@@ -81,7 +81,7 @@ var sidebarPanel = {
         //ell.style.width = "300px";
 
         //el.css({width:w+"px"});
-        el.animate({width:w+"px"});
+        el.animate({width:w+"px"}, 10);
         el.addClass("panel-open");
         if(w == 300) {
             $("#resultpanel").addClass("smalltable");
@@ -100,7 +100,7 @@ var sidebarPanel = {
         //ell.style.width = "45px";
 
         //el.css({width:w+"px"});
-        el.animate({width:w+"px"});
+        el.animate({width:w+"px"}, 10);
         el.removeClass("panel-open");
         $("#resultpanel").addClass("smalltable");
         $('div.panel-header', this.$element).hide();
@@ -112,7 +112,7 @@ var sidebarPanel = {
     expand: function() {
         var el = $('#map-overlay-panel');
         var width = ($(document).width() / 3) * 2;
-        el.animate({width: width + 'px'}, {
+        el.animate({width: width + 'px'},  10, 'linear', {
             complete: function() {
                 $('#resultpanel').find('.featureTypeData').first().slideDown(200);
             }
@@ -125,7 +125,7 @@ var sidebarPanel = {
         
     collapse: function() {
         var el = $('#map-overlay-panel');
-        el.animate({width: '300px'});
+        el.animate({width: '300px'}, 10);
         $('#resultpanel').addClass('smalltable');
         
         $('.panel-expand', this.$element).show();
@@ -1073,12 +1073,11 @@ var initMap = function(){
                     {
                         this.activate();
                         queryToolbar.activate();
-                        
-                        queryToolbar.controls[0].activate();
+                        if (this.map.currentControl != queryToolbar.controls[0])
+                            queryToolbar.controls[0].activate();
                         //adjustPanZoomBar(queryToolbar, 60);
                         
                     }
-                    sidebarPanel.handleEvent = false;
                 //}
             }  
         }),

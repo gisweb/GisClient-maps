@@ -32,7 +32,7 @@
 
 
 #map-sidebar {
-    width: 55px;
+    width: 54px;
     height: 100%;
     overflow: auto;
 }
@@ -42,7 +42,7 @@
     position:absolute;
     top:2px;
     right:0px;
-    width:45px;
+    width:51px;
     height:100%;
 }
 
@@ -50,10 +50,10 @@
     background-color: rgba(0, 0, 0, 0.6);
     cursor: pointer;
     display: block;
-    height: 35px;
+    height: 41px;
     margin-bottom: 0px;
     outline: medium none;
-    width: 35px;
+    width: 41px;
     border: 1px solid #aaaaaa;
 }
 
@@ -84,7 +84,7 @@
 #sidebar-panel {
   position:absolute;
   top:0px;
-  left:35px;
+  left:42px;
   width:100%;
   height:100%;
   padding:10px;
@@ -166,8 +166,8 @@
 
 
 #map-sidebar .glyphicon-white{
-  margin-top:10px;
-  margin-left:10px;
+  margin-top:13px;
+  margin-left:13px;
 }
 
 

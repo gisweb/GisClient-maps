@@ -46,8 +46,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     iconclass:"glyphicon-white glyphicon-fullscreen", 
                     title:"Interroga la mappa",
                     text:"Box",
-                    eventListeners: {'activate': function(){this.map.currentControl.deactivate();this.map.currentControl=this}}
-
+                    eventListeners: {'activate': function(){
+                            this.map.currentControl.deactivate();
+                            var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
+                            if (dPanCtrl.length) {
+                                dPanCtrl[0].dragPan.deactivate();
+                            }
+                            this.map.currentControl=this}}
                 }
             ),
             new OpenLayers.Control.QueryMap(
@@ -66,8 +71,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     iconclass:"glyphicon-white glyphicon-screenshot", 
                     title:"Interroga la mappa",
                     text:"Circle",
-                    eventListeners: {'activate': function(){this.map.currentControl.deactivate();this.map.currentControl=this}}
-
+                    eventListeners: {'activate': function(){
+                            this.map.currentControl.deactivate();
+                            var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
+                            if (dPanCtrl.length) {
+                                dPanCtrl[0].dragPan.deactivate();
+                            }
+                            this.map.currentControl=this}}
                 }
             ),
             new OpenLayers.Control.QueryMap(
@@ -87,8 +97,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     iconclass:"glyphicon-white glyphicon-edit", 
                     title:"Interroga la mappa",
                     text:"free",
-                    eventListeners: {'activate': function(){this.map.currentControl.deactivate();this.map.currentControl=this}}
-
+                    eventListeners: {'activate': function(){
+                            this.map.currentControl.deactivate();
+                            var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
+                            if (dPanCtrl.length) {
+                                dPanCtrl[0].dragPan.deactivate();
+                            }
+                            this.map.currentControl=this}}
                 }
             )
         ];
