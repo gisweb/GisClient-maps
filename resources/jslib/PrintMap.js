@@ -99,6 +99,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var params = me.getParams();
         params["tiles"] = me.getTiles();
         params["format"] = me.printFormat;
+        params["printFormat"] = me.pageFormat;
         params["legend"] = me.printLegend;
         params["direction"] = me.pageLayout;
         params["dpi"] = me.printResolution;
