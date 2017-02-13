@@ -5,10 +5,18 @@ function adjustPanZoomBar(olControl, toolOffset){
     var cZoom = $('.olControlPanZoomBar').offset();
     if (toolOffset)
     {
-        if (olControl.active)
+        if (olControl.active) {
+            if (olControl.div)
+                if (olControl.div.id == "map-toolbar-redline")
+                    $('#map-toolbars').css('top', '50px');
             $('.olControlPanZoomBar').offset({top: cZoom.top + toolOffset, left: cZoom.left } );
-        else
+        }
+        else {
             $('.olControlPanZoomBar').offset({top: cZoom.top - toolOffset, left: cZoom.left } );
+            if (olControl.div)
+                if (olControl.div.id == "map-toolbar-redline")
+                    $('#map-toolbars').css('top', '2px');
+        }
     }
 }
 
@@ -460,6 +468,7 @@ var initMap = function(){
                     
                     $("#DetailsWindow").scroll(function() {
                         var me = self;
+                        var evt = event;
                         if (me.totalRows <= me.currentPage*me.rowsPerPage)
                             return;
                         var docViewTop = $("#DetailsWindow").scrollTop();
@@ -468,7 +477,7 @@ var initMap = function(){
                             var elemTop = rowMarker[0].offsetTop;
                             if (elemTop <= docViewTop && me.dataLoading == false){
                                 me.currentPage += 1;
-                                me.getReportData(event.reportID, self.currentPage, event.filter);
+                                me.getReportData(evt.reportID, self.currentPage, evt.filter);
                             }
                         }
                     });
@@ -927,6 +936,9 @@ var initMap = function(){
         div:document.getElementById("map-toolbar-redline"),
         autoActivate:false,
         saveState:true,
+        divdrawbtns: "map-toolbar-redline-draw",
+        divopsgbtns: "map-toolbar-redline-opsg",
+        divopsnbtns: "map-toolbar-redline-opsn"
     })
     
     /*
@@ -1186,15 +1198,16 @@ var initMap = function(){
                 if (sidebarPanel.handleEvent)
                 {
                     if (this.active) {
+                        
                         this.deactivate();
                         redlineToolbar.deactivate();
-                        adjustPanZoomBar(redlineToolbar, 27);
+                        adjustPanZoomBar(redlineToolbar, 44);
                     }
                     else
                     {
                         this.activate();
                         redlineToolbar.activate();
-                        adjustPanZoomBar(redlineToolbar, 27);
+                        adjustPanZoomBar(redlineToolbar, 44);
                     }
                     sidebarPanel.handleEvent = false;
                 }

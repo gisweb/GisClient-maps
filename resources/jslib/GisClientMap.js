@@ -168,23 +168,25 @@ OpenLayers.GisClient = OpenLayers.Class({
             if (this.mapProviders && this.mapProviders.length>0) {
                 for (var i = 0, len = this.mapProviders.length; i < len; i++) {
                     var self = this;
+                    var extUrl = this.mapProviders[i];
+                    if(extUrl.indexOf('google')>0){                        
+                        extUrl += "&callback=OpenLayers.GisClient.CallBack";
+                        OpenLayers.GisClient.CallBack = self.createDelegate(self.initGCMap,self);
+                        self.useGMaps=true;
+                    }
                     $.ajax({
-                        url: this.mapProviders[i],
+                        url: extUrl,
                         type: 'HEAD',
-                        dataType: 'jsonp',
+                        dataType: 'script',
                         complete: function(jqXHR, testStatus){
                             nProviders++;
-                            if (jqXHR.readyState == 4 && jqXHR.status == 200) {
+                            if (jqXHR.readyState != 4 || jqXHR.status != 200) {
                             var script = document.createElement('script');
-                                script.type = "text/javascript";
-                                script.src = this.url;
-                                if(this.url.indexOf('google')>0){                        
-                                    script.src += "&callback=OpenLayers.GisClient.CallBack";
-                                    OpenLayers.GisClient.CallBack = self.createDelegate(self.initGCMap,self);
-                                    self.useGMaps=true;
+                                if(this.url.indexOf('google')>0){  
+                                    OpenLayers.GisClient.CallBack = null;
+                                    self.useGMaps=false;
                                 }
-
-                                document.getElementsByTagName('head')[0].appendChild(script);
+                                //document.getElementsByTagName('head')[0].appendChild(script);
                             }
                             if (!self.useGMaps && nProviders == self.mapProviders.length)
                                 self.initGCMap(); 

@@ -9,6 +9,11 @@ OpenLayers.Control.ModifyFeature.prototype.collectRadiusHandle = function() {
             bounds.right, bounds.bottom
         );
         var radius = new OpenLayers.Feature.Vector(radiusGeometry);
+        // **** GeoNote Hack; todo: find a better method
+        if (this.feature.attributes.color || this.features.attributes.label) {
+            radius.attributes.label = '';
+            radius.attributes.color = '#ee9900';
+        }            
         var resize = (this.mode & OpenLayers.Control.ModifyFeature.RESIZE);
         var reshape = (this.mode & OpenLayers.Control.ModifyFeature.RESHAPE);
         var rotate = (this.mode & OpenLayers.Control.ModifyFeature.ROTATE);

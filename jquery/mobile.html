@@ -15,6 +15,8 @@
   -->
   <script src="../config/config.js"></script>
   
+  <script type="text/javascript" src="../resources/external/FlexiColorPicker/colorpicker.js"></script>
+  <link rel="stylesheet" type="text/css" href="../resources/external/FlexiColorPicker/themes.css">
   <script type="text/javascript" src="../resources/jslib/jquery.min.js"></script>
   <script src="../resources/external/jquery.mobile/jquery.mobile-1.4.5.min.js"></script>
   <script type="text/javascript" src="../resources/external/select2/select2.js"></script>
@@ -31,6 +33,7 @@
     <script src="../resources/jslib/LoadingPanel.js"></script>
     <script src="../resources/jslib/PrintMap.js"></script>
     <script src="../resources/jslib/DynamicMeasure.js"></script>
+    <script src="../resources/jslib/GeoNoteToolbar.js"></script>
 
     <script src="../resources/jslib/QueryToolbar.js"></script>   
     <script src="../resources/jslib/ReportToolbar.js"></script>   
@@ -192,6 +195,10 @@
 
   <div id="content">
     <div id="map"></div>
+    <div id="map-toolbars-edit">
+       <div id="map-toolbar-redline" class="olToolbarsControl"></div> 
+    </div>
+    
     <div id="map-toolbars">
 
       <div id="map-toolbar-query" class="olToolbarsControl"></div>

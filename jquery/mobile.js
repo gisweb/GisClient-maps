@@ -158,6 +158,9 @@ var initMap = function(){
     var map=this.map;
     map.Z_INDEX_BASE['Popup'] = 1500;
     map.Z_INDEX_BASE['Control'] = 1550;
+    
+    OpenLayers.Handler.Feature.prototype.clickTolerance = 20;
+    
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -909,40 +912,16 @@ var initMap = function(){
     map.addControl(measureToolbar);
     //measureToolbar.activate();
 
-
-    var redlineToolbar = new OpenLayers.Control.Panel({
+    var redlineToolbar = new OpenLayers.GisClient.geoNoteToolbar({
         createControlMarkup:customCreateControlMarkup,
         div:document.getElementById("map-toolbar-redline"),
         autoActivate:false,
         saveState:true,
+        divdrawbtns: "map-toolbar-redline-draw",
+        divopsgbtns: "map-toolbar-redline-opsg",
+        divopsnbtns: "map-toolbar-redline-opsn"
     })
-    var redlineLayer = new OpenLayers.Layer.Vector('Redline');
-    map.addLayer(redlineLayer);
-    var controls = [
-            new OpenLayers.Control.DrawFeature(
-                redlineLayer, 
-                OpenLayers.Handler.Path,
-                {
-                    handlerOptions:{freehand:true},
-                    iconclass:"glyphicon-white glyphicon-pencil", 
-                    text:"Testo penna", 
-                    title:"Testo penna",
-                    eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
-                }
-            ),
-            new OpenLayers.Control.DrawFeature(
-                redlineLayer, 
-                OpenLayers.Handler.Path,
-                {
-                    handlerOptions:{freehand:false},
-                    iconclass:"glyphicon-white glyphicon-tag", 
-                    text:"Testo etichetta", 
-                    title:"Testo etichetta",
-                    eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
-                }
-            ),
-        ]
-    redlineToolbar.addControls(controls)
+
     map.addControl(redlineToolbar);
     //redlineToolbar.activate();
 
@@ -1184,15 +1163,18 @@ var initMap = function(){
                 //if (sidebarPanel.handleEvent)
                 //{
                     if (this.active) {
+                        
                         this.deactivate();
                         redlineToolbar.deactivate();
-                        //adjustPanZoomBar(redlineToolbar, 27);
+                        $('#map-toolbars').css('top', '2px');
+                        //adjustPanZoomBar(redlineToolbar, 44);
                     }
                     else
                     {
                         this.activate();
                         redlineToolbar.activate();
-                        //adjustPanZoomBar(redlineToolbar, 27);
+                        $('#map-toolbars').css('top', '50px');
+                        //adjustPanZoomBar(redlineToolbar, 44);
                     }
                     sidebarPanel.handleEvent = false;
                 //}
