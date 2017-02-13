@@ -454,6 +454,8 @@ var initMap = function(){
                         me.exportReport(reportID, action, event.filter);
                     });
                     
+                    self.evt = event;
+                    
                     $("#DetailsWindow").scroll(function() {
                         var me = self;
                         if (me.totalRows <= me.currentPage*me.rowsPerPage)
@@ -464,7 +466,7 @@ var initMap = function(){
                             var elemTop = rowMarker[0].offsetTop;
                             if (elemTop <= docViewTop && me.dataLoading == false){
                                 me.currentPage += 1;
-                                    me.getReportData(event.reportID, self.currentPage, event.filter);
+                                    me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter);
                             }
                         }
                     });

@@ -466,9 +466,10 @@ var initMap = function(){
                         me.exportReport(reportID, action, event.filter);
                     });
                     
+                    self.evt = event;
+                    
                     $("#DetailsWindow").scroll(function() {
                         var me = self;
-                        var evt = event;
                         if (me.totalRows <= me.currentPage*me.rowsPerPage)
                             return;
                         var docViewTop = $("#DetailsWindow").scrollTop();
@@ -477,7 +478,7 @@ var initMap = function(){
                             var elemTop = rowMarker[0].offsetTop;
                             if (elemTop <= docViewTop && me.dataLoading == false){
                                 me.currentPage += 1;
-                                me.getReportData(evt.reportID, self.currentPage, evt.filter);
+                                me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter);
                             }
                         }
                     });
