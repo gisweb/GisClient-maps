@@ -256,8 +256,7 @@ div.olMapViewport {
     margin-left: 3px; 
 }
 
-#geonote-popup #geonote_popup_uploads .geonoteUploadButton {
-    background-color: rgba(0, 0, 0, 0.3);
+#geonote-popup #geonote_popup_uploads .geonote-upload-button {
     cursor: pointer;
     display: inline-block;
     outline: medium none;
@@ -268,7 +267,16 @@ div.olMapViewport {
     -moz-border-radius: 4px;
     border-radius: 4px;
 }
-#geonote-popup #geonote_popup_uploads .geonoteUploadButton span {
+
+#geonote-popup #geonote_popup_uploads .geonote-upload-button .geonote-upload-pbar {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.6);
+    margin-left: 3px;
+    width: 0px;
+}
+
+#geonote-popup #geonote_popup_uploads .geonote-upload-button .geonote-upload-text {
+    background-color: rgba(0, 0, 0, 0.3)!important;
     color: #FFFFFF;
     margin-left: 3px; 
 }
@@ -322,7 +330,6 @@ div.olMapViewport {
     display: block;
     height: 25px;
     width: 23em;
-    //margin-left: -1px;
 }
 .map-layout #map-toolbars .olControlQueryMapSelect .olOptionDisabled {
     color:#aaaaaa;
@@ -333,7 +340,6 @@ div.olMapViewport {
     display: block;
     height: 25px;
     width: 23em;
-    //margin-left: -1px;
 }
 .map-layout #map-toolbars .olControlReportMapSelect .olOptionDisabled {
     color:#aaaaaa;

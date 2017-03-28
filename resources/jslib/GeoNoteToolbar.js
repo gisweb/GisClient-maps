@@ -37,7 +37,10 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
             labelYOffset: 10,
             fillColor: '${color}', 
             strokeColor: '${color}',
-            label: '${label}'
+            label: '${label}',
+            externalGraphic: '${attach}',
+            graphicWidth: 50,
+            graphicHeight: 50
             }
         );
         
@@ -52,7 +55,8 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
             labelYOffset: 10,
             fillColor: '#ee9900', 
             strokeColor: '#ee9900',
-            label: ''
+            label: '',
+            externalGraphic: ''
             }
         );
         
@@ -409,26 +413,74 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                     document.getElementById("geonote_label_attachment").click();
                 });
                 
+                var attachFormData = new FormData();
+                var saveDone = true;
+                
                 document.getElementById("geonote_label_attachment").addEventListener('change', function () {
+                    var fileName = (Date.now().toString(36) + Math.random().toString(36).substr(2, 9)).toUpperCase();
                     var divUploads = document.getElementById("geonote_popup_uploads");
                     divUploads.innerHTML = "";
                     
                     var button = document.createElement('a'),
                     icon = document.createElement('span'),
-                    textSpan = document.createElement('span');
+                    textSpan = document.createElement('span'),
+                    pBarSpan = document.createElement('span');
 
-                    button.className += 'geonoteUploadButton';
+                    button.className += 'geonote-upload-button';
                     icon.className += "glyphicon-white glyphicon-file";
+                    textSpan.className += 'geonote-upload-text';
+                    pBarSpan.className += 'geonote-upload-pbar';
                     button.appendChild(icon);
-                    textSpan.innerHTML = this.files[0].name;;
-                    button.appendChild(textSpan);
+                    textSpan.innerHTML = this.files[0].name;
+                    pBarSpan.appendChild(textSpan)
+                    button.appendChild(pBarSpan);
                     
                     divUploads.appendChild(button);
+                                        
+                    attachFormData.append("REQUEST", "attUpload");
+                    attachFormData.append("FILENAME", fileName);
+                    attachFormData.append("ATTACHMENT", this.files[0]); 
+                    
+                    var attachRequest = new XMLHttpRequest();
+                    
+                    attachRequest.upload.addEventListener("progress", function(e) {
+                        var totSize = textSpan.getBoundingClientRect().width;
+			var pc = parseInt(e.loaded / e.total * totSize);
+                        console.log(pc);
+			pBarSpan.style.width = pc + "px";
+                    }, false);
+                    
+                    attachRequest.onreadystatechange = function(e) {
+			if (attachRequest.readyState == 4 && attachRequest.status == 200) {
+                            if (attachRequest.response) {
+                                var responseObj = JSON.parse(attachRequest.response);
+                                if (responseObj.error) {
+                                    alert ('Errore in salvataggio file nella nota: ' + responseObj.error);
+                                    divUploads.removeChild(button);
+                                    saveDone = true;
+                                }
+                                else {
+                                    obj.feature.attributes.attach = responseObj.attachUrl;
+                                    saveDone = true;
+                                }
+                            }                             
+			}
+                    };
+
+                    saveDone = false;
+                    attachRequest.open('POST', ctrl.serviceURL);
+                    attachRequest.send(attachFormData);
                 });
                 
                 document.getElementById("geonote_setlabel_button").addEventListener("click", function (evt) {
+                    if (!saveDone) {
+                        alert("Upload di un allegato in corso, attendere il completamento dell'operazione");
+                        return;
+                    }
+                        
                     obj.feature.attributes.label = document.getElementById("geonote_label_text").value;
                     ctrl.redlineLayer.redraw();
+
                     if(ctrl.popup)	
                     ctrl.map.removePopup(ctrl.popup);
                     ctrl.popup.destroy();
@@ -451,6 +503,8 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
         obj.feature.attributes.color = this.redlineColor;
         if (!obj.feature.attributes.label)
             obj.feature.attributes.label = '';
+        if (!obj.feature.attributes.attach)
+            obj.feature.attributes.attach = '';
     },
     
     addPopup: function(popupWidth, popupHeight, popupContent, oPopupPos) {
@@ -469,7 +523,8 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                 new OpenLayers.Size(popupWidth,popupHeight),
                 '<div id="geonote-popup-content"></div>',
                 null, true);
-
+        
+        //popup.closeOnMove = true;
         var self=this;
         
         popup.onclick = function(){
@@ -552,6 +607,9 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
    
    noteSave: function () {
         var self = this;
+        
+        self.map.currentControl.deactivate();
+        self.map.currentControl=self.map.defaultControl;
        
         if (self.ctrl.popup) {
             if (document.getElementById('geonote_note_name')) {
@@ -643,6 +701,9 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
     
     noteLoad: function(redlineID) {
         var self = this;
+        
+        self.map.currentControl.deactivate();
+        self.map.currentControl=self.map.defaultControl;
         
         if (self.ctrl.popup) {
             if (document.getElementById('geonote_note_name')) {

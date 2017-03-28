@@ -1081,7 +1081,7 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         queryToolbar.deactivate();
-                        adjustPanZoomBar(queryToolbar, 60);
+                        //adjustPanZoomBar(queryToolbar, 60);
                     }
                     else
                     {
@@ -1089,7 +1089,7 @@ var initMap = function(){
                         queryToolbar.activate();
                         if (this.map.currentControl != queryToolbar.controls[0])
                             queryToolbar.controls[0].activate();
-                        adjustPanZoomBar(queryToolbar, 60);
+                        //adjustPanZoomBar(queryToolbar, 60);
                         
                     }
                     sidebarPanel.handleEvent = false;
@@ -1149,14 +1149,14 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         reportToolbar.deactivate();
-                        adjustPanZoomBar(reportToolbar, 60);
+                        //adjustPanZoomBar(reportToolbar, 60);
                     }
                     else
                     {
                         this.activate();
                         reportToolbar.activate();
                         //queryToolbar.controls[0].activate();
-                        adjustPanZoomBar(reportToolbar, 60);
+                        //adjustPanZoomBar(reportToolbar, 60);
                         
                     }
                     sidebarPanel.handleEvent = false;
@@ -1171,13 +1171,13 @@ var initMap = function(){
                     if (this.active) {
                         this.deactivate();
                         measureToolbar.deactivate();
-                        adjustPanZoomBar(measureToolbar, 27);
+                        //adjustPanZoomBar(measureToolbar, 27);
                     }
                     else
                     {
                         this.activate();
                         measureToolbar.activate();
-                        adjustPanZoomBar(measureToolbar, 27);
+                        //adjustPanZoomBar(measureToolbar, 27);
                     }
                     sidebarPanel.handleEvent = false;
                 }
@@ -1202,13 +1202,15 @@ var initMap = function(){
                         
                         this.deactivate();
                         redlineToolbar.deactivate();
-                        adjustPanZoomBar(redlineToolbar, 44);
+                        $('#map-toolbars').css('top', '2px');
+                        //adjustPanZoomBar(redlineToolbar, 44);
                     }
                     else
                     {
                         this.activate();
                         redlineToolbar.activate();
-                        adjustPanZoomBar(redlineToolbar, 44);
+                        $('#map-toolbars').css('top', '50px');
+                        //adjustPanZoomBar(redlineToolbar, 44);
                     }
                     sidebarPanel.handleEvent = false;
                 }

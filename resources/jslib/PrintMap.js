@@ -10,9 +10,10 @@ OpenLayers.Control.ModifyFeature.prototype.collectRadiusHandle = function() {
         );
         var radius = new OpenLayers.Feature.Vector(radiusGeometry);
         // **** GeoNote Hack; todo: find a better method
-        if (this.feature.attributes.color || this.features.attributes.label) {
+        if (this.feature.attributes.color || this.feature.attributes.label || this.feature.attributes.attach) {
             radius.attributes.label = '';
             radius.attributes.color = '#ee9900';
+            radius.attributes.attach = '';
         }            
         var resize = (this.mode & OpenLayers.Control.ModifyFeature.RESIZE);
         var reshape = (this.mode & OpenLayers.Control.ModifyFeature.RESHAPE);
