@@ -212,6 +212,12 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                     eventListeners: {
                         'activate': function(){
                             this.map.currentControl.deactivate();
+                            
+                            var origLayerIndex = this.map.getLayerIndex(this.layer);
+                            var maxIndex = this.map.getLayerIndex(this.map.layers[this.map.layers.length -1]);
+                            if(origLayerIndex < maxIndex) this.map.raiseLayer(this.layer, (maxIndex - origLayerIndex));
+                            this.map.resetLayersZIndex();
+                            
                             this.map.currentControl=this
                         }
                     }
@@ -227,6 +233,12 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                     eventListeners: {'activate': function(){this.map.currentControl.deactivate();this.map.currentControl=this}},
                     onSelect:function(feature){
                         var self = this;
+                        
+                        var origLayerIndex = this.map.getLayerIndex(this.layer);
+                        var maxIndex = this.map.getLayerIndex(this.map.layers[this.map.layers.length -1]);
+                        if(origLayerIndex < maxIndex) this.map.raiseLayer(this.layer, (maxIndex - origLayerIndex));
+                        this.map.resetLayersZIndex();
+                        
                         self.unselectAll();
                         if (confirm('Eliminare la geometria selezionata?')) {
                             self.layer.removeFeatures([feature]);
