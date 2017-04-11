@@ -1209,7 +1209,8 @@ var initMap = function(){
                     {
                         this.activate();
                         redlineToolbar.activate();
-                        $('#map-toolbars').css('top', '50px');
+                        var nShift = $('#map-toolbars-edit').heigth() + 3;
+                        $('#map-toolbars').css('top', nShift + 'px');
                         //adjustPanZoomBar(redlineToolbar, 44);
                     }
                     sidebarPanel.handleEvent = false;

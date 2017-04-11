@@ -412,6 +412,8 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
         var deactivated = OpenLayers.Control.prototype.deactivate.call(this);
         if(deactivated) {
             this.noteReset();
+            this.map.currentControl.deactivate();
+            this.map.currentControl=this.map.defaultControl;
         }
     },
     
@@ -582,8 +584,9 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
         var nReso = this.map.getResolution();       
         var tmpClass = document.getElementsByClassName('jscolorItemInactive');
         var colorPickerBtn = tmpClass[0];
-        var btnRect = colorPickerBtn.getBoundingClientRect();
-        var oPopupPos = this.map.getLonLatFromPixel({x:btnRect.left, y:btnRect.bottom});
+        var btnX = colorPickerBtn.getBoundingClientRect().left;
+        var btnY = document.getElementById(self.ctrl.div.id).getBoundingClientRect().bottom;
+        var oPopupPos = this.map.getLonLatFromPixel({x:btnX, y:btnY});
         //oPopupPos.lon -= popupWidth/2 * nReso;
         oPopupPos.lat += 25 * nReso;
 

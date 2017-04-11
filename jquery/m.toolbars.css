@@ -108,17 +108,65 @@ div.olMapViewport {
 /*
     **** GeoNote Start
 */
-.map-layout #map-toolbars-edit {
-    height: auto;
-    width: auto;
-    float: left;
-    top:2px;
-    left:2px;
-    font-size: 12px;
-    position:absolute;
-    overflow: hidden;
+@media  only screen and (max-width: 1000px) and (-webkit-min-device-pixel-ratio:1),
+        only screen and (max-width: 1000px) and (min-resolution:96dpi){
+
+    .map-layout #map-toolbars-edit {
+        height: auto;
+        width: 320px;
+        float: left;
+        top:2px;
+        left:2px;
+        font-size: 12px;
+        position:absolute;
+        overflow: hidden;
+    }
 }
 
+@media  only screen and (max-width: 1000px) and (-webkit-min-device-pixel-ratio:2),
+        only screen and (max-width: 1000px) and (min-resolution:192dpi){
+
+    .map-layout #map-toolbars-edit {
+        height: auto;
+        width: 300px;
+        float: left;
+        top:2px;
+        left:2px;
+        font-size: 12px;
+        position:absolute;
+        overflow: hidden;
+    }
+}
+@media  only screen and (max-width: 1000px) and (-webkit-min-device-pixel-ratio:3),
+        only screen and (max-width: 1000px) and (min-resolution:288dpi){
+
+    .map-layout #map-toolbars-edit {
+        height: auto;
+        width: 280px;
+        float: left;
+        top:2px;
+        left:2px;
+        font-size: 12px;
+        position:absolute;
+        overflow: hidden;
+    }
+}
+
+
+
+@media screen and (min-width: 1001px) {
+
+    .map-layout #map-toolbars-edit {
+        height: auto;
+        width: auto;
+        float: left;
+        top:2px;
+        left:2px;
+        font-size: 12px;
+        position:absolute;
+        overflow: hidden;
+    }
+}
 .map-layout  #map-toolbars-edit .olToolbarsControl{
     background-color: rgba(0, 0, 0, 0.6);
     margin:2px;
