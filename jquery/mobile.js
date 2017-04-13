@@ -41,8 +41,10 @@ var sidebarPanel = {
 
     },
     
-    getCSSWidth: function () {       
-        this.width = window.getComputedStyle(document.getElementById("map-overlay-panel")).getPropertyValue('width');
+    getCSSWidth: function () {
+        var el = $("#map-overlay-panel");
+        if (!el.hasClass('panel-open'))
+            this.width = window.getComputedStyle(document.getElementById("map-overlay-panel")).getPropertyValue('width');
     },
     
     show: function(panelId) {
