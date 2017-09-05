@@ -93,7 +93,7 @@ OpenLayers.GisClient = OpenLayers.Class({
     mapsetWMS: null,
 
     mapsetWMTS: null,
-    
+
     useGMaps: false,
 
     initialize : function(url, map, options){
@@ -108,7 +108,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             this.mapDiv = map.div;
             this.map.destroy(); //butto la mappa esistente
             //TODO VEDERE COSA TENERE
-        } 
+        }
         else
             this.mapDiv = map;
 
@@ -127,14 +127,14 @@ OpenLayers.GisClient = OpenLayers.Class({
                 success:this.requestComplete,
                 failure:function(){alert('caricamento del servizio fallito')},
                 scope: this
-            }; 
+            };
             //start waiting
             OpenLayers.Request.GET(req);
         }
         else
-            this.initGCMap();   
+            this.initGCMap();
     },
-    
+
 
     requestComplete : function(response){
 
@@ -169,7 +169,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                 for (var i = 0, len = this.mapProviders.length; i < len; i++) {
                     var self = this;
                     var extUrl = this.mapProviders[i];
-                    if(extUrl.indexOf('google')>0){                        
+                    if(extUrl.indexOf('google')>0){
                         extUrl += "&callback=OpenLayers.GisClient.CallBack";
                         OpenLayers.GisClient.CallBack = self.createDelegate(self.initGCMap,self);
                         self.useGMaps=true;
@@ -182,27 +182,27 @@ OpenLayers.GisClient = OpenLayers.Class({
                             nProviders++;
                             if (jqXHR.readyState != 4 || jqXHR.status != 200) {
                             var script = document.createElement('script');
-                                if(this.url.indexOf('google')>0){  
+                                if(this.url.indexOf('google')>0){
                                     OpenLayers.GisClient.CallBack = null;
                                     self.useGMaps=false;
                                 }
                                 //document.getElementsByTagName('head')[0].appendChild(script);
                             }
                             if (!self.useGMaps && nProviders == self.mapProviders.length)
-                                self.initGCMap(); 
- 
+                                self.initGCMap();
+
                         }
                     });
-                    
-                }   
+
+                }
             }
             else {
                 this.initGCMap();
             }
-            
+
         }
     },
-    
+
     initGCMap: function(){
 
         OpenLayers.DOTS_PER_INCH = this.dpi;
@@ -213,7 +213,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             var controls = this.mapOptions.controls;
             this.mapOptions.controls = [];
         }
-       // this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel,this.mapOptions.maxZoomLevel);       
+       // this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel,this.mapOptions.maxZoomLevel);
         this.map = new OpenLayers.Map(this.mapDiv, this.mapOptions);
         this.map.config = this;
         this.emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{maxResolution:this.map.resolutions[0],  resolutions:this.map.resolutions, displayInLayerSwitcher:true, isBaseLayer:true});
@@ -232,7 +232,7 @@ OpenLayers.GisClient = OpenLayers.Class({
         if(this.baseLayerName) {
             var ret = this.map.getLayersByName(this.baseLayerName);
             if(ret.length > 0) this.map.setBaseLayer(ret[0]);
-        }   
+        }
 
         if(OpenLayers.GisClient.OverviewMap){
             this.overviewMap = new OpenLayers.GisClient.OverviewMap({
@@ -246,11 +246,13 @@ OpenLayers.GisClient = OpenLayers.Class({
 
 
     },
-    
+
     initLayers: function(){
         var cfgLayer,oLayer,owLayer;
-        
-        for (var i = 0, len = this.layers.length; i < len; i++) {
+
+        // **** Reverse layers order (Use tree order for layers overlap)
+        // TODO: Force Z-index for specific layers
+        for (var i = this.layers.length-1; i >=0; i--) {
             cfgLayer =  this.layers[i];
             oLayer = null;
             switch(cfgLayer.typeId){
@@ -260,9 +262,15 @@ OpenLayers.GisClient = OpenLayers.Class({
                     if(cfgLayer.nodes){
                         //SE MAPPROXY AGGIUNGO IL LAYER WMTS
                         oLayer.nodes = cfgLayer.nodes;
+                        // **** Reverse layers order (Use tree order for layers overlap)
+                        if (oLayer.params["LAYERS"] && oLayer.params["LAYERS"].length > 0) {
+                          revLayers = oLayer.params["LAYERS"];
+                          revLayers.reverse();
+                          oLayer.mergeNewParams({layers:revLayers});
+                        }
                         //tema singolo per ora non in uso
                         //if(this.useMapproxy && cfgLayer.theme_single) this.addThemeLayer(oLayer);
-                    } 
+                    }
                 break;
                 case 2:
                     //cfgLayer.parameters.matrixSet = this.mapOptions.matrixSet;
@@ -281,17 +289,17 @@ OpenLayers.GisClient = OpenLayers.Class({
 
                     cfgLayer.options.resolutions = this.map.resolutions.slice(0, 19 - cfgLayer.options.zoomOffset);
                     oLayer = new OpenLayers.Layer.OSM(cfgLayer.name,null,cfgLayer.options);
-                break;  
+                break;
                 case 7:
                     if (this.useGMaps) {
                         cfgLayer.options.resolutions = this.map.resolutions;
                         oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
                     }
-                break;          
+                break;
                 case 8:
                     cfgLayer.options.resolutions = this.map.resolutions;
                     oLayer = new OpenLayers.Layer.Bing(cfgLayer.options);
-                break;  
+                break;
                 case 9:
                     //CHISSA PERCHE' QUI NON GLI PIACE L'ARRAY tanto l'ho tolto
                     //cfgLayer.options.tileOrigin = new OpenLayers.LonLat(cfgLayer.options.tileOrigin[0],cfgLayer.options.tileOrigin[1]);
@@ -311,12 +319,12 @@ OpenLayers.GisClient = OpenLayers.Class({
             if (oLayer)
                 this.map.addLayer(oLayer);
         }
-        
+
         if(this.mapsetTiles == 2) this.addMapsetWMTS();
         if(this.mapsetTiles == 3) this.addMapsetWMS();
 
     },
-    
+
     //SERVIVA PER IL TEMA UNICO IN CACHE
     addThemeLayer: function(oLayer){
         var baseUrl = this.mapProxyBaseUrl + this.projectName + "/" + "/" + this.mapsetName +"/wmts/";
@@ -327,7 +335,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             "style": "",
             "matrixSet": this.mapOptions.matrixSet,
             "requestEncoding": "REST",
-            "maxExtent": this.mapOptions.tilesExtent, 
+            "maxExtent": this.mapOptions.tilesExtent,
             "zoomOffset": this.mapOptions.minZoomLevel,
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
@@ -352,7 +360,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             "style": "",
             "matrixSet": this.mapOptions.matrixSet,
             "requestEncoding": "REST",
-            "maxExtent": this.mapOptions.tilesExtent, 
+            "maxExtent": this.mapOptions.tilesExtent,
             "zoomOffset": this.mapOptions.levelOffset,
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
@@ -391,14 +399,14 @@ OpenLayers.GisClient = OpenLayers.Class({
     getFeatureType: function(featureTypeName) {
         var featureTypes = this.featureTypes,
             len = featureTypes.length, fType, i;
-        
+
         for(i = 0; i < len; i++) {
             if(featureTypes[i].typeName == featureTypeName) {
                 fType = featureTypes[i];
                 break;
             }
         }
-        
+
         return fType;
     },
 

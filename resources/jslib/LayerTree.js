@@ -20,14 +20,27 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         OpenLayers.Control.LayerSwitcher.prototype.setMap.apply(this, arguments);
         this.map.events.register("zoomend", this, this.updadeNodeStatus);
 
-        //this.map.events.register('preaddlayer', this, this.addLayer);
-        for (var i = 0; i < this.map.layers.length; i++) {
-            var layer = this.map.layers[i];
-            layer.events.register('loadstart', {layer:layer,control:this}, this.startLoading);
-            layer.events.register('loadend', {layer:layer,control:this}, this.endLoading);
-            if(layer.displayInLayerSwitcher) this.initTreeData(layer);
-        }
+        // ********************* Init base and overlay tree data *********************
+        // **** First, insert empty base layer (Layer 0)
+        emptyBaseLayer = this.map.layers[0];
+        emptyBaseLayer.events.register('loadstart', {layer:emptyBaseLayer,control:this}, this.startLoading);
+        emptyBaseLayer.events.register('loadend', {layer:emptyBaseLayer,control:this}, this.endLoading);
+        if(emptyBaseLayer.displayInLayerSwitcher) this.initTreeData(emptyBaseLayer);
 
+        // **** Insert layers in configuration order, not in Openlayers Map order!
+        for (var i = 0; i < this.map.config.layers.length; i++) {
+            var cfgLayer = this.map.config.layers[i];
+            var mapLayers = this.map.getLayersByName(cfgLayer.name);
+            for (var j = 0; j < mapLayers.length; j++) {
+                var layer = mapLayers[j];
+                if (cfgLayer.options.rootPath == layer.options.rootPath || cfgLayer.options.theme_id == layer.options.theme_id) {
+                    layer.events.register('loadstart', {layer:layer,control:this}, this.startLoading);
+                    layer.events.register('loadend', {layer:layer,control:this}, this.endLoading);
+                    if(layer.displayInLayerSwitcher) this.initTreeData(layer);
+                    break;
+                }
+            }
+        }
     },
 
     draw: function() {
@@ -87,23 +100,23 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         $('#ErrorWindow div[data-role="content"]').empty();
         $('#ErrorWindow div[data-role="loading"]').show();
         $('#ErrorWindow').modal('show');
-        
+
         if(evt.data.url) {
             $.ajax({
                 url: evt.data.url,
                 success: function(response, success, req) {
                     var errorText = 'Impossibile leggere l\'errore';
-                    
+
                     if(req && req.responseXML) {
                         var format = new OpenLayers.Format.OGCExceptionReport(),
                             ogcException;
 
                         try {
                             ogcException = format.read(req.responseXML);
-                            if(!ogcException || !ogcException.exceptionReport || 
-                                !ogcException.exceptionReport.exceptions || 
+                            if(!ogcException || !ogcException.exceptionReport ||
+                                !ogcException.exceptionReport.exceptions ||
                                 !ogcException.exceptionReport.exceptions.length) throw 'Parse error';
-                            
+
                             var errorText = ogcException.exceptionReport.exceptions[0].text;
                             if(text) {
                                 $('#ErrorWindow div[data-role="loading"]').hide();
@@ -139,7 +152,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         }
 
 
-        if(!this.baseTree) this.createBaseTree();       
+        if(!this.baseTree) this.createBaseTree();
         if(!this.overlayTree) this.createOverlayTree();
 
 
@@ -192,10 +205,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
     updadeNodeStatus: function(){
- 
+
         for (var i = 0; i < this.map.layers.length; i++) {
             this.checkNodeState(this.map.layers[i])
-        };   
+        };
 
     },
 
@@ -213,7 +226,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             jQuery.each(childs ,function(_,child){
                 if (child.attributes.layerParam){
                     if(child.checked){
-                        layers.push(child.attributes.layerParam);
+                        // **** Reverse layers order (Use tree order for layers overlap)
+                        layers.unshift(child.attributes.layerParam);
                     }
                 }
                 else {
@@ -221,7 +235,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 }
             });
 
-            //controllo qui se devo accendere i figli oppure il tile-layer mapproxy 
+            //controllo qui se devo accendere i figli oppure il tile-layer mapproxy
             if(tileLayer && layers.length==childs.length){
                 layer.setVisibility(false);
                 tileLayer.setVisibility(true);
@@ -230,11 +244,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 if(tileLayer) tileLayer.setVisibility(false);
                 if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
                 layer.setVisibility(layers.length > 0);
-                
+
                 for (var i = 0, tot_l = childs_ext.length; i < tot_l; i++) {
                     childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
-                }                    
-            } 
+                }
+            }
         }
         else{
             layer.setVisibility(checked)
@@ -248,7 +262,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var inRange;
         var node = self.overlayTree.tree('find',layer.id);
         var skipIndex = 0;
-        
+
         if(node){
             inRange = layer.inRange;
             self.changeNodeState(node,inRange);
@@ -257,12 +271,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     if (layer.nodes[index-skipIndex].title != childNode.text){
                         skipIndex++;
                         return;
-                    }    
+                    }
                     inRange = self.isChildNodeinRange(layer.nodes[index-skipIndex]);
                     self.changeNodeState(childNode,inRange);
                 }
             })
-/*  NON DISABILITO MAI IL NODO DEL TEMA 
+/*  NON DISABILITO MAI IL NODO DEL TEMA
             parentNode = self.overlayTree.tree('getParent',(node.target));
             if(parentNode) {
                 inRange = jQuery(parentNode.target).next().find(".tree-checkbox").length > jQuery(parentNode.target).next().find(".tree-check-disabled").length
@@ -286,7 +300,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(inRange && iconSpan.hasClass("tree-check-disabled")){
             iconSpan.removeClass("tree-check-disabled");
             titleSpan.removeClass("tree-title-disabled");
-        } 
+        }
         if(!inRange && !iconSpan.hasClass("tree-check-disabled")){
             iconSpan.addClass("tree-check-disabled");
             titleSpan.addClass("tree-title-disabled");
@@ -323,10 +337,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //clear out previous layers
         this.clearLayersArray("base");
 
-        //SE HO IL TITOLO DEL BASELAYER VUOTO AGGIUNGO IL TITOLO AL NODO DELL'ALBERO E SPSOSTO IL NODO IN ROOT 
+        //SE HO IL TITOLO DEL BASELAYER VUOTO AGGIUNGO IL TITOLO AL NODO DELL'ALBERO E SPSOSTO IL NODO IN ROOT
         //ALTRIMENTI ELIMINO IL NODO DALL'ALBERO (BASE VUOTA NASCOSTO)
         if(this.emptyTitle == '') {
-            
+
             var chkEnableBaseLayers = document.createElement('input');
             chkEnableBaseLayers.type = 'checkbox';
             chkEnableBaseLayers.id = 'enableBaseLayers';
@@ -336,7 +350,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
             this.baseLbl.innerText = ' Usa sfondo cartografico';
             this.baseLbl.appendChild(chkEnableBaseLayers);
-            
+
             this.baselayerData = this.baselayerData.slice(1);
         } else {
             //this.baselayerData[0] = this.baselayerData[0].children[0];
@@ -348,16 +362,16 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         this.baseLayersDiv.appendChild(ulbaseElem);
         var radioName = self.id + "_radio";
 
-        this.baseTree = jQuery(ulbaseElem).tree({  
+        this.baseTree = jQuery(ulbaseElem).tree({
             animate:true,
             lines:true,
             data: self.baselayerData,
-            formatter:function(node){            
+            formatter:function(node){
                 if(node.children)
                     return node.text;
                 else{
-                    var val = node.attributes.layer.name; 
-                    var id = node.attributes.layer.id;                    
+                    var val = node.attributes.layer.name;
+                    var id = node.attributes.layer.id;
                     var checked = (node.attributes.layer.name == self.map.config.baseLayerName || node.attributes.layer.name == 'EMPTY_BASE_LAYER')?"checked='checked'":"";
                     return '<input type="radio" '+ checked +' id="'+ id +'" name="' + radioName + '">' + node.text;
                 }
@@ -375,12 +389,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     self.baseTree.tree('check',node.target);
             },
 
-        }); 
+        });
 
         jQuery('input:radio[name="' + radioName+ '"]').change(function(){
             self.map.setBaseLayer(self.map.getLayer(this.id));
         });
-        
+
       if(this.emptyTitle == '')
           this.toggleBaseLayerEnabled(self, false);
 
@@ -401,11 +415,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             thNode = this.overlayData[i];
             if(thNode.children.length == 1 && thNode.children[0].text == thNode.text) this.overlayData[i] = thNode.children[0];
         };
-        
+
 
         var uldataElem = document.createElement("ul");
         OpenLayers.Element.addClass(uldataElem, "easyui-tree");
-        this.dataLayersDiv.appendChild(uldataElem);             
+        this.dataLayersDiv.appendChild(uldataElem);
 
         this.overlayTree = jQuery(uldataElem).tree({
             checkbox:true,
@@ -476,7 +490,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
     getFetureTypes: function(WMSLayerName){
-        var result = []; 
+        var result = [];
         for (var i = 0; i < this.map.config.featureTypes.length; i++) {
             if(this.map.config.featureTypes[i].WMSLayerName == WMSLayerName) result.push(this.map.config.featureTypes[i]);
         };
@@ -486,11 +500,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     /*
     getThemeNode: function(nodes,text){
         var node;
-        for (var i = 0; i < nodes.length; i++) { if (nodes[i].text == text) node = nodes[i]; }; 
+        for (var i = 0; i < nodes.length; i++) { if (nodes[i].text == text) node = nodes[i]; };
         if(!node){
             node =  {id:OpenLayers.Util.createUniqueID("base_theme_"), text:text, state:'closed', children:[]};
             nodes.push(node);
-        } 
+        }
         return node;
     },
     */
@@ -502,7 +516,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if (rootPath){
             pathComponents = rootPath.split("/");
         }
-            
+
         for (var j = 0, tot_j = pathComponents.length; j < tot_j; j++)
         {
             var text = pathComponents[j];
@@ -514,12 +528,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             {
                 lvNodes = nodes;
             }
-            for (var i = 0, tot_i = lvNodes.length; i < tot_i; i++) { 
+            for (var i = 0, tot_i = lvNodes.length; i < tot_i; i++) {
                 if (lvNodes[i].text == text) {
                     resNode = lvNodes[i];
                     break;
-                } 
-            } 
+                }
+            }
             if(!resNode){
                 resNode =  {id:OpenLayers.Util.createUniqueID("base_theme_"), text:text, state:'closed', children:[]};
                 lvNodes.push(resNode);
@@ -530,7 +544,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         else
             return nodes;
     },
-    
+
     sortNode: function(nodeA,nodeB){
         var valueA, valueB;
         if (nodeA.attributes.order)
@@ -562,7 +576,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(!oLayer.isBaseLayer && oLayer.theme != oLayer.title) chNode.checked = oLayer.visibility;
         if(oLayer.theme != oLayer.title) fTypes = this.getFetureTypes(oLayer.name); //NO SINGOLO TEMA
 
-        //SE IL LAYER PREVEDE LO SPLIT DEI SINGOLI MAPLAYER LI AGGIUNGO E ASSOCIO LA CORRISPONDENTE FEATURETYPE SE PRESENTE 
+        //SE IL LAYER PREVEDE LO SPLIT DEI SINGOLI MAPLAYER LI AGGIUNGO E ASSOCIO LA CORRISPONDENTE FEATURETYPE SE PRESENTE
         if(typeof(oLayer.nodes)!='undefined') {
             chNode.children = [];
             for (var j = 0; j < oLayer.nodes.length; j++) {
@@ -586,7 +600,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     }
                 }
                 chNode.children.push(leafNode);
-            };                          
+            };
         }
 
         //LAYER COME GRUPPO DI MAPLAYER
@@ -597,7 +611,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 chNode.attributes.featureTypes = fTypes;
             }
         }
-        
+
         if(!chNode.children) {
             chNode.state = 'open';
         }
@@ -605,7 +619,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         thNode = this.getThemeNode(layerTree, rootPath);
         var idxNode = 0;
         var tot_i = thNode.length;
-        while ( idxNode < tot_i) { 
+        while ( idxNode < tot_i) {
             if (thNode[idxNode].text == chNode.text) {
                 if (typeof(thNode[idxNode].attributes) == 'undefined' ){
                     chNode.children = chNode.children.concat(thNode[idxNode].children);
@@ -613,16 +627,16 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     thNode[idxNode] = chNode;
                 }
                 break;
-            } 
+            }
             idxNode++;
-        } 
-        
+        }
+
         if (idxNode == tot_i)
             thNode.push(chNode);
-        
+
         if(rootPath){
             thNode.sort(this.sortNode);
-        }    
+        }
     },
 
     CLASS_NAME: "OpenLayers.Control.LayerTree"
