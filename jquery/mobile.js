@@ -16,15 +16,15 @@ var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
     width: 45,
-    
+
     init: function(selector) {
         var self = this;
-        
+
         self.selector = selector;
         self.$element = $(selector);
-        
+
         self.width = $("#map-overlay-panel").css('width');
-        
+
         $('.panel-close', self.$element).click(function(){
             GisClientMap.map.getControlsBy('id', 'button-layertree')[0].deactivate();
             GisClientMap.map.getControlsBy('id', 'button-resultpanel')[0].deactivate();
@@ -35,47 +35,47 @@ var sidebarPanel = {
         });
         $('.panel-collapse', self.$element).click(function(){
             self.collapse();
-        });  
+        });
 
         $('.panel-clearresults').hide();
 
     },
-    
+
     getCSSWidth: function () {
         var el = $("#map-overlay-panel");
         if (!el.hasClass('panel-open'))
             this.width = window.getComputedStyle(document.getElementById("map-overlay-panel")).getPropertyValue('width');
     },
-    
+
     show: function(panelId) {
         var self = this;
-        
+
         $('div.panel-content', self.$element).children('div').each(function() {
             if($(this).hasClass('panel-header')) return;
-            
+
             $(this).hide();
         });
         $('#'+panelId, self.$element).show();
-        
+
         self.open();
     },
-    
+
     hide: function(panelId) {
         var self = this;
-        
+
         $('#'+panelId, self).hide();
-        
+
         self.closeTimeout = setTimeout(function() {
             self.close();
         }, 100);
     },
-    
+
     open: function() {
         if(this.closeTimeout) {
             clearTimeout(this.closeTimeout);
             this.closeTimeout = null;
         }
-        
+
         var el = $("#map-overlay-panel");
         //var w = width || 300;
         var w = parseInt(this.width,10);
@@ -90,10 +90,10 @@ var sidebarPanel = {
         $("#resultpanel").addClass("smalltable");
         $('div.panel-header', this.$element).show();
         $('#map-overlay-panel').css('right', wr+'px');
-        
+
         this.isOpened = true;
     },
-    
+
     close: function() {
         var el = $("#map-overlay-panel");
         //var w = width || 45;
@@ -107,10 +107,10 @@ var sidebarPanel = {
         $("#resultpanel").addClass("smalltable");
         $('div.panel-header', this.$element).hide();
         $('#map-overlay-panel').css('right', '0px');
-        
+
         this.isOpened = false;
     },
-    
+
     expand: function() {
         var el = $('#map-overlay-panel');
         var w = ($(document).width() / 3) * 2;
@@ -121,18 +121,18 @@ var sidebarPanel = {
         //    }
         //});
         $('#resultpanel').removeClass('smalltable');
-        
+
         $('.panel-expand', this.$element).hide();
         $('.panel-collapse', this.$element).show();
     },
-        
+
     collapse: function() {
         var el = $('#map-overlay-panel');
         //el.animate({width: '300px'}, 10);
         var w = 300;
         el.css({width:w+"px"});
         $('#resultpanel').addClass('smalltable');
-        
+
         $('.panel-expand', this.$element).show();
         $('.panel-collapse', this.$element).hide();
     }
@@ -155,7 +155,7 @@ var customCreateControlMarkup = function(control) {
         textSpan.innerHTML = control.text;
     }
     button.appendChild(textSpan);
-    
+
     // **** Manually trigger sidebar buttons to avoid erratic/device dependent browser touch handling problems
     button.addEventListener('touchstart', function(e) {
         e.preventDefault();
@@ -184,11 +184,11 @@ var customCreateControlMarkup = function(control) {
                         targetCTRL[0].deactivate();
                     else
                         targetCTRL[0].activate();
-                }                        
+                }
             }
         }
         return false;});
-    
+
     return button;
 };
 
@@ -197,9 +197,9 @@ var initMap = function(){
     var map=this.map;
     map.Z_INDEX_BASE['Popup'] = 1500;
     map.Z_INDEX_BASE['Control'] = 1550;
-    
+
     OpenLayers.Handler.Feature.prototype.clickTolerance = 20;
-    
+
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -228,21 +228,21 @@ var initMap = function(){
                 this.activeLayers.push(map.layers[i]);
             }
         }
-        
+
         $(".dataLayersDiv").hide();
         this.mapsetTileLayer.setVisibility(true);
 
        // console.log(this.activeLayers)
 
         $(".dataLbl").html('<input type="checkbox" name="checkbox_fastNavigate" id="checkbox_fastNavigate" class="custom" data-mini="true"><label for="checkbox_fastNavigate">Attiva navigazione veloce</label>');
-        $("#checkbox_fastNavigate").checkboxradio();                     
+        $("#checkbox_fastNavigate").checkboxradio();
         $("#checkbox_fastNavigate").prop( "checked", true ).checkboxradio( "refresh" );
-                
+
         $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
-        
+
         var self = this;
         $("#checkbox_fastNavigate").change(function(){
-              
+
             //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
             if(this.checked){
                 $(".dataLayersDiv").hide();
@@ -265,7 +265,7 @@ var initMap = function(){
                     self.activeLayers[i].setVisibility(true);
                 }
             }
-            
+
             $("#checkbox_fastNavigate").checkboxradio("refresh");
         });
 
@@ -281,11 +281,11 @@ var initMap = function(){
     //******************** TOOLBARS STRUMENTI (IN ALTO A SX) *****************************************
 
     //
-    
+
     if(ConditionBuilder) {
         ConditionBuilder.baseUrl = self.baseUrl;
     }
-    
+
     var reportToolbar = new OpenLayers.GisClient.reportToolbar({
         baseUrl: self.baseUrl,
         createControlMarkup:customCreateControlMarkup,
@@ -297,15 +297,15 @@ var initMap = function(){
         rowsPerPage: 200,
         selectedCols: [],
         filterButtonHander: function (event) {
-            
+
             var selectedReport =  $('select.olControlReportMapSelect').val();
 
             if(selectedReport < 1){
                 return alert('Nessun modello di report selezionato');
             }
-            
+
             var reportDef = reportToolbar.getReportDef(selectedReport);
-            
+
             if (!reportDef) {
                 return alert('Defininzione del modello di report non trovata, ID: ' + selectedReport);
             }
@@ -314,24 +314,24 @@ var initMap = function(){
                 ConditionBuilder.init('.query-report');
                 ConditionBuilder.setFeatureType(reportDef);
              }
-                
+
             var form = '',
                 len = reportDef.properties.length, property, i;
-            
+
             $('#searchReportTitle').html('Filtra Report '+reportDef.title);
-            
+
             //form += '<form role="form">';
             form += '<table>';
-            
+
             for(i = 0; i < len; i++) {
                 property = reportDef.properties[i];
-                
+
                 if(!property.searchType) continue; //searchType undefined oppure 0
-                
+
                 //form += '<div class="form-group">'+
                 //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
                 form += '<tr><td>'+property.header+'</td><td>';
-                
+
                 switch(property.searchType) {
                     case 1:
                     case 2: //testo
@@ -358,7 +358,7 @@ var initMap = function(){
                         form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" fieldFilter="'+property.fieldFilter+'" id="search_form_input_'+i+'" style="width:300px;">';
                     break;
                 }
-                
+
                 //form += '</div>';
                 form += '</td></tr>';
             }
@@ -366,25 +366,39 @@ var initMap = function(){
 
             form += '<button type="submit" class="btn btn-default ui-btn ui-shadow ui-corner-all">Filtra</button>'+
                 '</form>';
-             
+
             $('#ricerca-report').empty().append(form);
-         
+
             $('#ricerca-report input[searchType="3"],#ricerca-report input[searchType="6"]').each(function(e, input) {
                 var fieldId = $(input).attr('fieldId');
                 var fieldFilter = $(input).attr('fieldFilter');
-                        
+
                 $(input).select2({
                     minimumInputLength: 0,
                     query: function(query) {
-                        var filterValue = null;
+                        var filterValue = '';
+                        var filterFields = '';
+                        var fieldFilterTmp = fieldFilter;
 
-                        if (fieldFilter !== 'undefined'){
-                            if (typeof $('#ricerca-report input[fieldId="'+fieldFilter+'"]').select2('data') !== "undefined" && $('#ricerca-report input[fieldId="'+fieldFilter+'"]').select2('data') !== null)
-                                filterValue =  $('#ricerca-report input[fieldId="'+fieldFilter+'"]').select2('data').text;
+                        while (fieldFilterTmp !== 'undefined' && fieldFilterTmp !== null){
+                            if ($('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').length === 0) {
+                                break;
+                            }
+                            if (typeof $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== "undefined" && $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== null) {
+                                var filterSelect = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data');
+                                filterValue +=  $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data').text + ',';
+                                filterFields += fieldFilterTmp + ',';
+                                fieldFilterTmp = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
+                            }
                         }
-                        if (typeof $('#ricerca-report input[fieldIFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
+                        if (filterValue.length > 0) {
+                            filterValue = filterValue.slice(0, -1);
+                            filterFields = filterFields.slice(0, -1);
+                        }
+
+                        if (typeof $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
                             $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data', null);
-                        
+
                         $.ajax({
                             url: self.baseUrl + 'services/xRpSuggest.php',
                             data: {
@@ -407,24 +421,24 @@ var initMap = function(){
                     }
                 });
             });
-             
+
             $('#ricerca-report button[type="submit"]').click(function(event) {
                 event.preventDefault();
-                
-                
+
+
                 var query = '';
                 var values = {};
                 var par_idx = 0;
-                
+
                 $('#ricerca-report input').each(function(e, input) {
                     var name = $(input).attr('name'),
                         value = $(input).val(),
                         searchType = $(input).attr('searchType'),
                         type = '=',
                         param_x = ':param_' + par_idx;
-                        
+
                     if(!value || value == '') return;
-                    
+
                     if(searchType == 4) {
                         type = $('#ricerca input[name="'+name+'_operator"]').val();
                     }
@@ -432,24 +446,24 @@ var initMap = function(){
                         type = 'ILIKE';
                         value = '%'+value+'%';
                     }
-                    
+
                     if (query.length > 0) query += ' AND ';
-                    
+
                     query += name + ' ' + type + ' ' + param_x;
                     values[param_x] = value;
-                    
+
                     par_idx++;
                 });
-                
+
                 if(query.length == 0) return alert('Specificare almeno un parametro di ricerca');
-                
+
                 reportToolbar.displayReportHandler({'query': query, 'values': values});
 
                 $('#SearchReportWindow').modal('hide');
             });
-        
+
             $('#SearchReportWindow').modal('show');
-        
+
 
         },
         eventListeners: {
@@ -457,12 +471,12 @@ var initMap = function(){
                     var self = this;
                     var reportDef = event.reportDef,
                         len = reportDef.properties.length, i, property,
-                        table = '<table id="reportTbl"><thead><tr>', 
+                        table = '<table id="reportTbl"><thead><tr>',
                         exportLinks = ' <a href="#" class="reportTbl_export" action="xls" reportID="' + event.reportID + '" ><img src="../resources/themes/icons/xls.gif">&nbsp;Esporta in Excel</a>'
                                     + ' <a href="#" class="reportTbl_export" action="pdf" reportID="' + event.reportID + '" ><img src="../resources/themes/icons/acrobat.gif">&nbsp;Esporta in PDF</a>',
                         cols = [], col, j,
                         results, result, value, title;
-                    
+
                     table =  exportLinks + table;
                    // **** Insert ID column
                    table += '<th>ID</th>';
@@ -476,24 +490,24 @@ var initMap = function(){
                     table += '</tr></thead><tbody>';
 
                     table += '</tr>';
-                    
+
                     table += '</tbody></table>';
 
                     $('#DetailsWindow div.modal-body').html(table);
                     $('#DetailsWindow h4.modal-title').html('Report ' + reportDef.title);
                     $('#DetailsWindow').modal('show');
-                    
+
                     self.getReportData(event.reportID, self.currentPage, event.filter);
-                    
+
                     $('.reportTbl_export').click(function() {
                         var action = this.getAttribute('action');
                         var reportID = this.getAttribute('reportID');
                         var me = self;
                         me.exportReport(reportID, action, event.filter);
                     });
-                    
+
                     self.evt = event;
-                    
+
                     $("#DetailsWindow").scroll(function() {
                         var me = self;
                         if (me.totalRows <= me.currentPage*me.rowsPerPage)
@@ -524,11 +538,11 @@ var initMap = function(){
                    rowHtml += '</tr>';
                    table.append(rowHtml);
                 }
-           }    
+           }
         }
     });
     map.addControl(reportToolbar);
-    
+
     var queryToolbar = new OpenLayers.GisClient.queryToolbar({
         baseUrl: self.baseUrl,
         createControlMarkup:customCreateControlMarkup,
@@ -552,7 +566,7 @@ var initMap = function(){
                     if(event.vectorFeaturesOverLimit) {
                         alert('I risultati dell\'interrogazione sono troppi: alcuni oggetti non sono stati disegnati su mappa ');
                     }
-                    
+
                     $('.panel-clearresults').show();
                     //console.log(event.mode);
                     //console.log(event.layer.getDataExtent());
@@ -564,7 +578,7 @@ var initMap = function(){
                 }
             },
             'featureTypeSelected': function(fType) {
-                
+
             },
             'featureselected': function(event) {
 
@@ -574,7 +588,7 @@ var initMap = function(){
                     self.popupOpenTimeout = null;
                     self.removePopup(event);
                 }
-                
+
                 var feature = event.feature,
                     featureType = feature.featureTypeName;
 
@@ -582,12 +596,12 @@ var initMap = function(){
                 var container = $('#sidebar-panel div.panel-content');
                 container.scrollTop(0);
                 if(element.length) {
-                    //var containerTop = $('#sidebar-panel').scrollTop(); 
-                    var containerTop = 0; 
-                    var containerBottom = containerTop + container.height(); 
+                    //var containerTop = $('#sidebar-panel').scrollTop();
+                    var containerTop = 0;
+                    var containerBottom = containerTop + container.height();
                     var elemTop = element.offset().top;
                     //var elemTop = 0;
-                    var elemBottom = elemTop + $(element).height(); 
+                    var elemBottom = elemTop + $(element).height();
 
                     if (elemTop < containerTop) {
                         container.scrollTop(elemTop);
@@ -595,7 +609,7 @@ var initMap = function(){
                         container.scrollTop(elemBottom - container.height());
                     }
                     element.css('background-color', 'yellow');
-                    
+
                     if(!sidebarPanel.isOpened) {
                         sidebarPanel.show('resultpanel');
                     }
@@ -633,10 +647,10 @@ var initMap = function(){
                 var featureType = event.featureType,
                     fType = GisClientMap.getFeatureType(featureType),
                     len = fType.properties.length, i, property,
-                    table = '<table><thead><tr>', 
+                    table = '<table><thead><tr>',
                     cols = [], col, j,
                     results, result, value, title;
-                
+
                 try {
                     results = $.parseJSON(event.response.responseText);
                 } catch(e) {
@@ -645,9 +659,9 @@ var initMap = function(){
 
                 for(i = 0; i < len; i++) {
                     property = fType.properties[i];
-                    
+
                     if(!property.relationName || property.relationName != event.relation.relationName) continue;
-                    
+
                     title = property.header || property.name;
                     table += '<th>'+title+'</th>';
                     cols.push(property.name);
@@ -656,19 +670,19 @@ var initMap = function(){
 
                 for(i = 0; i < results.length; i++) {
                     result = results[i];
-                    
+
                     table += '<tr>';
-                    
+
                     for(j = 0; j < cols.length; j++) {
                         col = cols[j];
                         value = result[col] || '';
-                        
+
                         table += '<td>'+value+'</td>';
                     }
                     table += '</tr>';
                 }
                 table += '</tbody></table>';
-                
+
                 $('#DetailsWindow div.modal-body').html(table);
                 var title = event.relation.relationTitle || event.relation.relationName;
                 $('#DetailsWindow h4.modal-title').html(title + ' di ' + fType.title);
@@ -686,38 +700,38 @@ var initMap = function(){
             } else {
                 $('li[role="advanced-search"]').hide();
             }
-                
+
             if(selectedFeatureType == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS ||
                 selectedFeatureType == OpenLayers.GisClient.queryToolbar.ALL_LAYERS) {
                 return alert('Seleziona un livello prima');
             }
-            
+
             fType = GisClientMap.getFeatureType(selectedFeatureType);
             if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
-            
+
             if(ConditionBuilder) {
                 ConditionBuilder.init('.query');
                 ConditionBuilder.setFeatureType(fType);
             }
-            
+
             var form = '',
-                properties = fType.properties, 
+                properties = fType.properties,
                 len = properties.length, property, i;
-            
+
             $('#searchFormTitle').html('Ricerca '+fType.title);
-            
+
             //form += '<form role="form">';
             form += '<table>';
-            
+
             for(i = 0; i < len; i++) {
                 property = properties[i];
-                
+
                 if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
-                
+
                 //form += '<div class="form-group">'+
                 //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
                 form += '<tr><td>'+property.header+'</td><td>';
-                
+
                 switch(property.searchType) {
                     case 1:
                     case 2: //testo
@@ -744,36 +758,50 @@ var initMap = function(){
                         form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" fieldFilter="'+property.fieldFilter+'" id="search_form_input_'+i+'" style="width:300px;">';
                     break;
                 }
-                
+
                 //form += '</div>';
                 form += '</td></tr>';
             }
             form += '</table>';
-            
+
             if(mode == 'default') {
                 form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>';
             }
             form += '<button type="submit" class="btn btn-default ui-btn ui-shadow ui-corner-all">Cerca</button>'+
                 '</form>';
-            
+
             $('#ricerca').empty().append(form);
-            
+
             $('#ricerca input[searchType="3"],#ricerca input[searchType="6"]').each(function(e, input) {
                 var fieldId = $(input).attr('fieldId');
                 var fieldFilter = $(input).attr('fieldFilter');
-                        
+
                 $(input).select2({
                     minimumInputLength: 0,
                     query: function(query) {
-                        var filterValue = null;
+                        var filterValue = '';
+                        var filterFields = '';
+                        var fieldFilterTmp = fieldFilter;
 
-                        if (fieldFilter !== 'undefined'){
-                            if (typeof $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data') !== null)
-                                filterValue =  $('#ricerca input[fieldId="'+fieldFilter+'"]').select2('data').text;
+                        while (fieldFilterTmp !== 'undefined' && fieldFilterTmp !== null){
+                            if ($('#ricerca input[fieldId="'+fieldFilterTmp+'"]').length === 0) {
+                                break;
+                            }
+                            if (typeof $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== null) {
+                                var filterSelect = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data');
+                                filterValue +=  $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data').text + ',';
+                                filterFields += fieldFilterTmp + ',';
+                                fieldFilterTmp = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
+                            }
                         }
-                        if (typeof $('#ricerca input[fieldIFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
+                        if (filterValue.length > 0) {
+                            filterValue = filterValue.slice(0, -1);
+                            filterFields = filterFields.slice(0, -1);
+                        }
+
+                        if (typeof $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
                             $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data', null);
-                        
+
                         $.ajax({
                             url: self.baseUrl + 'services/xSuggest.php',
                             data: {
@@ -796,19 +824,19 @@ var initMap = function(){
                     }
                 });
             });
-            
+
             $('#ricerca button[type="submit"]').click(function(event) {
                 event.preventDefault();
-                
+
                 var filters = [];
                 $('#ricerca input[gcfilter!="false"]').each(function(e, input) {
                     var name = $(input).attr('name'),
                         value = $(input).val(),
                         searchType = $(input).attr('searchType'),
                         type = OpenLayers.Filter.Comparison.EQUAL_TO;
-                    
+
                     if(!value || value == '') return;
-                    
+
                     if(searchType == 4) {
                         type = $('#ricerca input[name="'+name+'_operator"]').val();
                     }
@@ -816,24 +844,24 @@ var initMap = function(){
                         type = OpenLayers.Filter.Comparison.LIKE;
                         value = '%'+value+'%';
                     }
-                    
+
                     filters.push(new OpenLayers.Filter.Comparison({
                         type: type,
                         property: name,
                         value: value
                     }));
-                    
+
                 });
-                
+
                 if(filters.length == 0) return alert('Specificare almeno un parametro di ricerca');
-                
+
                 var geometry;
                 if($('#ricerca input[name="use_current_extent"]').prop('checked')) {
                     geometry = GisClientMap.map.getExtent();
                 } else {
                     geometry = GisClientMap.map.getMaxExtent();
                 }
-                
+
                 if(filters.length > 1) {
                     var filter = new OpenLayers.Filter.Logical({
                         type: OpenLayers.Filter.Logical.AND,
@@ -842,12 +870,12 @@ var initMap = function(){
                 } else {
                     var filter = filters[0];
                 }
-                
+
                 var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
                 var oldQueryFeatureType = null;
                 var oldOnlyVisibleLayers = null;
                 var oldLayers = null;
-                
+
                 if(mode == 'fast') {
                     oldLayers = control.layers;
                     oldQueryFeatureType = control.queryFeatureType;
@@ -856,14 +884,14 @@ var initMap = function(){
                     control.queryFeatureType = fType.typeName;
                     control.onlyVisibleLayers = false;
                 }
-                
+
                 var oldQueryFilters = control.queryFilters[fType.typeName];
                 control.queryFilters[fType.typeName] = filter;
                 //var oldHighlight = control.highLight;
                 //control.highLight = true;
 
                 control.select(geometry, mode);
-                
+
                 control.queryFilters[fType.typeName] = oldQueryFilters;
                 if (mode == 'fast'){
                     control.layers = oldLayers;
@@ -874,19 +902,19 @@ var initMap = function(){
 
                 $('#SearchWindow').modal('hide');
             });
-        
+
             //$('#myModal').modal({remote:'test_table.html'});
             $('#SearchWindow').modal('show');
-        
+
         }
 
     });
     queryToolbar.defaultControl = queryToolbar.controls[0];
     map.addControl(queryToolbar);
-    
+
     $('.panel-clearresults').click(function(event) {
         event.preventDefault();
-        
+
         queryToolbar.clearResults();
         if ($('#resultpanel').is(":visible"))
             sidebarPanel.hide();
@@ -894,7 +922,7 @@ var initMap = function(){
         //sidebarPanel.close();
     });
 
-    
+
     //RICERCA E INTERROGAZIONE VELOCE DA COMBO IN BASSO
     //popolo la select nel footer per le ricerche veloci
     var options = [];
@@ -902,7 +930,7 @@ var initMap = function(){
         var layer = queryToolbar.wfsCache[layerId];
         for(var i = 0; i < layer.featureTypes.length; i++) {
             var featureType = layer.featureTypes[i];
-            
+
             if(featureType.searchable != 2) continue;
             options.push('<option value="'+featureType.typeName+'">'+featureType.title+'</option>');
         }
@@ -934,15 +962,15 @@ var initMap = function(){
     })
     var controls = [
             new OpenLayers.Control.DynamicMeasure(OpenLayers.Handler.Path,{
-                iconclass:"glyphicon-white glyphicon-resize-horizontal", 
-                text:"Misura distanza", 
+                iconclass:"glyphicon-white glyphicon-resize-horizontal",
+                text:"Misura distanza",
                 title:"Misura distanza",
                 geodesic:isGeodesicMeasure,
                 eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
             }),
             new OpenLayers.Control.DynamicMeasure(OpenLayers.Handler.Polygon,{
-                iconclass:"glyphicon-white glyphicon-retweet", 
-                text:"Misura superficie", 
+                iconclass:"glyphicon-white glyphicon-retweet",
+                text:"Misura superficie",
                 title:"Misura superficie",
                 geodesic:isGeodesicMeasure,
                 eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
@@ -979,8 +1007,8 @@ var initMap = function(){
                 serviceURL:self.baseUrl + 'services/iren/findPipes.php',
                 distance:50,
                 highLight: true,
-                iconclass:"glyphicon-white glyphicon-tint", 
-                tbarpos:"last", 
+                iconclass:"glyphicon-white glyphicon-tint",
+                tbarpos:"last",
                 title:"Ricerca valvole",
                 trigger: function() {
                     if (this.active) {
@@ -1003,15 +1031,15 @@ var initMap = function(){
         div:document.getElementById("map-sidebar"),
         createControlMarkup:customCreateControlMarkup
     });
-    
+
     var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){
                 map.currentControl && map.currentControl.deactivate();
                 map.currentControl=this}}});
     map.defaultControl = defaultControl;
-    
+
     var geolocateControl = new OpenLayers.Control.Geolocate({
-        tbarpos:"last", 
-        iconclass:"glyphicon-white glyphicon-map-marker", 
+        tbarpos:"last",
+        iconclass:"glyphicon-white glyphicon-map-marker",
         title:"La mia posizione",
         watch:false,
         bind:false,
@@ -1046,7 +1074,7 @@ var initMap = function(){
         map.setCenter(lonLat);
         map.zoomToScale(1000, true);
     });
-    
+
 
     sideBar.addControls([
         //new OpenLayers.Control.ZoomIn({tbarpos:"first", iconclass:"glyphicon-white glyphicon-white glyphicon-plus", title:"Zoom avanti"}),
@@ -1065,15 +1093,15 @@ var initMap = function(){
             trigger: function() {
                 if (this.map) {
                     this.map.zoomToExtent(this.map.maxExtent);
-                }    
+                }
             },
-            iconclass:"glyphicon-white glyphicon-globe", 
+            iconclass:"glyphicon-white glyphicon-globe",
             title:"Zoom estensione"
         }),
         geolocateControl,
 
         btnSearch = new OpenLayers.Control.Button({
-            iconclass:"glyphicon-white  glyphicon-info-sign", 
+            iconclass:"glyphicon-white  glyphicon-info-sign",
             title:"Pannello di ricerca",
             tbarpos:"first",
             trigger: function() {
@@ -1088,12 +1116,12 @@ var initMap = function(){
                     if (this.map.currentControl != queryToolbar.controls[0])
                         queryToolbar.controls[0].activate();
                 }
-            }  
+            }
         }),
         btnLayertree = new OpenLayers.Control.Button({
             id: 'button-layertree',
             exclusiveGroup: 'sidebar',
-            iconclass:"icon-layers", 
+            iconclass:"icon-layers",
             title:"Pannello dei livelli",
             trigger: function() {
                 if (this.active) {
@@ -1105,12 +1133,12 @@ var initMap = function(){
                     this.activate();
                     sidebarPanel.show('layertree');
                 }
-            }  
+            }
         }),
         btnResult = new OpenLayers.Control.Button({
             id: 'button-resultpanel',
             exclusiveGroup: 'sidebar',
-            iconclass:"glyphicon-white glyphicon-list-alt", 
+            iconclass:"glyphicon-white glyphicon-list-alt",
             title:"Tabella dei risultati",
             trigger: function() {
                 if (this.active) {
@@ -1122,11 +1150,11 @@ var initMap = function(){
                     this.activate();
                     sidebarPanel.show('resultpanel');
                 }
-            }  
+            }
         }),
-        
+
         btnReport = new OpenLayers.Control.Button({
-            iconclass:"glyphicon-white  glyphicon-stats", 
+            iconclass:"glyphicon-white  glyphicon-stats",
             title:"Pannello di visualizzazione reports",
             tbarpos:"last",
             trigger: function() {
@@ -1143,7 +1171,7 @@ var initMap = function(){
                     //adjustPanZoomBar(reportToolbar, 60);
 
                 }
-            }  
+            }
         }),
 
         new OpenLayers.Control.Button({tbarpos:"first",iconclass:"glyphicon-white glyphicon-resize-small", title:"Misure",
@@ -1159,7 +1187,7 @@ var initMap = function(){
                     measureToolbar.activate();
                     //adjustPanZoomBar(measureToolbar, 27);
                 }
-            }  
+            }
         }),
 
 /*
@@ -1170,8 +1198,8 @@ var initMap = function(){
                 'deactivate': function(){vectorEditor.stopEditMode();}
             }
         }),
-        
-   */     
+
+   */
         new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", title:"Redline",
             trigger: function() {
                 if (this.active) {
@@ -1189,19 +1217,19 @@ var initMap = function(){
                     $('#map-toolbars').css('top', nShift + 'px');
                     //adjustPanZoomBar(redlineToolbar, 44);
                 }
-            }      
+            }
         }),
-        
+
         pSelect,
 
         btnPrint = new OpenLayers.Control.PrintMap({
-            tbarpos:"first", 
-            //type: OpenLayers.Control.TYPE_TOGGLE, 
+            tbarpos:"first",
+            //type: OpenLayers.Control.TYPE_TOGGLE,
             baseUrl:self.baseUrl,
             defaultLayers: self.mapsetTiles?self.activeLayers.slice(0):[],
             formId: 'printpanel',
             exclusiveGroup: 'sidebar',
-            iconclass:"glyphicon-white glyphicon-print", 
+            iconclass:"glyphicon-white glyphicon-print",
             title:"Pannello di stampa",
             waitFor: 'panelready',
             allowDrag: true,
@@ -1240,9 +1268,9 @@ var initMap = function(){
                     $('#print_panel_layout').controlgroup();
                     $('#print_panel_format').controlgroup();
                     $('#print_panel_scalemode').controlgroup();
-                    
+
                     $('#'+me.formId+' input[name="scale"]').textinput();
-                    
+
                     if(!userScale) {
                         me.boxScale?$('#'+me.formId+' input[name="scale"]').val(me.boxScale):$('#'+me.formId+' input[name="scale"]').val(scale);
                         $('#'+me.formId+' input[name="scale"]').prop('disabled', true);
@@ -1261,7 +1289,7 @@ var initMap = function(){
                             }
                         });
                     }
-                    
+
                     $('#'+me.formId+' input[name="scale_mode"]').change(function() {
                         if (this.value == 'user') {
                             $('#'+me.formId+' input[name="scale"]').prop('disabled', false);
@@ -1285,7 +1313,7 @@ var initMap = function(){
                         var value = $(this).val();
                         if($(this).data("lastval")!= value){
 
-                            $(this).data("lastval",value);        
+                            $(this).data("lastval",value);
                             clearTimeout(timerid);
 
                             timerid = setTimeout(function() {
@@ -1296,7 +1324,7 @@ var initMap = function(){
                             },500);
                         };
                     });
-                    
+
                     $('#'+me.formId+' input[name="direction"]').change(function() {
                         if (me.pages) {
                             var pagesList;
@@ -1325,19 +1353,19 @@ var initMap = function(){
                         me.pageFormat = $('#'+me.formId+' select[name="formato"]').val();
                         me.updatePrintBox();
                     });
-                    
+
                     $('#'+me.formId+' select[name="print_resolution"]').change(function() {
                         me.printResolution = this.value;
                     });
-                    
+
                     $('#'+me.formId+' textarea[name="text"]').change(function() {
                         me.printText = this.value;
                     });
-                    
+
                     $('#'+me.formId+' input[name="date"]').change(function() {
                         me.printDate = this.value;
                     });
-                    
+
                     $('#'+me.formId+' input[name="legend"]').change(function() {
                         this.value=='yes'?me.printLegend = this.value:me.printLegend=null;
                     });
@@ -1380,15 +1408,15 @@ var initMap = function(){
                         $('#'+me.formId+' a[role="pdf"]').attr('href', event.file);
                         $('#'+me.formId+' a[role="pdf"] span[role="icon"]').removeClass('glyphicon-disabled').addClass('glyphicon-white');
                     }
-                    
+
                     var win = window.open(event.file, '_blank');
                     win.focus();
                 }
             }
         }),
-        
-        new OpenLayers.Control.Button({ 
-            iconclass:"glyphicon-white  glyphicon-eye-open", 
+
+        new OpenLayers.Control.Button({
+            iconclass:"glyphicon-white  glyphicon-eye-open",
             title:"Mappa di riferimento",
             tbarpos:"last",
             trigger: function() {
@@ -1401,16 +1429,16 @@ var initMap = function(){
                     this.activate();
                     GisClientMap.overviewMap.show();
                 }
-            }      
+            }
         })
-        
-   /*     
+
+   /*
         ,
         btnSettings = new OpenLayers.Control.Button({
-            tbarpos:"last", 
+            tbarpos:"last",
             exclusiveGroup: 'sidebar',
-            type: OpenLayers.Control.TYPE_TOGGLE, 
-            iconclass:"glyphicon-white glyphicon-wrench", 
+            type: OpenLayers.Control.TYPE_TOGGLE,
+            iconclass:"glyphicon-white glyphicon-wrench",
             title:"Settings",
 
         })
@@ -1460,11 +1488,11 @@ var initMap = function(){
 
     var showCurrentScale = function() {
         var currentZoom = map.getZoom();
-        
+
         $('#map-select-scale').val(currentZoom);
     };
     showCurrentScale.call(null);
-    
+
     map.events.register('zoomend', null, showCurrentScale);*/
 
 
@@ -1520,7 +1548,7 @@ var initMap = function(){
     });
     $('#mapset-login a[action="logout"]').on('click',function(event){
         event.preventDefault();
-        
+
         $.ajax({
             url: self.baseUrl + 'logout.php',
             type: 'POST',
@@ -1537,8 +1565,8 @@ var initMap = function(){
             }
         });
     });
-    
-    
+
+
     var onResize = function() {
         if($(window).width() < 1000) $('#map-coordinates').hide();
         var panelContentHeight = $(window).height() - $('div.panel-header').height() - $('#map-footer').height() - 35;
@@ -1552,31 +1580,31 @@ var initMap = function(){
     //queryToolbar.activate();
     //queryToolbar.controls[0].activate();
     //map.zoomToScale(2000)
-    
+
     var len = GisClientMap.mapsets.length, i, mapset,
         options = [], option;
 
     for(i = 0; i < len; i++) {
         mapset = GisClientMap.mapsets[i];
-        
+
         option = '<option value="'+mapset.mapset_name+'"';
         if(mapset.mapset_name == GisClientMap.mapsetName) option += ' selected ';
         option += '>'+mapset.mapset_title+'</option>';
-        
+
         options.push(option);
     }
     $('#mapset-switcher select').html(options);
     $('#mapset-switcher select').change(function() {
         var mapset = $(this).val();
         if(mapset == GisClientMap.mapsetName) return;
-        
+
         var currentUrl = window.location.href;
         var newUrl = currentUrl.replace('mapset='+GisClientMap.mapsetName, 'mapset='+mapset);
-        
+
         window.location.href = newUrl;
     });
 
-        
+
 }//END initMap
 
 
@@ -1612,7 +1640,7 @@ var initMap = function(){
                 }),
                 //new OpenLayers.Control.PinchZoom(),
                 new OpenLayers.Control.LayerTree({
-                    emptyTitle:'', 
+                    emptyTitle:'',
                     div:OpenLayers.Util.getElement('layertree-tree')
                 }),
                 layerLegend
@@ -1634,10 +1662,10 @@ var initMap = function(){
 
 OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
     CLASS_NAME: "OpenLayers.GisClient.Toolbar",
-    
+
     activateControl: function(control) {
         var len = this.controls.length, i;
-        
+
         if(control.exclusiveGroup) {
             for(i = 0; i < len; i++) {
                 if(this.controls[i] != control &&
@@ -1646,17 +1674,17 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
                 }
             }
         }
-        
+
         OpenLayers.Control.Panel.prototype.activateControl.apply(this, [control]);
     }
 });
 /*
-$(document).on('pagebeforeshow', null, function(){       
+$(document).on('pagebeforeshow', null, function(){
     $(document).on('click', null,function(e) {
         alert('Button click');
-    }); 
+    });
     $(document).on('mouseup', null,function(e) {
         alert('Button click');
-    }); 
+    });
 });
 */
