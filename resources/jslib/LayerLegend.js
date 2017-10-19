@@ -1,7 +1,7 @@
 OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
     autoLoad: true,
     loaded: false,
-    
+
     initialize: function(options) {
         OpenLayers.Control.prototype.initialize.apply(this, arguments);
     },
@@ -10,55 +10,62 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
         this.map.events.unregister("changelayer", this, this.layerChanged);
         OpenLayers.Control.prototype.destroy.apply(this, arguments);
     },
-    
+
     setMap: function(map) {
         OpenLayers.Control.prototype.setMap.apply(this, arguments);
-        
+
         if(this.autoLoad) {
             this.load();
         }
 
     },
-    
+
     load: function() {
         var len = this.map.layers.length, i, layer, j,
             params, legendUrls, paramsString, legendNodes = [], node, nodeHtml;
-        
+
         for(i = 0; i < len; i++) {
             layer = this.map.layers[i];
-            
+
             legendUrls = this.getLegendUrls(layer);
-            
-            if(!legendUrls || !legendUrls.length) continue;
-            
+
+            if(!legendUrls)
+                continue;
+
             node = document.createElement('div');
             node.setAttribute('id', 'legend_'+layer.id);
             node.style.display = (this.layerIsVisible(layer) ? 'block' : 'none');
+
+            if(typeof(legendUrls) == 'object' && !legendUrls.length) {
+                legendNodes.push(node);
+                continue;
+            }
+
             nodeHtml = '<p>'+layer.title+'</p>';
             for(j = 0; j < legendUrls.length; j++) {
                 var itemID = 'legend_'+layer.id+'_url_'+j;
-                this.checkImgSize(legendUrls[j], itemID);
+                this.checkImgSize(legendUrls[j], itemID, true);
                 nodeHtml += '<div id='+itemID+'><img src="'+legendUrls[j]+'"><br></div>';
             }
             node.innerHTML = nodeHtml + '<br>';
-            
+
             legendNodes.push(node);
         }
-        
+
         var len = legendNodes.length;
         for(i = 0; i < len; i++) {
             this.div.appendChild(legendNodes[i]);
         }
 
         this.map.events.register("changelayer", this, this.layerChanged);
-        
+
         this.loaded = true;
     },
-    
+
     getLegendUrls: function(layer) {
-        var params = {}, 
+        var params = {},
             legendUrls = [];
-        
+
         switch(layer.CLASS_NAME) {
             case 'OpenLayers.Layer.WMS':
                 var layers;
@@ -72,7 +79,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 for(i = 0; i < len; i++) {
                     layerName = layers[i];
                     params = {};
-                        
+
                     OpenLayers.Util.extend(params, layer.params);
                     OpenLayers.Util.extend(params, {
                         REQUEST: 'GetLegendGraphic',
@@ -80,7 +87,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                         WIDTH: 500
                     });
                     delete params.LAYERS;
-                    
+
                     paramsString = OpenLayers.Util.getParameterString(params);
                     legendUrls.push(OpenLayers.Util.urlAppend(layer.url, paramsString));
                 }
@@ -94,31 +101,51 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                         SERVICE: 'WMS',
                         VERSION: '1.1.1'
                     };
-                    
+
                     paramsString = OpenLayers.Util.getParameterString(params);
                     legendUrls.push(OpenLayers.Util.urlAppend(layer.owsurl, paramsString));
                 }
             break;
             default:
-                //console.log('legend not implemented for '+layer.CLASS_NAME + ' ('+layer.name+')');
+                legendUrls = null;
             break;
         }
-        
+
         return legendUrls;
     },
-    
+
     layerChanged: function(event) {
-        if(event.property != 'visibility') return;
-        
-        var element = document.getElementById('legend_'+event.layer.id);
-        if(element) {
-            element.style.display = (this.layerIsVisible(event.layer) ? 'block' : 'none');
+
+        if(event.property == 'visibility') {
+
+            var element = document.getElementById('legend_'+event.layer.id);
+            if(element) {
+                element.style.display = (this.layerIsVisible(event.layer) ? 'block' : 'none');
+            }
+        }
+        else if(event.property == 'params') {
+            var element = document.getElementById('legend_'+event.layer.id);
+            var legendUrls = this.getLegendUrls(event.layer);
+
+            if(!legendUrls || !legendUrls.length)
+                return;
+
+            if(element) {
+                var nodeHtml = '<p>'+layer.title+'</p>';
+                for(j = 0; j < legendUrls.length; j++) {
+                    var itemID = 'legend_'+layer.id+'_url_'+j;
+                    this.checkImgSize(legendUrls[j], itemID, false);
+                    nodeHtml += '<div id='+itemID+'><img src="'+legendUrls[j]+'"><br></div>';
+                }
+                element.innerHTML = nodeHtml + '<br>';
+                element.style.display = (this.layerIsVisible(event.layer) ? 'block' : 'none');
+            }
         }
     },
-    
+
     layerIsVisible: function(layer) {
         var visible = false;
-        
+
         if(layer.getVisibility()) {
             visible = true;
         } else {
@@ -131,9 +158,9 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
         }
         return visible;
     },
-    
+
     // **** Remove elements with empty legend
-    checkImgSize: function(imgUrl, itemID) {
+    checkImgSize: function(imgUrl, itemID, removeParent) {
         var img = new Image();
         img.src = imgUrl;
         img.itemID = itemID;
@@ -143,7 +170,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 if (item) {
                     var parentDiv = item.parentNode;
                     item.remove();
-                    if (parentDiv.getElementsByTagName('div').length == 0)
+                    if (parentDiv.getElementsByTagName('div').length == 0 && removeParent)
                         parentDiv.remove();
                 }
             }
@@ -151,6 +178,6 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
 
     }
 
-    
-    
+
+
 });
