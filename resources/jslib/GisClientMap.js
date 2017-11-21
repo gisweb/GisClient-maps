@@ -251,9 +251,34 @@ OpenLayers.GisClient = OpenLayers.Class({
         var cfgLayer,oLayer,owLayer;
 
         // **** Reverse layers order (Use tree order for layers overlap)
-        // TODO: Force Z-index for specific layers
+        // **** Force Z-index for specific layers based on layer option zindex_correction
+        var orderLayer = [], orderLayerNeg = [], orderLayerPos =[];
         for (var i = this.layers.length-1; i >=0; i--) {
-            cfgLayer =  this.layers[i];
+            if (typeof(this.layers[i].options.zindex_correction) == 'undefined') {
+                orderLayer.push(this.layers[i]);
+            }
+            else if (this.layers[i].options.zindex_correction > 0) {
+                orderLayerPos.push(this.layers[i]);
+            }
+            else if (this.layers[i].options.zindex_correction < 0) {
+                orderLayerNeg.push(this.layers[i]);
+            }
+            else {
+                orderLayer.push(this.layers[i]);
+            }
+        }
+
+        orderLayerNeg.sort(function(layerA,layerB) {
+            return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+        });
+        orderLayerPos.sort(function(layerA,layerB) {
+            return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+        });
+
+        orderLayer = orderLayerNeg.concat(orderLayer.concat(orderLayerPos));
+
+        for (var i = 0; i < orderLayer.length; i++) {
+            cfgLayer =  orderLayer[i];
             oLayer = null;
             switch(cfgLayer.typeId){
                 case 1:

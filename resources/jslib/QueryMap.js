@@ -315,7 +315,10 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 				//#######   getGeometryAttributes ################
 				for(var j=0, lenj=featureTypes.length; j<lenj; j++) {
 					featureType = featureTypes[j];
-					if(!this.queryFeatureType ||(this.queryFeatureType && featureType.typeName == this.queryFeatureType)){
+					var selectFeatureTypes = [];
+					if (this.queryFeatureType)
+						selectFeatureTypes = this.queryFeatureType.split(',');
+					if(selectFeatureTypes.length === 0 ||(selectFeatureTypes.length > 0 && selectFeatureTypes.indexOf(featureType.typeName) > -1)){
 						if(featureType.properties){
 							var properties = featureType.properties;
 							for (var k=0; k<properties.length; k++) {

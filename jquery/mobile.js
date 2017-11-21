@@ -575,6 +575,8 @@ var initMap = function(){
                     }
                 } else {
                     alert('Nessun risultato');
+                    if ($('#resultpanel').is(":visible"))
+                        sidebarPanel.hide();
                 }
             },
             'featureTypeSelected': function(fType) {
@@ -791,8 +793,8 @@ var initMap = function(){
                                 var filterSelect = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data');
                                 filterValue +=  $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data').text + ',';
                                 filterFields += fieldFilterTmp + ',';
-                                fieldFilterTmp = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
                             }
+                            fieldFilterTmp = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
                         }
                         if (filterValue.length > 0) {
                             filterValue = filterValue.slice(0, -1);

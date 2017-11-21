@@ -253,8 +253,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             var typeNames = value.split(',');
             for(var i=0;i<typeNames.length;i++){
                 //DA SISTEMARE PERCHÈ ORA PRENDE I LIVELLI E NON LE FEATURETYPE.
-                layers.push(this.getLayerFromFeature(typeNames[i]))
+                layers.push(this.getLayerFromFeature(typeNames[i]));
             }
+            typeName = value;
         }else{
             layer = this.getLayerFromFeature(value);
             layers.push(layer);
