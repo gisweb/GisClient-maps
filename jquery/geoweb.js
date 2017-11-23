@@ -1,6 +1,8 @@
 var GisClientMap; //POI LO TOGLIAMO!!!!
 var mycontrol,ismousedown;
 
+window.GCComponents = {};
+
 function adjustPanZoomBar(olControl, toolOffset){
     var cZoom = $('.olControlPanZoomBar').offset();
     if (toolOffset)
@@ -166,6 +168,7 @@ var initMap = function(){
     var map=this.map;
     map.Z_INDEX_BASE['Popup'] = 1500;
     map.Z_INDEX_BASE['Control'] = 1550;
+    map.fractionalZoom = false;
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -362,8 +365,8 @@ var initMap = function(){
                                 var filterSelect = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data');
                                 filterValue +=  $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data').text + ',';
                                 filterFields += fieldFilterTmp + ',';
-                                fieldFilterTmp = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
                             }
+                            fieldFilterTmp = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
                         }
                         if (filterValue.length > 0) {
                             filterValue = filterValue.slice(0, -1);
