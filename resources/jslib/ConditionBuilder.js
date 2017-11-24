@@ -1,14 +1,15 @@
 var ConditionBuilder = {
-    
+
 
     // **** baseUrl - Gisclient service URL
     baseUrl : '/gisclient',
-    
+    resourcesPath: '../resources/',
+
     rootCondition: '<table class="conditionbuilder">'+
             '<tr><td class="seperator" ><select><option value="and">And</option><option value="or">Or</option></select></td>' +
-            '<td><div class="querystmts"><img src="../resources/themes/icons/qbuilder_del.png" alt="Remove" title="Rimuovi condizione" class="remove" /></div><div><img class="add" src="../resources/themes/icons/qbuilder_add.png" title="Aggiungi condizione" alt="Add" /> <img src="../resources/themes/icons/qbuilder_nested.png" alt="Add Nested" title="Aggiungi condizione annidata" class="addroot" /></div>' +
+            '<td><div class="querystmts"><img src="'+this.resourcesPath+'themes/icons/qbuilder_del.png" alt="Remove" title="Rimuovi condizione" class="remove" /></div><div><img class="add" src="'+this.resourcesPath+'themes/icons/qbuilder_add.png" title="Aggiungi condizione" alt="Add" /> <img src="'+this.resourcesPath+'themes/icons/qbuilder_nested.png" alt="Add Nested" title="Aggiungi condizione annidata" class="addroot" /></div>' +
             '</td></tr></table>',
-    
+
     operators: {
         equalto: {
             operator: '=',
@@ -52,20 +53,24 @@ var ConditionBuilder = {
             label: 'Maggiore'
         }
     },
-    
+
     iterations: 0,
     placeHolderCount: 0,
-    
+
     featureType: undefined,
     rootSelector: undefined,
-    
+
     init: function(selector) {
-        this.rootSelector = selector;        
+        this.rootSelector = selector;
+        this.rootCondition = '<table class="conditionbuilder">'+
+                '<tr><td class="seperator" ><select><option value="and">And</option><option value="or">Or</option></select></td>' +
+                '<td><div class="querystmts"><img src="'+this.resourcesPath+'themes/icons/qbuilder_del.png" alt="Remove" title="Rimuovi condizione" class="remove" /></div><div><img class="add" src="'+this.resourcesPath+'themes/icons/qbuilder_add.png" title="Aggiungi condizione" alt="Add" /> <img src="'+this.resourcesPath+'themes/icons/qbuilder_nested.png" alt="Add Nested" title="Aggiungi condizione annidata" class="addroot" /></div>' +
+                '</td></tr></table>';
     },
-    
+
     addQueryRoot: function(selector, isRoot) {
         var self = this;
-        
+
         $(selector).append(self.rootCondition);
         var q = $(selector).find('table');
         var l = q.length;
@@ -85,7 +90,7 @@ var ConditionBuilder = {
                 $(this).parent().parent().parent().parent().detach();
             });
         }
-        
+
         if(self.featureType) {
             var statement = self.getConditionStatement(tWidth);
 
@@ -110,7 +115,7 @@ var ConditionBuilder = {
             elem.find('td div > .addroot').click(function () {
                 self.addQueryRoot($(this).parent(), false);
             });
-            
+
             $(this.rootSelector + ' select[useSuggest="1"]').change(function() {
                 var selected = $('option:selected', this),
                     fieldId = $(selected).attr('fieldId'),
@@ -138,28 +143,28 @@ var ConditionBuilder = {
             });
         } else console.log('no feature type');
     },
-    
+
     getConditionStatement: function(cWidth) {
         var len = this.featureType.properties.length, i, field,
             options = [], fieldOption,
             operator, statement, suggest;
 
-        statement = '<div cbcontainer="yes"><img src="../resources/themes/icons/qbuilder_del.png" alt="Remove" title="Rimuovi condizione" class="remove" />'
+        statement = '<div cbcontainer="yes"><img src="'+this.resourcesPath+'themes/icons/qbuilder_del.png" alt="Remove" title="Rimuovi condizione" class="remove" />'
 
         suggest = false;
         for(i = 0; i < len; i++) {
             field = this.featureType.properties[i];
-            
+
             if(!field.searchType) continue;
-            
+
             fieldOption = '<option value="'+field.name+'"';
-            
+
             if(field.searchType == 3) {
                 suggest = true;
                 fieldOption += ' useSuggest="1" fieldId="'+field.fieldId+'"';
             }
             fieldOption += '>'+field.header+'</option>';
-            
+
             options.push(fieldOption);
         }
         statement += '<select class="col"';
@@ -182,21 +187,21 @@ var ConditionBuilder = {
 
         return statement;
     },
-    
+
     reset: function() {
         $(this.rootSelector).empty();
     },
-    
+
     setFeatureType: function(featureType) {
         this.featureType = featureType;
         this.reset();
         this.addQueryRoot(this.rootSelector, true);
     },
-    
+
     getCondition: function(selector) {
         this.iterations++;
         if(this.iterations > 10) return console.log('troppe iterations...');
-        
+
         var rootSelector = selector || $(this.rootSelector).children();
         //Get the columns from table (to find a clean way to do it later) //tbody>tr>td
         var elem = $(rootSelector).children().children().children();
@@ -236,11 +241,11 @@ var ConditionBuilder = {
 
         return q;
     },
-    
+
     getQuery: function(rootCondition) {
         if (!rootCondition)
             this.iterations = 0;
-        var condition = rootCondition || this.getCondition();        
+        var condition = rootCondition || this.getCondition();
         var op = [' ', condition.operator, ' '].join('');
         var values = {};
 
@@ -293,7 +298,7 @@ var ConditionBuilder = {
             q.push(n.join(op));
 
         return {
-            query: ['(', q.join(op), ')'].join(' '), 
+            query: ['(', q.join(op), ')'].join(' '),
             values: values
         };
     }
