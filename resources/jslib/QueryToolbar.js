@@ -266,8 +266,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         else if(value.indexOf(',') != -1){
             var typeNames = value.split(',');
             for(var i=0;i<typeNames.length;i++){
-                //DA SISTEMARE PERCHÈ ORA PRENDE I LIVELLI E NON LE FEATURETYPE.
-                layers.push(this.getLayerFromFeature(typeNames[i]));
+                var tmpLayer = this.getLayerFromFeature(typeNames[i]);
+                var idx;
+                for (idx = 0; idx < layers.length; idx++)  {
+                    if (layers[idx].id === tmpLayer.id)
+                        break;
+                }
+                if (idx === layers.length)
+                    layers.push(tmpLayer);
             }
             typeName = value;
         }else{
