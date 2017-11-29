@@ -4,7 +4,13 @@
 
 window.GCComponents.Functions.centerMapWFM = function () {
     var queryStringItems = window.GCComponents.Functions.parseQueryString();
-    if (queryStringItems.layer) {
+    if(queryStringItems.x && queryStringItems.y) {
+        var zoom = typeof (queryStringItems.zoom) == 'undefined'?WFM_DEFAULT_ZOOM:queryStringItems.zoom;
+        var sridDefault = typeof(GisClientMap.map.displayProjection) == 'undefined'?GisClientMap.map.projection:GisClientMap.map.displayProjection;
+        var srid = typeof (queryStringItems.srid) == 'undefined'?sridDefault:queryStringItems.srid;
+        window.GCComponents.Functions.centerMap(queryStringItems.x, queryStringItems.y, srid, zoom)
+    }
+    else if (queryStringItems.layer) {
         var fType = GisClientMap.getFeatureType(queryStringItems.layer);
         if (!fType)
             return;

@@ -1,7 +1,7 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/*
+ *
+ *
+ * 
  */
 
 var GISCLIENT_URL = '/gisclient3';
@@ -15,6 +15,8 @@ var MAX_QUERY_FEATURES = 500;
 
 // **** Templates di stampa
 var PRINT_TEMPLATE_HTML = null;
-var PRINT_TEMPLATE_PDF = 'null';
+var PRINT_TEMPLATE_PDF = null;
 
-
+// **** Dimensioni della Reference Map (in pixel)
+var OVERVIEW_MAP_W = 360;
+var OVERVIEW_MAP_H = 180;

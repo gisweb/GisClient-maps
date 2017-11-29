@@ -1489,7 +1489,7 @@ var initMap = function(){
                         if ( $('#'+me.formId+' input[name="scale_mode"]:checked').val() == 'user') {
                             me.updatePrintBox();
                         }
-                        else {Panel
+                        else {
                             me.removePrintBox();
                             me.boxScale = null;
                             me.drawPrintBox.apply(me);

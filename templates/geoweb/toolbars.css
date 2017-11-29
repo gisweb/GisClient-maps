@@ -592,14 +592,14 @@ olOptionDisabled
 
 .gcOverviewMapExtentRectangle {
     overflow: hidden;
-    background-image: url("../resources/themes/openlayers/img/blank.gif");
+    background-image: url("../../resources/themes/openlayers/img/blank.gif");
     cursor: move;
     border: 2px dotted red;
 }
 .gcOverviewMapRectReplacement {
     overflow: hidden;
     cursor: move;
-    background-image: url("../resources/themes/openlayers/img/overview_replacement.gif");
+    background-image: url("../../resources/themes/openlayers/img/overview_replacement.gif");
     background-repeat: no-repeat;
     background-position: center;
 }

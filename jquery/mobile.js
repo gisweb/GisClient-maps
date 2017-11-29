@@ -811,6 +811,7 @@ var initMap = function(){
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId,
+                                filterfields: filterFields,
                                 filtervalue: filterValue
                             },
                             dataType: 'json',

@@ -270,7 +270,7 @@ var initMap = function(){
     map.Z_INDEX_BASE['Popup'] = 1500;
     map.Z_INDEX_BASE['Control'] = 1550;
     map.fractionalZoom = false;
-    
+
     var self = this;
 
     document.title = this.mapsetTitle;
@@ -1489,7 +1489,7 @@ var initMap = function(){
                         if ( $('#'+me.formId+' input[name="scale_mode"]:checked').val() == 'user') {
                             me.updatePrintBox();
                         }
-                        else {Panel
+                        else {
                             me.removePrintBox();
                             me.boxScale = null;
                             me.drawPrintBox.apply(me);

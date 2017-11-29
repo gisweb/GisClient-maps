@@ -291,19 +291,36 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 					featureTypes=[];
 					for(var j=0, lenj=layer.nodes.length; j<lenj; j++) {
 						node = layer.nodes[j];
-                                                if (layer.params["LAYERS"].indexOf(node.layer) < 0){
-                                                    continue;
-                                                }
-						if(!(node.minScale && node.minScale < scale) && !(node.maxScale && node.maxScale > scale)){
-							//console.log(node.layer)
-							for(k in this.wfsCache[layer.id].featureTypes){
-								if(this.wfsCache[layer.id].featureTypes[k].typeName.indexOf(node.layer + '.') != -1 || this.wfsCache[layer.id].featureTypes[k].typeName == node.layer) featureTypes.push(this.wfsCache[layer.id].featureTypes[k])
+						if (typeof(node.nodes) === 'undefined') {
+							if (layer.params["LAYERS"].indexOf(node.layer) < 0){
+	                            continue;
+	                        }
+							if(!(node.minScale && node.minScale < scale) && !(node.maxScale && node.maxScale > scale)){
+								//console.log(node.layer)
+								for(k in this.wfsCache[layer.id].featureTypes){
+									if(this.wfsCache[layer.id].featureTypes[k].typeName.indexOf(node.layer + '.') != -1 || this.wfsCache[layer.id].featureTypes[k].typeName == node.layer) featureTypes.push(this.wfsCache[layer.id].featureTypes[k])
+								}
+							}
+						}
+						else { // **** 3 levels: unpacked/separated layers insida a single theme
+							for(var k=0, lenk=node.nodes.length; k<lenk; k++) {
+								innerNode = node.nodes[k];
+								if (layer.params["LAYERS"].indexOf(innerNode.layer) < 0){
+		                            continue;
+		                        }
+								if(!(innerNode.minScale && innerNode.minScale < scale) && !(innerNode.maxScale && innerNode.maxScale > scale)){
+									//console.log(node.layer)
+									for(k in this.wfsCache[layer.id].featureTypes){
+										if(this.wfsCache[layer.id].featureTypes[k].typeName.indexOf(innerNode.layer + '.') != -1 || this.wfsCache[layer.id].featureTypes[k].typeName == innerNode.layer) featureTypes.push(this.wfsCache[layer.id].featureTypes[k])
+									}
+								}
 							}
 						}
 					}
 				}
-				else
+				else {
 					featureTypes = this.wfsCache[layer.id].featureTypes;
+				}
 
 				filterId = (layer.params.PROJECT && layer.params.MAP)?(layer.params.PROJECT + '_' + layer.params.MAP):layer.id;
 				selection[filterId] = selection[filterId] || {

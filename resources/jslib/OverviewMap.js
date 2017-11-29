@@ -1,38 +1,40 @@
 OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewMap, {
 
-    ovMapAddResolutions: 3,
-    
+    //ovMapAddResolutions: 2,
+
     initialize: function(options) {
         //OpenLayers.Control.OverviewMap.prototype.initialize.apply(this, [options]);
         this.layers = [];
         this.handlers = {};
         OpenLayers.Control.prototype.initialize.apply(this, [options]);
         this.displayClass = 'gcOverviewMap';
+        if (typeof(OVERVIEW_MAP_W) !== 'undefined' && typeof(OVERVIEW_MAP_H) !== 'undefined')
+            this.size = new OpenLayers.Size(OVERVIEW_MAP_W,OVERVIEW_MAP_H);
     },
-    
+
     show: function(e) {
         this.element.style.display = '';
         this.showToggle(false);
         if (e != null) {
-            OpenLayers.Event.stop(e);                                            
+            OpenLayers.Event.stop(e);
         }
     },
-    
+
     hide: function(e) {
         this.element.style.display = 'none';
         this.showToggle(true);
         if (e != null) {
-            OpenLayers.Event.stop(e);                                            
+            OpenLayers.Event.stop(e);
         }
     },
-    
+
     updateOverview: function() {
 /*         var mapRes = this.map.getResolution();
         var targetRes = this.ovmap.getResolution();
         var resRatio = targetRes / mapRes;
         if(resRatio > this.maxRatio) {
             // zoom in overview map
-            targetRes = this.minRatio * mapRes;            
+            targetRes = this.minRatio * mapRes;
         } else if(resRatio <= this.minRatio) {
             // zoom out overview map
             targetRes = this.maxRatio * mapRes;
@@ -48,7 +50,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
 
         this.updateRectToMap();
     },
-    
+
     createMap: function() {
         // create the overview map
 
@@ -56,17 +58,20 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         //console.log(this)
 
         var options = {};
-        
+
         // **** Add resolution levels
         options['resolutions'] = [];
         for (var l=0; l< GisClientMap.mapOptions.resolutions.length; l++)
             options.resolutions[l] = GisClientMap.mapOptions.resolutions[l];
-        
-        for (var l=0; l<this.ovMapAddResolutions; l++)
+
+        var pixelSize = (GisClientMap.map.maxPx.x - GisClientMap.map.minPx.x) / 2;
+        while (pixelSize > this.size.w) {
+            pixelSize = pixelSize/2;
             options.resolutions.unshift(options.resolutions[0]*2);
-        
+        }
+
         OpenLayers.Util.applyDefaults(options, GisClientMap.mapOptions);
-        
+
         OpenLayers.Util.extend(options, {
             controls: [],
             //maxResolution: 'auto',
@@ -78,7 +83,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
 
         var layers = [],
             len = this.layers.length, layer, i, olLayer, refMapOptions;
-        
+
 
 
         var emptyBaseLayer = new OpenLayers.Layer.Image('EMPTY_BASE_LAYER_OV',OpenLayers.ImgPath +'blank.gif', this.map.maxExtent, new OpenLayers.Size(1,1),{
@@ -88,7 +93,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
             //maxZoomLevel: 22,
             resolutions: this.map.serverResolutions,
             //passare le serverResolutions
-            //displayInLayerSwitcher:true, 
+            //displayInLayerSwitcher:true,
             isBaseLayer:true
         });
 
@@ -96,12 +101,23 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         for(i = 0; i < len; i++) {
             layer = this.layers[i];
             olLayer = null;
-            if(!layer.overview) continue;
+            paramLayers = [];
+            if (layer.nodes) {
+                for (var j=0, lenJ = layer.nodes.length; j < lenJ; j++) {
+                    if (layer.nodes[j].overview === true) {
+                        paramLayers.push(layer.nodes[j].layer);
+                    }
+                }
+            }
+            if(!layer.overview && paramLayers.length === 0) continue;
 
             //SOLO WMS WMTS e OSM per gli altri bohhhhhh
 			switch(layer.typeId){
 				case 1:
 					olLayer = new OpenLayers.Layer.WMS(layer.name,layer.url,layer.parameters,layer.options);
+                    if (paramLayers.length !== 0) {
+                        olLayer.mergeNewParams({layers:paramLayers});
+                    }
                 break;
 				case 2:
                     refMapOptions = {};
@@ -134,7 +150,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                         isBaseLayer: false
                     });
                     olLayer = new OpenLayers.Layer.OSM(layer.name,null,refMapOptions);
-				break;	
+				break;
 				case 70:
 
                     refMapOptions = OpenLayers.Util.extend({
@@ -142,14 +158,14 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
                         isBaseLayer: false
                     }, layer.options);
                     olLayer = new OpenLayers.Layer.Google(layer.name,refMapOptions);
-				break;			
+				break;
 				case 80:
                     refMapOptions = OpenLayers.Util.extend({
                         resolutions: this.map.serverResolutions,
                         isBaseLayer: false
                     }, layer.options);
                     olLayer = new OpenLayers.Layer.Bing(layer.name,refMapOptions);
-				break;	
+				break;
 				case 40:
                     refMapOptions = OpenLayers.Util.extend({
                         resolutions: this.map.serverResolutions,
@@ -159,12 +175,12 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
 				break;
 
 			}
-            
-            if(olLayer) {                
+
+            if(olLayer) {
                 olLayer.setVisibility(true);
                 layers.push(olLayer);
             }
-        }   
+        }
 
         this.ovmap = new OpenLayers.Map(this.mapDiv, options);
         this.ovmap.viewPortDiv.appendChild(this.extentRectangle);
@@ -172,12 +188,12 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         this.ovmap.zoomToMaxExtent();
         this.ovmap.addLayers(layers);
 
-        
+
         // prevent ovmap from being destroyed when the page unloads, because
         // the OverviewMap control has to do this (and does it).
         OpenLayers.Event.stopObserving(window, 'unload', this.ovmap.unloadDestroy);
 
-        
+
         //this.updateRectToMap();
 
         // check extent rectangle border width
@@ -207,7 +223,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
             }
         );
         this.handlers.click.activate();
-        
+
         this.rectEvents = new OpenLayers.Events(this, this.extentRectangle,
                                                 null, true);
         this.rectEvents.register("mouseover", this, function(e) {
@@ -232,7 +248,7 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         }
 
     },
-    
+
     draw: function() {
         OpenLayers.Control.prototype.draw.apply(this, arguments);
         if (this.layers.length === 0) {
@@ -256,46 +272,46 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         this.mapDiv.style.position = 'relative';
         this.mapDiv.style.overflow = 'hidden';
         this.mapDiv.id = OpenLayers.Util.createUniqueID('overviewMap');
-        
+
         this.extentRectangle = document.createElement('div');
         this.extentRectangle.style.position = 'absolute';
         this.extentRectangle.style.zIndex = 1000;  //HACK
         this.extentRectangle.className = this.displayClass+'ExtentRectangle';
 
         this.element.appendChild(this.mapDiv);
-        
+
         var lockExtent = document.createElement('a');
         lockExtent.href = '#';
         lockExtent.className = 'olControlButtonItemInactive olButton olLikeButton';
         lockExtent.innerHTML = '<span>Lock Extent</span>';
-        
+
         var maxExtent = document.createElement('a');
         maxExtent.href = '#';
         maxExtent.className = 'olControlButtonItemInactive olButton olLikeButton';
         maxExtent.innerHTML = '<span>Max Extent</span>';
-        
+
         var separator = document.createElement('span');
         separator.innerHTML = ' | ';
-        
+
         var linksElement = document.createElement('div');
         linksElement.appendChild(lockExtent);
         linksElement.appendChild(separator);
         linksElement.appendChild(maxExtent);
-        
+
         this.element.appendChild(linksElement);
 
         this.div.appendChild(this.element);
-        
+
         var me = this;
         lockExtent.addEventListener('click', function(event) {
             event.stopPropagation();
-            
+
             me.ovmap.zoomToExtent(me.map.getExtent());
             me.updateRectToMap();
         });
         maxExtent.addEventListener('click', function(event) {
             event.stopPropagation();
-            
+
             me.ovmap.zoomToMaxExtent();
             me.updateRectToMap();
         });
@@ -303,17 +319,17 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         // Optionally add min/max buttons if the control will go in the
         // map viewport.
         this.div.className += " " + this.displayClass + 'Container';
-        
+
         if(this.map.getExtent()) {
             this.update();
         }
-        
+
         this.map.events.on({
             buttonclick: this.onButtonClick,
             moveend: this.update,
             scope: this
         });
-        
+
         if (this.maximized) {
             this.maximizeControl();
         }
