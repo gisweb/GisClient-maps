@@ -1685,33 +1685,13 @@ var initMap = function(){
             });
         });
     } else {
-        $('#mapset-login').html(GisClientMap.logged_username+', <a href="#" action="logout">Logout</a>');
+        $('#mapset-login').html(GisClientMap.logged_username+', <a href="'+self.baseUrl+'logout.php'+location.search+'" action="logout">Logout</a>');
     }
 
     $('#mapset-login a[action="login"]').on('click',function(event){
         event.preventDefault();
         $('#LoginWindow').modal('show');
     });
-    $('#mapset-login a[action="logout"]').on('click',function(event){
-        event.preventDefault();
-
-        $.ajax({
-            url: self.baseUrl + 'logout.php',
-            type: 'POST',
-            dataType: 'json',
-            success: function(response) {
-                if(response && typeof(response) == 'object' && response.result == 'ok') {
-                    window.location.reload();
-                } else {
-                    alert('Errore di sistema');
-                }
-            },
-            failure: function() {
-                alert('Errore di sistema');
-            }
-        });
-    });
-
 
     var onResize = function() {
         if($(window).width() < 1000) $('#map-coordinates').hide();
