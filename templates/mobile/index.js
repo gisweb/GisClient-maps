@@ -291,7 +291,7 @@ var customCreateControlMarkup = function(control) {
 
 var initMap = function(){
     var map=this.map;
-    
+
     // **** Map configuration Parameters
     // **** TODO: in config file
     map.Z_INDEX_BASE['Popup'] = 1500;
@@ -544,7 +544,7 @@ var initMap = function(){
                     if(!value || value == '') return;
 
                     if(searchType == 4) {
-                        type = $('#ricerca input[name="'+name+'_operator"]').val();
+                        type = $('#ricerca select[name="'+name+'_operator"]').val();
                     }
                     if(searchType == 2) {
                         type = 'ILIKE';
@@ -946,7 +946,7 @@ var initMap = function(){
                     if(!value || value == '') return;
 
                     if(searchType == 4) {
-                        type = $('#ricerca input[name="'+name+'_operator"]').val();
+                        type = $('#ricerca select[name="'+name+'_operator"]').val();
                     }
                     if(searchType == 2) {
                         type = OpenLayers.Filter.Comparison.LIKE;

@@ -548,7 +548,7 @@ var initMap = function(){
                     if(!value || value == '') return;
 
                     if(searchType == 4) {
-                        type = $('#ricerca input[name="'+name+'_operator"]').val();
+                        type = $('#ricerca select[name="'+name+'_operator"]').val();
                     }
                     if(searchType == 2) {
                         type = 'ILIKE';
@@ -950,7 +950,7 @@ var initMap = function(){
                     if(!value || value == '') return;
 
                     if(searchType == 4) {
-                        type = $('#ricerca input[name="'+name+'_operator"]').val();
+                        type = $('#ricerca select[name="'+name+'_operator"]').val();
                     }
                     if(searchType == 2) {
                         type = OpenLayers.Filter.Comparison.LIKE;

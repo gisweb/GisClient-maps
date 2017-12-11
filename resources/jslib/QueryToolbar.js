@@ -782,6 +782,10 @@ popup.autoSize = true;
             len = me.renderQueue.length, event, i,
             divs = '', html, resultDiv;
 
+        if (len > 0 && this.resultLayer.visibility === false) {
+            this.resultLayer.setVisibility(true);
+        }
+
         for(i = 0; i < len; i++) {
             event = this.renderQueue[i];
 
