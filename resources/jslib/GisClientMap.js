@@ -277,22 +277,42 @@ OpenLayers.GisClient = OpenLayers.Class({
         }
 
         orderLayerNeg.sort(function(layerA,layerB) {
-            if (typeof(this.layers[i].options) !== 'undefined') {
-                return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+            var layerOrderA = 0;
+            var layerOrderB = 0;
+            if (typeof(layerA.options) !== 'undefined') {
+                layerOrderA = layerA.options.zindex_correction;
             }
-            else if (typeof(this.layers[i].parameters) !== 'undefined') {
-                return (layerA.parameters.zindex_correction - layerB.parameters.zindex_correction);
+            else if (typeof(layerA.parameters) !== 'undefined') {
+                layerOrderA = layerA.parameters.zindex_correction;
             }
-            return 0;
+
+            if (typeof(layerB.options) !== 'undefined') {
+                layerOrderB = layerB.options.zindex_correction;
+            }
+            else if (typeof(layerB.parameters) !== 'undefined') {
+                layerOrderB = layerB.parameters.zindex_correction;
+            }
+
+            return (layerOrderA - layerOrderB);
         });
         orderLayerPos.sort(function(layerA,layerB) {
-            if (typeof(this.layers[i].options) !== 'undefined') {
-                return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+            var layerOrderA = 0;
+            var layerOrderB = 0;
+            if (typeof(layerA.options) !== 'undefined') {
+                layerOrderA = layerA.options.zindex_correction;
             }
-            else if (typeof(this.layers[i].parameters) !== 'undefined') {
-                return (layerA.parameters.zindex_correction - layerB.parameters.zindex_correction);
+            else if (typeof(layerA.parameters) !== 'undefined') {
+                layerOrderA = layerA.parameters.zindex_correction;
             }
-            return 0;
+
+            if (typeof(layerB.options) !== 'undefined') {
+                layerOrderB = layerB.options.zindex_correction;
+            }
+            else if (typeof(layerB.parameters) !== 'undefined') {
+                layerOrderB = layerB.parameters.zindex_correction;
+            }
+
+            return (layerOrderA - layerOrderB);
         });
 
         orderLayer = orderLayerNeg.concat(orderLayer.concat(orderLayerPos));
