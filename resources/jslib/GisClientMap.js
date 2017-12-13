@@ -254,13 +254,21 @@ OpenLayers.GisClient = OpenLayers.Class({
         // **** Force Z-index for specific layers based on layer option zindex_correction
         var orderLayer = [], orderLayerNeg = [], orderLayerPos =[];
         for (var i = this.layers.length-1; i >=0; i--) {
-            if (typeof(this.layers[i].options.zindex_correction) == 'undefined') {
+            var layerOrder = 0;
+            if (typeof(this.layers[i].options) !== 'undefined') {
+                layerOrder = this.layers[i].options.zindex_correction;
+            }
+            else if (typeof(this.layers[i].parameters) !== 'undefined') {
+                layerOrder = this.layers[i].parameters.zindex_correction;
+            }
+
+            if (typeof(layerOrder) == 'undefined') {
                 orderLayer.push(this.layers[i]);
             }
-            else if (this.layers[i].options.zindex_correction > 0) {
+            else if (layerOrder > 0) {
                 orderLayerPos.push(this.layers[i]);
             }
-            else if (this.layers[i].options.zindex_correction < 0) {
+            else if (layerOrder < 0) {
                 orderLayerNeg.push(this.layers[i]);
             }
             else {
