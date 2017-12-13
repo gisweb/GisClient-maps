@@ -277,10 +277,22 @@ OpenLayers.GisClient = OpenLayers.Class({
         }
 
         orderLayerNeg.sort(function(layerA,layerB) {
-            return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+            if (typeof(this.layers[i].options) !== 'undefined') {
+                return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+            }
+            else if (typeof(this.layers[i].parameters) !== 'undefined') {
+                return (layerA.parameters.zindex_correction - layerB.parameters.zindex_correction);
+            }
+            return 0;
         });
         orderLayerPos.sort(function(layerA,layerB) {
-            return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+            if (typeof(this.layers[i].options) !== 'undefined') {
+                return (layerA.options.zindex_correction - layerB.options.zindex_correction);
+            }
+            else if (typeof(this.layers[i].parameters) !== 'undefined') {
+                return (layerA.parameters.zindex_correction - layerB.parameters.zindex_correction);
+            }
+            return 0;
         });
 
         orderLayer = orderLayerNeg.concat(orderLayer.concat(orderLayerPos));
