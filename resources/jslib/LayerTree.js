@@ -33,7 +33,14 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             var mapLayers = this.map.getLayersByName(cfgLayer.name);
             for (var j = 0; j < mapLayers.length; j++) {
                 var layer = mapLayers[j];
-                if (cfgLayer.options.rootPath == layer.options.rootPath || cfgLayer.options.theme_id == layer.options.theme_id) {
+                if (typeof(cfgLayer.options) !== 'undefined') {
+                    var layerOpts = cfgLayer.options;
+                }
+                else {
+                    var layerOpts = cfgLayer.parameters;
+                }
+
+                if (layerOpts.rootPath == layer.options.rootPath || layerOpts.theme_id == layer.options.theme_id) {
                     layer.events.register('loadstart', {layer:layer,control:this}, this.startLoading);
                     layer.events.register('loadend', {layer:layer,control:this}, this.endLoading);
                     if(layer.displayInLayerSwitcher) this.initTreeData(layer);
