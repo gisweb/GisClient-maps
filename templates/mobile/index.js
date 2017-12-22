@@ -1655,7 +1655,7 @@ var initMap = function(){
             });
         });
     } else {
-        $('#mapset-login').html(GisClientMap.logged_username+', <a href="'+self.baseUrl+'logout.php'+location.search+'" action="logout">Logout</a>');
+        $('#mapset-login').html(GisClientMap.logged_username+', <a href="'+self.baseUrl+'logout.php'+location.search+'" data-ajax="false" action="logout">Logout</a>');
     }
 
     $('#mapset-login a[action="login"]').on('click',function(event){
