@@ -40,9 +40,6 @@ window.GCComponents.Functions.centerMapWFM = function () {
 }
 
 window.GCComponents.Functions.sendToWFM = function(wfmItems) {
-    // TODO - remove in production!!!!!
-    if (typeof(wfmItems.comune) === 'undefined' && typeof(wfmItems.via) !== 'undefined' && typeof(wfmItems.civico) !== 'undefined')
-        wfmItems.comune = 'Genova';
     window.GCComponents.Functions.updateQueryString(wfmItems);
 }
 

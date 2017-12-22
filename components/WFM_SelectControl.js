@@ -176,14 +176,25 @@ window.GCComponents["Layers"].addLayer('layer-wfm-markpoint', {
             return;
         }
         var featureTypes = '';
+        var selectLayers = [];
         for (var i=0; i<WFM_LAYERS.length; i++) {
             for (var j=0; j<WFM_LAYERS[i].layers.length; j++) {
-                selectControl.controls[0].layers.push(selectControl.getLayerFromFeature(WFM_LAYERS[i].layers[j]));
+                var tmpLayer = selectControl.getLayerFromFeature(WFM_LAYERS[i].layers[j]);
+                var idx;
+                for (idx = 0; idx < selectLayers.length; idx++)  {
+                    if (selectLayers[idx].id === tmpLayer.id)
+                        break;
+                }
+                if (idx === selectLayers.length)
+                    selectLayers.push(tmpLayer);
+
                 featureTypes += WFM_LAYERS[i].layers[j] + ',';
             }
         }
-        if (selectControl.controls[0].layers.length < 1)
+        if (selectLayers.length < 1)
             return;
+        
+        selectControl.controls[0].layers = selectLayers;
         selectControl.controls[0].queryFeatureType = featureTypes.substring(0, featureTypes.length -1);
 
         // **** Build selection rectangle
