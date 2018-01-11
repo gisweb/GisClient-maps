@@ -840,7 +840,7 @@ var initMap = function(){
                 if($('#ricerca input[name="use_current_extent"]').prop('checked')) {
                     geometry = GisClientMap.map.getExtent();
                 } else {
-                    geometry = GisClientMap.map.getMaxExtent();
+                    geometry = GisClientMap.map.maxExtent;
                 }
 
                 if(filters.length > 1) {
@@ -1083,7 +1083,7 @@ var initMap = function(){
         //alert('Found position X:' + point.x + ', Y:' + point.y);
         var lonLat = new OpenLayers.LonLat(point.x, point.y);
         if(!map.isValidLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' non valida');
-        if(!map.getMaxExtent().containsLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' fuori extent');
+        if(!map.maxExtent.containsLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' fuori extent');
         map.setCenter(lonLat);
         map.zoomToScale(1000, true);
     });
