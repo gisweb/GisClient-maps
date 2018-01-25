@@ -208,6 +208,7 @@ OpenLayers.GisClient = OpenLayers.Class({
         OpenLayers.DOTS_PER_INCH = this.dpi;
         this.mapOptions.theme = null;
         this.mapOptions.tileManager = null;
+        this.mapOptions.zoomDuration = 10;
         if(this.mapOptions.controls){
             // TOLGO I CONTROLLI PER AGGIUNGERLI DOPO ALTRIMENTI I NUOVI FANNO CASINO... TODO
             var controls = this.mapOptions.controls;
@@ -357,7 +358,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                 break;
                 case 7:
                     if (this.useGMaps) {
-                        cfgLayer.options.resolutions = this.map.resolutions;
+                        //cfgLayer.options.resolutions = this.map.resolutions;
                         oLayer = new OpenLayers.Layer.Google(cfgLayer.name,cfgLayer.options);
                     }
                 break;

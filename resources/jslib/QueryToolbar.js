@@ -525,7 +525,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
     //SCRIVE IL VALORE DELL'ATTRIBUTO: DA RIPRISTINARE IL RENDER COME NELLA 2 (LINK, IMMAGINE.....)
     writeDataAttribute: function(type,value,format){
-        if (format) {
+        if (format && typeof(value) != 'undefined') {
             value = sprintf(format, value);
         }
         switch(type) {

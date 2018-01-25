@@ -333,8 +333,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 for (var i = 0; i< radios.length;  i++){
                     radios[i].disabled = !enable;
                 }
-                if (!enable)
+                if (!enable) {
                     obj.map.setBaseLayer(obj.map.getLayersByName('EMPTY_BASE_LAYER')[0]);
+                    obj.map.zoomDuration = 10;
+                }
     },
 
     createBaseTree: function(){
@@ -399,7 +401,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         });
 
         jQuery('input:radio[name="' + radioName+ '"]').change(function(){
-            self.map.setBaseLayer(self.map.getLayer(this.id));
+            var baseLayer = self.map.getLayer(this.id);
+            self.map.setBaseLayer(baseLayer);
+            if (baseLayer.CLASS_NAME == 'OpenLayers.Layer.Google') {
+                self.map.zoomDuration = 0;
+            } else {
+                self.map.zoomDuration = 10;
+            }
         });
 
       if(this.emptyTitle == '')

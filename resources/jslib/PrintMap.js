@@ -119,13 +119,16 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
 
 console.log(me.printBox)
 
-        var bounds = me.printBox.geometry.getBounds().clone();;
-        if (this.map.displayProjection && this.map.displayProjection != this.map.projection) {
-            var projCOK = new OpenLayers.Projection(this.map.displayProjection);
-            bounds.transform(this.map.getProjectionObject(), projCOK);
-        }
-
+        var bounds = me.printBox.geometry.getBounds().clone();
         var center = bounds.getCenterLonLat();
+
+        if (this.map.displayProjection && this.map.displayProjection != this.map.projection) {
+            var boxW = this.pageW*this.boxScale/100;
+            var boxH = this.pageH*this.boxScale/100;
+            var projCOK = new OpenLayers.Projection(this.map.displayProjection);
+            center.transform(this.map.getProjectionObject(), projCOK);
+            bounds = new OpenLayers.Bounds(center.lon - boxW/2, center.lat - boxH/2, center.lon + boxW/2,  center.lat + boxH/2);
+        }
 
         var width = bounds.getWidth();
         var height = bounds.getHeight();
@@ -393,6 +396,7 @@ console.log(me.printBox)
         var pageW = parseFloat(pageSize.w);
         var pageH = parseFloat(pageSize.h);
         this.pageW = pageW;
+        this.pageH = pageH;
 
         //calcolo l'area libera per il box di stampa
         //(misure di pagina in cm e sistema di riferimentoq in metri .. da generalizzare);
@@ -480,6 +484,7 @@ console.log(me.printBox)
         var pageW = parseFloat(pageSize.w);
         var pageH = parseFloat(pageSize.h);
         this.pageW = pageW;
+        this.pageH = pageH;
 
         var boxW = pageW*this.boxScale/100;
         var boxH = pageH*this.boxScale/100;
