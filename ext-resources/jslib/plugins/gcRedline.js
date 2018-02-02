@@ -16,7 +16,7 @@ GisClient.plugins.Redline = Ext.extend(Ext.util.Observable, {
 	deleteBtnText: "Elimina appunti ", 
 	deleteBtnMessage: "Eliminare definitivamente gli appunti archiviati?",
 	treeLayerGroup: "Appunti",
-	serviceURL: '../../services/redline.php',
+	serviceURL: 'services/redline.php',
 	redlineImages: '/ms4w/tmp/redline_tmp/',
 	
     constructor: function(config) {

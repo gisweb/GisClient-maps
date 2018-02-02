@@ -5,7 +5,7 @@
  */
 OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     // **** baseUrl - Gisclient service URL
-    baseUrl : '/gisclient3/',
+    baseUrl : GISCLIENT_URL +'/',
     panelsUrl: '',
     redlineLayer : null,
     div: null,

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-var GISCLIENT_URL = '/gisclient3';
+var GISCLIENT_URL = '/gisclient-snapo';
 var MAPPROXY_URL = 'http://172.16.5.72/';
 var POPUP_TIMEOUT = 2000;
 
@@ -14,3 +14,5 @@ var MAX_LAYER_FEATURES = 100;
 var MAX_QUERY_FEATURES = 500;
 
 
+PRINT_TEMPLATE_HTML = '';
+PRINT_TEMPLATE_PDF = '';
