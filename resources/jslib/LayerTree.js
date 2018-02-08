@@ -12,13 +12,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
     destroy: function() {
-        this.map.events.unregister("zoomend", this, this.updadeNodeStatus);
+        this.map.events.unregister("zoomend", this, this.updateNodeStatus);
         OpenLayers.Control.LayerSwitcher.prototype.destroy.apply(this, arguments);
     },
 
     setMap: function(map) {
         OpenLayers.Control.LayerSwitcher.prototype.setMap.apply(this, arguments);
-        this.map.events.register("zoomend", this, this.updadeNodeStatus);
+        this.map.events.register("zoomend", this, this.updateNodeStatus);
 
         // ********************* Init base and overlay tree data *********************
         // **** First, insert empty base layer (Layer 0)
@@ -53,7 +53,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     draw: function() {
 
         OpenLayers.Control.LayerSwitcher.prototype.draw.apply(this);
-        this.updadeNodeStatus();
+        this.updateNodeStatus();
 
         this.errorDiv = document.createElement("div");
         this.errorDiv.id = this.id + "_errorDiv";
@@ -184,11 +184,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
 
 
-//??????CHE ME NE FACCIO
-        var containsOverlays = false;
-        var containsBaseLayers = false;
-        containsBaseLayers = true;
-        containsOverlays = true;
+        var containsBaseLayers = (this.baselayerData.length >0)?true:false;
+        var containsOverlays = (this.overlayData.length >0)?true:false;
 
         //this.baseLbl.innerHTML = '<div id="checkOverlays">Livelli di base</div>';
         //$("<div>jahdkajhdlfk</div>").insertBefore($(this.dataLbl))
@@ -196,11 +193,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //this.dataLbl.innerHTML = '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Attiva navigazione veloce</span></div>';
         //this.dataLbl.innerHTML += '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Disattiva navigazione veloce</span></div>';
 
-        // if no overlays, dont display the overlay label
+        // if no overlays, dont display the overlay label and  tree
         this.dataLbl.style.display = (containsOverlays) ? "" : "none";
+        this.dataLayersDiv.style.display = (containsOverlays) ? "" : "none";
 
-        // if no baselayers, dont display the baselayer label
+        // if no baselayers, dont display the baselayer label and  tree
         this.baseLbl.style.display = (containsBaseLayers) ? "" : "none";
+        self.baseLayersDiv.style.display = (containsBaseLayers) ? "" : "none";
 
         var $ovelaysDiv = jQuery(this.dataLayersDiv);
 
@@ -211,10 +210,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //return this.div;
     },
 
-    updadeNodeStatus: function(){
+    updateNodeStatus: function(){
 
         for (var i = 0; i < this.map.layers.length; i++) {
-            this.checkNodeState(this.map.layers[i])
+            this.checkLayerNodeState(this.map.layers[i])
         };
 
     },
@@ -264,7 +263,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
 
-    checkNodeState: function(layer){
+    checkLayerNodeState: function(layer){
         var self = this;
         var inRange;
         var node = self.overlayTree.tree('find',layer.id);
@@ -279,8 +278,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                         skipIndex++;
                         return;
                     }
-                    inRange = self.isChildNodeinRange(layer.nodes[index-skipIndex]);
-                    self.changeNodeState(childNode,inRange);
+                    self.checkNodeState(layer.nodes[index-skipIndex], childNode);
                 }
             })
 /*  NON DISABILITO MAI IL NODO DEL TEMA
@@ -291,6 +289,23 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             }
 */
         }
+    },
+
+    checkNodeState: function(layerNode, treeNode) {
+        var self = this;
+        var inRange = self.isChildNodeinRange(layerNode);
+        var skipIndex = 0;
+
+        self.changeNodeState(treeNode, inRange);
+        jQuery.each(self.overlayTree.tree('getChildren',(treeNode.target)),function(index,childNode){
+            if (layerNode.nodes && layerNode.nodes[index-skipIndex]){
+                if (layerNode.nodes[index-skipIndex].title != childNode.text){
+                    skipIndex++;
+                    return;
+                }
+                self.checkNodeState(layerNode.nodes[index-skipIndex], childNode);
+            }
+        })
     },
 
 
@@ -345,6 +360,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         //clear out previous layers
         this.clearLayersArray("base");
+
+        if (this.baselayerData.length === 1) {
+            self.map.setBaseLayer(self.map.getLayersByName('EMPTY_BASE_LAYER')[0]);
+            this.baselayerData = this.baselayerData.slice(1);
+            return;
+        }
 
         //SE HO IL TITOLO DEL BASELAYER VUOTO AGGIUNGO IL TITOLO AL NODO DELL'ALBERO E SPSOSTO IL NODO IN ROOT
         //ALTRIMENTI ELIMINO IL NODO DALL'ALBERO (BASE VUOTA NASCOSTO)
@@ -599,7 +620,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 layerOrder = oLayer.nodes[j].order;
 
                 leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam, order:layerOrder}}
-                if(typeof(oLayer.nodes[j].visibility)) leafNode.checked = oLayer.nodes[j].visibility;
+                if(typeof(oLayer.nodes[j].visibility) != 'undefined')
+                    leafNode.checked = oLayer.nodes[j].visibility;
+                else if (typeof(chNode.checked) != 'undefined')
+                    leafNode.checked = chNode.checked;
                 if(oLayer.theme == oLayer.title) fTypes = this.getFetureTypes(layerParam);  //SINGOLO TEMA
                 if((fTypes.length > 0 && oLayer.theme == oLayer.title) || (fTypes.length > 0 && fTypes[0].typeName == layerParam)){
                     leafNode.queryable = true;
@@ -610,7 +634,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     leafNode.iconCls = "overlay";
                     leafNode.children = [];
                     for (var k = 0; k < oLayer.nodes[j].nodes.length; k++) {
-                        leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}}
+                        leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}, checked:leafNode.checked}
                         leafNode.children.push(leaf_leafNode);
                     }
                 }

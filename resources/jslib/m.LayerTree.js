@@ -154,7 +154,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //if the state hasn't changed since last redraw, no need
         // to do anything. Just return the existing div.
 
-        var azz = $(this.div).css("width");
         if (!this.checkRedraw()) {
             return this.div;
         }
@@ -184,12 +183,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         }
 
 
-
-//??????CHE ME NE FACCIO
-        var containsOverlays = false;
-        var containsBaseLayers = false;
-        containsBaseLayers = true;
-        containsOverlays = true;
+        var containsBaseLayers = (this.baselayerData.length >0)?true:false;
+        var containsOverlays = (this.overlayData.length >0)?true:false;
 
         //this.baseLbl.innerHTML = '<div id="checkOverlays">Livelli di base</div>';
         //$("<div>jahdkajhdlfk</div>").insertBefore($(this.dataLbl))
@@ -197,11 +192,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //this.dataLbl.innerHTML = '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Attiva navigazione veloce</span></div>';
         //this.dataLbl.innerHTML += '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Disattiva navigazione veloce</span></div>';
 
-        // if no overlays, dont display the overlay label
+        // if no overlays, dont display the overlay label and  tree
         this.dataLbl.style.display = (containsOverlays) ? "" : "none";
+        this.dataLayersDiv.style.display = (containsOverlays) ? "" : "none";
 
-        // if no baselayers, dont display the baselayer label
+        // if no baselayers, dont display the baselayer label and  tree
         this.baseLbl.style.display = (containsBaseLayers) ? "" : "none";
+        self.baseLayersDiv.style.display = (containsBaseLayers) ? "" : "none";
 
         var $ovelaysDiv = jQuery(this.dataLayersDiv);
 
@@ -215,7 +212,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     updadeNodeStatus: function(){
 
         for (var i = 0; i < this.map.layers.length; i++) {
-            this.checkNodeState(this.map.layers[i])
+            this.checkLayerNodeState(this.map.layers[i])
         };
 
     },
@@ -265,7 +262,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
 
-    checkNodeState: function(layer){
+    checkLayerNodeState: function(layer){
         var self = this;
         var inRange;
         var node = self.overlayTree.collapsibletree('find',layer.id);
@@ -280,8 +277,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                         skipIndex++;
                         return;
                     }
-                    inRange = self.isChildNodeinRange(layer.nodes[index-skipIndex]);
-                    self.changeNodeState(childNode,inRange);
+                    self.checkNodeState(layer.nodes[index-skipIndex], childNode);
                 }
             })
 /*  NON DISABILITO MAI IL NODO DEL TEMA
@@ -292,6 +288,23 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             }
 */
         }
+    },
+
+    checkNodeState: function(layerNode, treeNode) {
+        var self = this;
+        var inRange = self.isChildNodeinRange(layerNode);
+        var skipIndex = 0;
+
+        self.changeNodeState(treeNode, inRange);
+        jQuery.each(self.overlayTree.collapsibletree('getChildren',(treeNode)),function(index,childNode){
+            if (layerNode.nodes && layerNode.nodes[index-skipIndex]){
+                if (layerNode.nodes[index-skipIndex].title != childNode.text){
+                    skipIndex++;
+                    return;
+                }
+                self.checkNodeState(layerNode.nodes[index-skipIndex], childNode);
+            }
+        })
     },
 
 
@@ -341,6 +354,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             $(this.baseTree).find('.collapsibletree-node').addClass("ui-state-disabled");
             $(this.baseLayersDiv).hide();
             obj.map.setBaseLayer(obj.map.getLayersByName('EMPTY_BASE_LAYER')[0]);
+            obj.map.zoomDuration = 10;
         }
 
     },
@@ -351,6 +365,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         //clear out previous layers
         this.clearLayersArray("base");
+
+        if (this.baselayerData.length === 1) {
+            self.map.setBaseLayer(self.map.getLayersByName('EMPTY_BASE_LAYER')[0]);
+            this.baselayerData = this.baselayerData.slice(1);
+            return;
+        }
 
         //SE HO IL TITOLO DEL BASELAYER VUOTO AGGIUNGO IL TITOLO AL NODO DELL'ALBERO E SPSOSTO IL NODO IN ROOT
         //ALTRIMENTI ELIMINO IL NODO DALL'ALBERO (BASE VUOTA NASCOSTO)
@@ -398,7 +418,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         $(this.baseTree).find('[type="radio"]').checkboxradio();
         $(this.baseTree).find('[type="radio"]').checkboxradio("refresh");
 
-        $(this.baseTree).find('.collapsibletree-leaf').click(function(event){
+        $(this.baseTree).find('.collapsibletree-leaf').bind('touchstart click', function(event){
+
+            if (typeof(this.ontouchstart) != 'undefined' && event.type == 'click')
+                return false;
 
             var chkID = 'radio_' + event.currentTarget.id;
 
@@ -415,7 +438,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             $('input[type="radio"][name="' + self.id + "_radio" + '"]').checkboxradio( "refresh" );
             $('input[type="radio"][name="' + self.id + "_radio" + '"]').checkboxradio( "enable" );
 
-            self.map.setBaseLayer(self.map.getLayer(event.currentTarget.id));
+            var baseLayer = self.map.getLayer(event.currentTarget.id)
+            self.map.setBaseLayer(baseLayer);
+            if (baseLayer.CLASS_NAME == 'OpenLayers.Layer.Google') {
+                self.map.zoomDuration = 0;
+            } else {
+                self.map.zoomDuration = 10;
+            }
 
             event.stopPropagation();
         });
@@ -423,47 +452,35 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         if(this.emptyTitle == '')
           this.toggleBaseLayerEnabled(self, false);
-
-/*
-        this.baseTree = jQuery(ulbaseElem).tree({
-            animate:true,
-            lines:true,
-            data: self.baselayerData,
-            formatter:function(node){
-                if(node.children)
-                    return node.text;
-                else{
-                    var val = node.attributes.layer.name;
-                    var id = node.attributes.layer.id;
-                    var checked = (node.attributes.layer.name == self.map.config.baseLayerName || node.attributes.layer.name == 'EMPTY_BASE_LAYER')?"checked='checked'":"";
-                    return '<input type="radio" '+ checked +' id="'+ id +'" name="' + radioName + '">' + node.text;
-                }
-            },
-            onBeforeSelect: function(){
-                return false
-            },
-            onClick: function(node){
-                var numChildren = self.baseTree.tree('getChildren',(node.target)).length;
-                if(numChildren > 0)
-                    self.baseTree.tree('toggle',node.target);
-                else if(node.checked)
-                    self.baseTree.tree('uncheck',node.target);
-                else
-                    self.baseTree.tree('check',node.target);
-            },
-
-        });
-
-        jQuery('input:radio[name="' + radioName+ '"]').change(function(){
-            self.map.setBaseLayer(self.map.getLayer(this.id));
-        });
-
-      if(this.emptyTitle == '')
-          this.toggleBaseLayerEnabled(self, false);
-*/
     },
 
+     checkParents: function(node) {
+         var self = this;
 
+         if (node.parentID) {
+             var nodeParent = self.overlayTree.collapsibletree("find", node.parentID);
+             var children = self.overlayTree.collapsibletree('getChildren',nodeParent);
+             var childNum = children.length;
+             var childChecked = 0;
+             for (var j=0; j<childNum; j++) {
+                 if (children[j].checked && $('#checkbox_' + children[j].id).prop('checked')) childChecked++;
+             }
+             if (childChecked == 0) {
+                 $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
+                 $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
+             }
+             else if (childChecked == childNum) {
+                 $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
+                 $('#checkbox_' + node.parentID).prop( "checked", true ).checkboxradio( "refresh" );
+             }
+             else {
+                 $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
+                 $('label[for="checkbox_' + node.parentID + '"]').addClass("ui-checkbox-partial");
+             }
+
+             self.checkParents(nodeParent);
+         }
+     },
 
     createOverlayTree: function(){
 
@@ -478,10 +495,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             thNode = this.overlayData[i];
             if(thNode.children.length == 1 && thNode.children[0].text == thNode.text) this.overlayData[i] = thNode.children[0];
         };
-
-        //var divDataElem = document.createElement("div");
-        //OpenLayers.Element.addClass(uldataElem, "easyui-tree");
-        //this.dataLayersDiv.appendChild(divDataElem);
 
         this.overlayTree = jQuery(this.dataLayersDiv).collapsibletree({
             data: self.overlayData,
@@ -532,37 +545,17 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 }
             }
 
-            if (node.parentID) {
-                var nodeParent = self.overlayTree.collapsibletree("find", node.parentID);
-                var children = self.overlayTree.collapsibletree('getChildren',nodeParent);
-                var childNum = children.length;
-                var childChecked = 0;
-                for (var j=0; j<childNum; j++) {
-                    if (children[j].checked) childChecked++;
-                }
-                if (childChecked == 0) {
-                    $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
-                    $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
-                }
-                else if (childChecked == childNum) {
-                    $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
-                    $('#checkbox_' + node.parentID).prop( "checked", true ).checkboxradio( "refresh" );
-                }
-                else {
-                    $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
-                    $('label[for="checkbox_' + node.parentID + '"]').addClass("ui-checkbox-partial");
-                }
-
-
-            }
-
+            self.checkParents(node);
 
             return false;
         }),
 
         $(this.overlayTree).find('[type="checkbox"]').checkboxradio("refresh");
 
-        $(this.overlayTree).find('.collapsibletree-leaf').click(function(event){
+        $(this.overlayTree).find('.collapsibletree-leaf').bind('touchstart click', function(event){
+
+            if (typeof(this.ontouchstart) != 'undefined' && event.type == 'click')
+                return false;
 
             var chkID = 'checkbox_' + event.currentTarget.id;
 
@@ -578,7 +571,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         });
 
 
-        $(this.overlayTree).find('.collapsibletree-node').click(function(event){
+        $(this.overlayTree).find('.collapsibletree-node').bind('touchstart click', function(event){
+
+            if (typeof(this.ontouchstart) != 'undefined' && event.type == 'click')
+                return false;
 
             var chkID = 'checkbox_' + event.currentTarget.id;
 
@@ -592,78 +588,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
             event.stopPropagation();
         });
-
-
-/*
-        var uldataElem = document.createElement("ul");
-        OpenLayers.Element.addClass(uldataElem, "easyui-tree");
-        this.dataLayersDiv.appendChild(uldataElem);
-
-        this.overlayTree = jQuery(uldataElem).tree({
-            checkbox:true,
-            animate:true,
-            lines:true,
-            data: self.overlayData,
-            onBeforeCheck:function(node, checked){
-
-                var iconSpan = jQuery(node.target).find(".tree-checkbox");
-                if(iconSpan.hasClass("tree-check-disabled"))  return false
-            },
-
-            onBeforeSelect: function(node){
-                if(!(node.attributes && node.attributes.featureTypes)) return false
-            },
-
-            onCheck:function(node, checked){
-
-                if(node.attributes && node.attributes.layer){
-                    layer = node.attributes.layer;
-                    self.updateLayerVisibility(layer, checked);
-                }
-                else{
-                    jQuery.each(self.overlayTree.tree('getChildren',(node.target)),function(index,childNode){
-                        layer = childNode.attributes.layer;
-                        self.updateLayerVisibility(layer, checked);
-                    })
-                }
-
-            },
-            onDblClick: function(node){
-
-
-
-            },
-
-            onClick: function(node){
-                var numChildren = self.overlayTree.tree('getChildren',(node.target)).length;
-                if(numChildren > 0)
-                    self.overlayTree.tree('toggle',node.target);
-                else if(node.checked)
-                    self.overlayTree.tree('uncheck',node.target);
-                else
-                    self.overlayTree.tree('check',node.target);
-
-            },
-
-            formatter:function(node){
-                    return node.text;
-                    /*
-                    if(node.queryable)
-                        return '<span class="tree-file"></span>' + node.text;
-                    else
-                        return node.text;
-                    */
-/*            },
-
-            onLoadSuccess: function(node, data){
-
-
-            }
-
-        });
-
-*/
-
 
     },
 
@@ -674,18 +598,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         };
         return result
     },
-
-    /*
-    getThemeNode: function(nodes,text){
-        var node;
-        for (var i = 0; i < nodes.length; i++) { if (nodes[i].text == text) node = nodes[i]; };
-        if(!node){
-            node =  {id:OpenLayers.Util.createUniqueID("base_theme_"), text:text, state:'closed', children:[]};
-            nodes.push(node);
-        }
-        return node;
-    },
-    */
 
     getThemeNode: function(nodes,rootPath){
         var resNode = null;
@@ -762,7 +674,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 layerOrder = oLayer.nodes[j].order;
 
                 leafNode = {id:oLayer.id + "_" + j, text:oLayer.nodes[j].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:layerParam, order:layerOrder}}
-                if(typeof(oLayer.nodes[j].visibility)) leafNode.checked = oLayer.nodes[j].visibility;
+                if(typeof(oLayer.nodes[j].visibility) != 'undefined')
+                    leafNode.checked = oLayer.nodes[j].visibility;
+                else if (typeof(chNode.checked) != 'undefined')
+                    leafNode.checked = chNode.checked;
                 if(oLayer.theme == oLayer.title) fTypes = this.getFetureTypes(layerParam);  //SINGOLO TEMA
                 if((fTypes.length > 0 && oLayer.theme == oLayer.title) || (fTypes.length > 0 && fTypes[0].typeName == layerParam)){
                     leafNode.queryable = true;
@@ -773,7 +688,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     leafNode.iconCls = "overlay";
                     leafNode.children = [];
                     for (var k = 0; k < oLayer.nodes[j].nodes.length; k++) {
-                        leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}}
+                        leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}, checked:leafNode.checked}
                         leafNode.children.push(leaf_leafNode);
                     }
                 }

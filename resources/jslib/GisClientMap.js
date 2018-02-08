@@ -157,11 +157,12 @@ OpenLayers.GisClient = OpenLayers.Class({
                     if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];
                 }
             }
-            /*//CHISSA' PER QUALE RAGIONE IN PHP NON SI RIESCE A TRASFORMARE CORRETTAMENTE LE STRINGHE IN FLOAT
-            for (var i = 0; i < this.mapOptions.serverResolutions.length; i++) {
-                this.mapOptions.serverResolutions[i] = parseFloat(this.mapOptions.serverResolutions[i]);
+            // **** Parse to float resolutions
+            // **** NOTE: gisclient will generate resolutions array as string, to override php floating point precision limit
+            for (var i = 0; i < this.mapOptions.resolutions.length; i++) {
+                this.mapOptions.resolutions[i] = parseFloat(this.mapOptions.resolutions[i]);
             };
-            */
+
 
             //this.mapOptions.resolutions = this.mapOptions.serverResolutions.slice(this.mapOptions.minZoomLevel, this.mapOptions.maxZoomLevel);
             var nProviders = 0;

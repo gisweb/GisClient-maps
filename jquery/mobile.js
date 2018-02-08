@@ -3,17 +3,6 @@ var mycontrol,ismousedown;
 
 window.GCComponents = {};
 
-function adjustPanZoomBar(olControl, toolOffset){
-    var cZoom = $('.olControlPanZoomBar').offset();
-    if (toolOffset)
-    {
-        if (olControl.active)
-            $('.olControlPanZoomBar').offset({top: cZoom.top + toolOffset, left: cZoom.left } );
-        else
-            $('.olControlPanZoomBar').offset({top: cZoom.top - toolOffset, left: cZoom.left } );
-    }
-}
-
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
@@ -157,40 +146,6 @@ var customCreateControlMarkup = function(control) {
         textSpan.innerHTML = control.text;
     }
     button.appendChild(textSpan);
-
-    // **** Manually trigger sidebar buttons to avoid erratic/device dependent browser touch handling problems
-    button.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.target) {
-            e.preventDefault();
-            e.stopPropagation();
-            var objCtrl;
-            if (e.target.tagName == 'SPAN' ) {
-                objCtrl = e.target.parentElement;
-            }
-            else if (e.target.tagName == 'A' ) {
-                objCtrl = e.target;
-            }
-            else {
-                return true;
-            }
-
-            var targetCTRL = GisClientMap.map.getControlsBy('panel_div', objCtrl);
-            if (targetCTRL.length > 0) {
-                if (typeof targetCTRL[0].trigger == 'function') {
-                    targetCTRL[0].trigger();
-                }
-                else {
-                    if (targetCTRL[0].active)
-                        targetCTRL[0].deactivate();
-                    else
-                        targetCTRL[0].activate();
-                }
-            }
-        }
-        return false;});
-
     return button;
 };
 
@@ -1166,15 +1121,11 @@ var initMap = function(){
                 if (this.active) {
                     this.deactivate();
                     reportToolbar.deactivate();
-                    //adjustPanZoomBar(reportToolbar, 60);
                 }
                 else
                 {
                     this.activate();
                     reportToolbar.activate();
-                    //queryToolbar.controls[0].activate();
-                    //adjustPanZoomBar(reportToolbar, 60);
-
                 }
             }
         }),
@@ -1184,27 +1135,15 @@ var initMap = function(){
                 if (this.active) {
                     this.deactivate();
                     measureToolbar.deactivate();
-                    //adjustPanZoomBar(measureToolbar, 27);
                 }
                 else
                 {
                     this.activate();
                     measureToolbar.activate();
-                    //adjustPanZoomBar(measureToolbar, 27);
                 }
             }
         }),
 
-/*
-        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-edit", type: OpenLayers.Control.TYPE_TOGGLE, title:"Editor vettoriale",
-
-            eventListeners: {
-                'activate': function(){vectorEditor.startEditMode();},
-                'deactivate': function(){vectorEditor.stopEditMode();}
-            }
-        }),
-
-   */
         new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", title:"Redline",
             trigger: function() {
                 if (this.active) {
@@ -1212,7 +1151,6 @@ var initMap = function(){
                     this.deactivate();
                     redlineToolbar.deactivate();
                     $('#map-toolbars').css('top', '2px');
-                    //adjustPanZoomBar(redlineToolbar, 44);
                 }
                 else
                 {
@@ -1220,7 +1158,6 @@ var initMap = function(){
                     redlineToolbar.activate();
                     var nShift = $('#map-toolbars-edit')[0].getBoundingClientRect().height + 3;
                     $('#map-toolbars').css('top', nShift + 'px');
-                    //adjustPanZoomBar(redlineToolbar, 44);
                 }
             }
         }),
