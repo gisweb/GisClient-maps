@@ -302,7 +302,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 								}
 							}
 						}
-						else { // **** 3 levels: unpacked/separated layers insida a single theme
+						else { // **** 3 levels: unpacked/separated layers inside a single theme
 							for(var k=0, lenk=node.nodes.length; k<lenk; k++) {
 								innerNode = node.nodes[k];
 								if (layer.params["LAYERS"].indexOf(innerNode.layer) < 0){

@@ -217,27 +217,40 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
     },
 
+    updateNodeVisibility(node, layers, childs_ext) {
+        var self = this;
+        var childs = node.children;
+        if (typeof (childs)!= 'undefined') {
+            jQuery.each(childs ,function(_,child){
+                self.updateNodeVisibility(child, layers, childs_ext);
+            });
+        }
+        else {
+            if (node.attributes.layerParam){
+                if(node.checked){
+                    // **** Reverse layers order (Use tree order for layers overlap)
+                    layers.unshift(node.attributes.layerParam);
+                }
+            }
+            else {
+                if (node.attributes.layer) childs_ext.push(node);
+            }
+        }
+    },
 
     updateLayerVisibility: function(layer, checked){
-
+        var self = this;
         if(!this.overlayTree) return;
 
         var node = jQuery(this.overlayTree).collapsibletree('find',layer.id);
         var childs = jQuery(this.overlayTree).collapsibletree('getChildren',node);
+        var innerChilds = jQuery(this.overlayTree).collapsibletree('getChildren',node);
         if(childs.length > 0){
             var layers = [];
             var childs_ext = [];
             var tileLayer = layer.map.getLayersByName(layer.name + '_tiles') && layer.map.getLayersByName(layer.name + '_tiles')[0];
             jQuery.each(childs ,function(_,child){
-                if (child.attributes.layerParam){
-                    if(child.checked){
-                        // **** Reverse layers order (Use tree order for layers overlap)
-                        layers.unshift(child.attributes.layerParam);
-                    }
-                }
-                else {
-                    if (child.attributes.layer) childs_ext.push(child);
-                }
+                self.updateNodeVisibility(child, layers, childs_ext);
             });
 
             //controllo qui se devo accendere i figli oppure il tile-layer mapproxy
@@ -670,6 +683,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(typeof(oLayer.nodes)!='undefined') {
             chNode.children = [];
             for (var j = 0; j < oLayer.nodes.length; j++) {
+                if(typeof(oLayer.nodes[j].hidden) != 'undefined' && oLayer.nodes[j].hidden !== 0) {
+                    oLayer.nodes.splice(j,1);
+                    j--;
+                    continue;
+                }
                 layerParam = oLayer.nodes[j].layer;
                 layerOrder = oLayer.nodes[j].order;
 
@@ -688,6 +706,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     leafNode.iconCls = "overlay";
                     leafNode.children = [];
                     for (var k = 0; k < oLayer.nodes[j].nodes.length; k++) {
+                        if(typeof(oLayer.nodes[j].nodes[k].hidden) != 'undefined' && oLayer.nodes[j].nodes[k].hidden !== 0) {
+                            oLayer.nodes[j].nodes.splice(k,1);
+                            k--;
+                            continue;
+                        }
                         leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}, checked:leafNode.checked}
                         leafNode.children.push(leaf_leafNode);
                     }

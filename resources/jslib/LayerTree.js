@@ -616,6 +616,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(typeof(oLayer.nodes)!='undefined') {
             chNode.children = [];
             for (var j = 0; j < oLayer.nodes.length; j++) {
+                if(typeof(oLayer.nodes[j].hidden) != 'undefined' && oLayer.nodes[j].hidden !== 0) {
+                    oLayer.nodes.splice(j,1);
+                    j--;
+                    continue;
+                }
                 layerParam = oLayer.nodes[j].layer;
                 layerOrder = oLayer.nodes[j].order;
 
@@ -634,6 +639,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     leafNode.iconCls = "overlay";
                     leafNode.children = [];
                     for (var k = 0; k < oLayer.nodes[j].nodes.length; k++) {
+                        if(typeof(oLayer.nodes[j].nodes[k].hidden) != 'undefined' && oLayer.nodes[j].nodes[k].hidden !== 0) {
+                            oLayer.nodes[j].nodes.splice(k,1);
+                            k--;
+                            continue;
+                        }
                         leaf_leafNode = {id:oLayer.id + "_" + j + "_" + k, text:oLayer.nodes[j].nodes[k].title, iconCls:"overlay-param", attributes:{layer:oLayer, layerParam:oLayer.nodes[j].nodes[k].layer}, checked:leafNode.checked}
                         leafNode.children.push(leaf_leafNode);
                     }
