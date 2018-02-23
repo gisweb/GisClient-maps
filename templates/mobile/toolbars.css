@@ -570,6 +570,27 @@ olOptionDisabled
     font-size: 12px;
 }
 
+.featureTypeTitle span.icon-pdf {
+    background: url("images/acrobat.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+    display: inline-block;
+    height: 20px !important;
+    width: 20px !important;
+    margin-left:2px;
+    overflow: hidden;
+    text-indent: -9999px;
+}
+
+.featureTypeTitle span.icon-xls {
+    background: url("images/xls.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+    display: inline-block;
+    height: 20px !important;
+    width: 20px !important;
+    margin-left:2px;
+    overflow: hidden;
+    text-indent: -9999px;
+}
+
+
 .featureTypeTitle:first-child {
     border-radius: 10px 10px 0 0;
     margin-top: 0;

@@ -5,7 +5,7 @@ $(function(){
     window.GCComponents["QueryToolbar.Actions"].addAction(
             'wfm-mark',
             function(featureType, feature) {
-                var selectControls = feature.layer.map.getControlsBy('gc_id', 'queryToolbar');
+                var selectControls = feature.layer.map.getControlsBy('gc_id', 'control-querytoolbar');
                 if (selectControls[0].wfmSelection) {
                     return '<a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="' + featureType.typeName
                     + '" featureId="' + feature.id
@@ -164,7 +164,7 @@ window.GCComponents["Layers"].addLayer('layer-wfm-markpoint', {
     },
     "featureadded": function(obj) {
         // **** Get main selection control
-        var selectControls = this.map.getControlsBy('gc_id', 'queryToolbar');
+        var selectControls = this.map.getControlsBy('gc_id', 'control-querytoolbar');
         if (selectControls.length != 1)
             return;
         if (!selectControls[0].controls)
@@ -193,7 +193,7 @@ window.GCComponents["Layers"].addLayer('layer-wfm-markpoint', {
         }
         if (selectLayers.length < 1)
             return;
-        
+
         selectControl.controls[0].layers = selectLayers;
         selectControl.controls[0].queryFeatureType = featureTypes.substring(0, featureTypes.length -1);
 
@@ -272,7 +272,6 @@ window.GCComponents["SideToolbar.Buttons"].addButton (
                 var drawControl = this.map.getControlsBy('gc_id', 'control-wfm-markpoint');
                 if (drawControl.length == 1)
                     drawControl[0].deactivate();
-                //adjustPanZoomBar(queryToolbar, 60);
             }
             else
             {
@@ -285,5 +284,5 @@ window.GCComponents["SideToolbar.Buttons"].addButton (
                 sidebarPanel.handleEvent = false;
         }
     },
-    null
+    {button_group: 'tools'}
 );

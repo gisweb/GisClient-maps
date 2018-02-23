@@ -73,7 +73,7 @@
 
 div.olMapViewport {
      z-index: 0;
-}  
+}
 
 .olImageLoadError {
     visibility: hidden !important;
@@ -196,7 +196,7 @@ div.olMapViewport {
 .map-layout  #map-toolbars-edit .olInfoBar{
     background-color: rgba(0, 0, 0, 0);
     margin:2px;
-    
+
 }
 
 .map-layout  #map-toolbars-edit .olInfoBar .spanHeader {
@@ -237,7 +237,7 @@ div.olMapViewport {
 
 .map-layout  #map-toolbars-edit .olToolbarsControl .olButton span, .olLikeButton span {
     color: #FFFFFF;
-    margin-left: 3px; 
+    margin-left: 3px;
 }
 
 .map-layout  #map-toolbars-edit .olToolbarsControl a[class*="ItemActive"] {
@@ -301,7 +301,7 @@ div.olMapViewport {
 
 #geonote-popup #geonote-popup-content .geonote-popup-buttons .geonote-popup-btn span {
     color: #FFFFFF;
-    margin-left: 3px; 
+    margin-left: 3px;
 }
 
 #geonote-popup #geonote_popup_uploads .geonote-upload-button {
@@ -326,7 +326,7 @@ div.olMapViewport {
 #geonote-popup #geonote_popup_uploads .geonote-upload-button .geonote-upload-text {
     background-color: rgba(0, 0, 0, 0.3)!important;
     color: #FFFFFF;
-    margin-left: 3px; 
+    margin-left: 3px;
 }
 
 /*
@@ -370,7 +370,7 @@ div.olMapViewport {
 .map-layout  #map-toolbars .olToolbarsControl .olButton span, .olLikeButton span {
     color: #FFFFFF;
     margin-left: 3px;
-   
+
 }
 
 .map-layout #map-toolbars .olControlQueryMapSelect {
@@ -465,75 +465,75 @@ olOptionDisabled
 
 
 
-    table { 
-        width: 100%; 
-        border-collapse: collapse; 
+    table {
+        width: 100%;
+        border-collapse: collapse;
     }
     /* Zebra striping */
-    tr:nth-of-type(odd) { 
-        background: #eee; 
+    tr:nth-of-type(odd) {
+        background: #eee;
     }
     .smalltable tr {
         background: #ffffff;
     }
-    th { 
-        background: #ff0000; 
-        font-weight: bold; 
+    th {
+        background: #ff0000;
+        font-weight: bold;
         color: #ffffff;
     }
-    td, th { 
-        padding: 6px; 
-        border: 1px solid #ccc; 
-        text-align: left; 
+    td, th {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
         color:#000000;
     }
-    /* 
+    /*
     Max width before this PARTICULAR table gets nasty
     This query will take effect for any screen smaller than 760px
     and also iPads specifically.
 
-    
+
         /* Force table to not be like tables anymore */
 
 
 
-        .smalltable table, .smalltable thead, .smalltable tbody, .smalltable th, .smalltable td, .smalltable tr { 
-            display: block; 
+        .smalltable table, .smalltable thead, .smalltable tbody, .smalltable th, .smalltable td, .smalltable tr {
+            display: block;
         }
-        
+
         /* Hide table headers (but not display: none;, for accessibility) */
-        .smalltable thead tr { 
+        .smalltable thead tr {
             position: absolute;
             top: -9999px;
             left: -9999px;
 
         }
-        
+
         .smalltable tr { border: 3px solid #ccc; }
-        
-        .smalltable td { 
+
+        .smalltable td {
             /* Behave  like a "row" */
             border: none;
-            border-bottom: 1px solid #eee; 
+            border-bottom: 1px solid #eee;
             position: relative;
-            padding-left: 50%; 
+            padding-left: 50%;
         }
-        
-        .smalltable td:before { 
+
+        .smalltable td:before {
             /* Now like a table header */
             position: absolute;
             /* Top/left values mimic padding */
             top: 6px;
             left: 6px;
-            width: 45%; 
-            padding-right: 10px; 
+            width: 45%;
+            padding-right: 10px;
             content: attr(feature-col);
             /*white-space: nowrap;*/
         }
-        
+
         /*
         Label the data
-        
+
         .smalltable td:nth-of-type(1):before { content: "First Name"; }
         .smalltable td:nth-of-type(2):before { content: "Last Name"; }
         .smalltable td:nth-of-type(3):before { content: "Job Title"; }
@@ -569,6 +569,27 @@ olOptionDisabled
 .featureTypeTitle span{
     font-size: 12px;
 }
+
+.featureTypeTitle span.icon-pdf {
+    background: url("../resources/themes/icons/acrobat.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+    display: inline-block;
+    height: 20px !important;
+    width: 20px !important;
+    margin-left:2px;
+    overflow: hidden;
+    text-indent: -9999px;
+}
+
+.featureTypeTitle span.icon-xls {
+    background: url("../resources/themes/icons/xls.gif") no-repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+    display: inline-block;
+    height: 20px !important;
+    width: 20px !important;
+    margin-left:2px;
+    overflow: hidden;
+    text-indent: -9999px;
+}
+
 
 .featureTypeTitle:first-child {
     border-radius: 10px 10px 0 0;
@@ -634,12 +655,12 @@ olOptionDisabled
 
 .querystmts{
     overflow: auto;
-    padding: 18px 8px 2px 2px; 
+    padding: 18px 8px 2px 2px;
 }
 
 .querystmts > div {
     overflow: auto;
-    padding: 18px 8px 2px 2px; 
+    padding: 18px 8px 2px 2px;
     border: 1px solid #ccc;
 }
 
@@ -649,7 +670,7 @@ olOptionDisabled
 }
 
 .conditionbuilder div{
-    
+
 }
 
 .conditionbuilder .remove {
@@ -697,31 +718,31 @@ olOptionDisabled
     -webkit-animation-duration: 3s;
     -webkit-animation-timing-function: linear;
     -webkit-animation-iteration-count: infinite;
-    
+
     -moz-animation-name: blinker;
     -moz-animation-duration: 3s;
     -moz-animation-timing-function: linear;
     -moz-animation-iteration-count: infinite;
-    
+
     animation-name: blinker;
     animation-duration: 3s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 }
 
-@-moz-keyframes blinker {  
+@-moz-keyframes blinker {
     0% { opacity: 1.0; }
     50% { opacity: 0.3; }
     100% { opacity: 1.0; }
 }
 
-@-webkit-keyframes blinker {  
+@-webkit-keyframes blinker {
     0% { opacity: 1.0; }
     50% { opacity: 0.3; }
     100% { opacity: 1.0; }
 }
 
-@keyframes blinker {  
+@keyframes blinker {
     0% { opacity: 1.0; }
     50% { opacity: 0.3; }
     100% { opacity: 1.0; }

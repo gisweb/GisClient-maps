@@ -55,7 +55,7 @@ OpenLayers.Control.ModifyFeature.prototype.collectRadiusHandle = function() {
         this.layer.addFeatures([this.radiusHandle], {silent: true});
     }
 
-OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
+OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
     //type: OpenLayers.Control.TYPE_TOGGLE,
     formId: null, //id del form di stampa
     loadingControl: null,
