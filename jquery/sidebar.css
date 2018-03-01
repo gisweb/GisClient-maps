@@ -148,7 +148,18 @@
   display:none;
 }
 
+#sidebar-panel .panel-content .tab-content {
+  height: inherit;
+}
 
+#sidebar-panel .panel-content .tab-content>.active {
+  overflow-y: scroll;
+  height: 90%;
+}
+
+#layertree {
+  height: inherit;
+}
 
 .icon-layers {
     background: url("images/icons.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
@@ -283,7 +294,8 @@
 
 .tree-title.tree-title-disabled {
 
-    color:rgba(0, 0, 0, 0.6);
+    color:rgba(0, 0, 0, 1);
+    font-weight: bold;
 }
 
 

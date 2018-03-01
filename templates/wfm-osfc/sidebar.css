@@ -508,6 +508,19 @@
   display:none;
 }
 
+#sidebar-panel .panel-content .tab-content {
+  height: inherit;
+}
+
+#sidebar-panel .panel-content .tab-content>.active {
+  overflow-y: scroll;
+  height: 90%;
+}
+
+#layertree {
+  height: inherit;
+}
+
 #map-sidebar a[class*="ItemActive"] {
     background-color: #000000;
 }
@@ -618,7 +631,8 @@
 
 .tree-title.tree-title-disabled {
 
-    color:rgba(0, 0, 0, 0.6);
+    color:rgba(0, 0, 0, 1);
+    font-weight: bold;
 }
 
 
