@@ -1,0 +1,7 @@
+.ui-page-theme-a a, html .ui-bar-a a, html .ui-body-a a, html body .ui-group-theme-a a,
+.ui-page-theme-a a:hover, html .ui-bar-a a:hover, html .ui-body-a a:hover, html body .ui-group-theme-a a:hover,
+.ui-page-theme-a a:focus, html .ui-bar-a a:focus, html .ui-body-a a:focus, html body .ui-group-theme-a a:focus,
+.ui-page-theme-a a:visited, html .ui-bar-a a:visited, html .ui-body-a a:visited, html body .ui-group-theme-a a:visited
+{
+  color: #0000FF;
+}
