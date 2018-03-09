@@ -66,7 +66,8 @@ createGCToolbarButtons = function() {
                          var lastIdx = result.length -1;
                          if (result[lastIdx].button_group !== propValue) {
                              olb.tbarpos = 'first';
-                             result[lastIdx].tbarpos = 'last';
+                             if(result[lastIdx].tbarpos !== 'alone')
+                               result[lastIdx].tbarpos = 'last';
                          }
                      }
                  }
@@ -337,7 +338,7 @@ var initMap = function(){
     var GCControls = createGCMapControls(this.map, null);
 
     // **** Remove if some base controls (first group) are turned into Components
-     GCButtons[0].tbarpos = 'first';
+    //GCButtons[0].tbarpos = 'first';
 
     if (typeof(window.GCComponents.Functions.setQueryToolbar) != 'undefined'){
         window.GCComponents.Functions.setQueryToolbar(this.map);
@@ -442,15 +443,13 @@ var initMap = function(){
         map.zoomTo(this.value);
     });
     map.events.register('zoomend', null, function(){
-        $('#map-select-scale').val(map.getZoom());
-        var selectControls = map.getControlsBy('gc_id', 'control-querytoolbar');
-        if (selectControls.length != 1)
-            return;
-        var queryToolbar = selectControls[0]
-        if (queryToolbar.active)
-            queryToolbar.redraw();
+      $('#map-select-scale').val(map.getZoom());
+      window.GCComponents["Controls"].controls.forEach(function(b) {
+        var ctrl = map.getControlsBy('gc_id', b.controlName)[0];
+        if(ctrl.zoomEnd != undefined)
+          ctrl.zoomEnd(map.getZoom());
+      });
     });
-
     $('#mapset-title').html(GisClientMap.title);
 
     if(!GisClientMap.logged_username) {

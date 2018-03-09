@@ -1081,7 +1081,10 @@ popup.autoSize = true;
 
         me.events.triggerEvent('featureunhighlighted', {feature:feature});
     },
-
+    zoomEnd: function() {
+      if (this.active)
+        this.redraw();
+    },
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"
 
 });
