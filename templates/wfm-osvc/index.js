@@ -342,7 +342,8 @@ var initMap = function(){
     var GCControls = createGCMapControls(this.map, null);
 
     // **** Remove if some base controls (first group) are turned into Components
-    //GCButtons[0].tbarpos = 'first';
+    if(GCButtons[0].tbarpos !== 'alone')
+      GCButtons[0].tbarpos = 'first';
 
     if (typeof(window.GCComponents.Functions.setQueryToolbar) != 'undefined'){
         window.GCComponents.Functions.setQueryToolbar(this.map);
