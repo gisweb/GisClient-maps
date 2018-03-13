@@ -75,8 +75,8 @@ createGCToolbarButtons = function() {
          }
      result.push(olb);
     });
-    if (result.length > 0) {
-        result[result.length -1].tbarpos = 'last';
+    if (result.length > 0 && result[result.length -1].tbarpos !== 'alone') {
+          result[result.length -1].tbarpos = 'last';
     }
     return result;
 }
@@ -332,7 +332,6 @@ var initMap = function(){
         ConditionBuilder.baseUrl = self.baseUrl;
         ConditionBuilder.resourcesPath = rootPath + 'resources/';
     }
-
     var GCLayers = createGCMapLayers(this.map);
     var GCButtons = createGCToolbarButtons();
     var GCControls = createGCMapControls(this.map, null);

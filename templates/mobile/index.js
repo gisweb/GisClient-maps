@@ -75,8 +75,8 @@ createGCToolbarButtons = function() {
          }
      result.push(olb);
     });
-    if (result.length > 0) {
-        result[result.length -1].tbarpos = 'last';
+    if (result.length > 0 && result[result.length -1].tbarpos !== 'alone') {
+           result[result.length -1].tbarpos = 'last';
     }
     return result;
 }
