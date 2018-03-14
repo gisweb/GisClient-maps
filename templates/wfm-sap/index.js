@@ -61,22 +61,26 @@ createGCToolbarButtons = function() {
          if (typeof(b.customProperties) == 'object' && b.customProperties !== null) {
              $.each (b.customProperties, function(propName, propValue) {
                  olb[propName] = propValue;
-                 if (propName == 'button_group') {
-                     if (result.length > 0) {
+             });
+             if (result.length > 0 && typeof(olb.button_group) != 'undefined') {
                          var lastIdx = result.length -1;
-                         if (result[lastIdx].button_group !== propValue) {
+                 if (result[lastIdx].button_group !== olb.button_group) {
+                     if(typeof(olb.tbarpos) == 'undefined')
                              olb.tbarpos = 'first';
-                             if(result[lastIdx].tbarpos !== 'alone')
+                     if(typeof(result[lastIdx].tbarpos) == 'undefined')
                                result[lastIdx].tbarpos = 'last';
+                     else if (result[lastIdx].tbarpos == 'first')
+                        result[lastIdx].tbarpos = 'alone';
                          }
                      }
                  }
-             });
-         }
      result.push(olb);
     });
-    if (result.length > 0 && result[result.length -1].tbarpos !== 'alone') {
+    if (result.length > 0 ) {
+        if(typeof(result[result.length -1].tbarpos) == 'undefined')
           result[result.length -1].tbarpos = 'last';
+        else if (result[result.length -1].tbarpos == 'first')
+            result[result.length -1].tbarpos = 'alone';
     }
     return result;
 }
@@ -342,7 +346,7 @@ var initMap = function(){
     var GCControls = createGCMapControls(this.map, null);
 
     // **** Remove if some base controls (first group) are turned into Components
-    if(GCButtons[0].tbarpos !== 'alone')
+    if(typeof(GCButtons[0].tbarpos) == 'undefined')
       GCButtons[0].tbarpos = 'first';
 
     if (typeof(window.GCComponents.Functions.setQueryToolbar) != 'undefined'){
