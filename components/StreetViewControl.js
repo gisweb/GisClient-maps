@@ -13,7 +13,7 @@ $.getScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyCqG2a5aKkhA4eGams
   // **** Result panel button
   window.GCComponents["SideToolbar.Buttons"].addButton (
     'button-streetview',
-    'StreetView abilitato a ultimo livello di zoom',
+    'StreetView',
     'icon-street',
     function() {
       if (sidebarPanel.handleEvent || typeof(sidebarPanel.handleEvent) === 'undefined') {
