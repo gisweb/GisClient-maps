@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>GEOweb map</title>
-
   <link rel="stylesheet" href="../../resources/css/bootstrap.min.css" type="text/css">
   <link rel="stylesheet" href="../../resources/themes/openlayers/style.css" type="text/css">
   <link rel="stylesheet" href="../../resources/external/jquery.mobile/jquery.mobile-1.4.5.min.css" />
@@ -36,7 +35,7 @@
     <script src="../../resources/jslib/PrintMap.js"></script>
     <script src="../../resources/jslib/DynamicMeasure.js"></script>
     <script src="../../resources/jslib/GeoNoteToolbar.js"></script>
-
+    <script src="../../resources/jslib/StreetViewToolbar.js"></script>
     <script src="../../resources/jslib/QueryToolbar.js"></script>
     <script src="../../resources/jslib/ReportToolbar.js"></script>
     <script src="/gisclient3/services/iren/pipeSelect.js" type="text/javascript"></script>
@@ -46,6 +45,7 @@
     <!--
       **** Include components
     -->
+    <script src="../../components/StreetViewControl.js"></script>
     <script src="../../components/LayerTreeButton.js"></script>
     <script src="../../components/QueryControl.js"></script>
     <script src="../../components/ReportControl.js"></script>
@@ -221,6 +221,7 @@
       <div id="map-toolbar-report" class="olToolbarsControl"></div>
       <div id="map-toolbar-measure" class="olToolbarsControl"></div>
       <div id="map-toolbar-tools" class="olToolbarsControl"></div>
+      <div id="map-toolbar-streetview" class="olToolbarsControl"></div>
     </div>
 
     <div id="map-overlay-panel">
@@ -394,5 +395,6 @@
   <span id="map-coordinates"></span>
   <!--<span id="map-footer-info"></span>-->
 </div>
+<div id="tooltip"></div>
 </body>
 </html>

@@ -167,6 +167,13 @@ div.olMapViewport {
         overflow: hidden;
     }
 }
+
+div.openedStreetView {
+  display: block;
+  width: 250px;
+  height: 250px;
+}
+
 .map-layout  #map-toolbars-edit .olToolbarsControl{
     background-color: rgba(0, 0, 0, 0.6);
     margin:2px;

@@ -70,6 +70,11 @@
 }
 */
 
+div.openedStreetView {
+  display: block;
+  width: 250px;
+  height: 250px;
+}
 
 div.olMapViewport {
      z-index: 0;
