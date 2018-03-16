@@ -179,18 +179,6 @@
     margin-left:8px;
 }
 
-.icon-street {
-    background: url("images/icons.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
-    background-position: -80px 0;
-    display: inline-block;
-    height: 20px;
-    width: 20px;
-    overflow: hidden;
-    text-indent: -9999px;
-    margin-top:8px;
-    margin-left:8px;
-}
-
 #map-sidebar .glyphicon-white{
   margin-top:10px;
   margin-left:10px;
