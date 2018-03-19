@@ -1,6 +1,4 @@
 var omeminoCtrl = null;
-var BUTTON_ACTIVATE_LABEL = "Attiva Puntatore StreetView";
-var BUTTON_DEACTIVATE_LABEL = "Disattiva Puntatore StreetView";
 OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
   div: null,
   divbtns: null,
