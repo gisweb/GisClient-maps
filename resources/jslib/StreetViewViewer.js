@@ -58,6 +58,7 @@ var click = new OpenLayers.GisClient.Click();
 OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Panel,{
   div: null,
   map: null,
+  online: false,
   initialize: function(options) {
     OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
     currentPosition = new OpenLayers.LonLat(0,0);
@@ -69,8 +70,24 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
     marker = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(currentPosition.lon, currentPosition.lat + yOffset), null, currentMarkerStyle);
     markerLayer.addFeatures([marker]);
     markerLayer.setVisibility(false);
-    
     this.map.addLayers([pointerLayer, markerLayer]);
+
+    if(typeof(google) == "undefined") {
+      for(var provider in this.map.mapProviders) {
+        if(provider.include("maps.googleapis.com")) {
+          return;
+        }
+      }
+      var self = this
+      $.getScript(location.protocol + "//maps.googleapis.com/maps/api/js?key=AIzaSyCqG2a5aKkhA4eGamsp8Y4mrdeEqp8Ez9g", function( data, textStatus, jqxhr ) {
+        self.initStreetView();
+        this.online = true;
+      });
+    } else {
+      this.initStreetView();
+    }
+  },
+  initStreetView: function() {
     streetviewService = new google.maps.StreetViewService;
     streetview = new google.maps.StreetViewPanorama(this.div, {
       pov: {heading:0, pitch:10},
@@ -79,34 +96,43 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
     streetview.registerPanoProvider(this.getGeoWebProvider);
     streetview.addListener('position_changed', this.manageMarker);
     streetview.addListener('pov_changed', this.manageMarker);
+    this.online = true;
   },
   draw: function() {
     OpenLayers.Control.Panel.prototype.draw.apply(this);
   },
   activate: function() {
-    var activated = OpenLayers.Control.prototype.activate.call(this);
-    if(activated) {
-      //this.map.events.register("mousemove", this.map, displayCursor);
-      //this.map.events.register("mouseout", this.map, hideCursor);
-      markerLayer.setVisibility(true);
-      pointerLayer.setVisibility(true);
-      this.map.addControl(click);
-      click.activate();
-      $("#"+ this.div.id).addClass("openedStreetView");//="width: 250px; height: 250px;"
-      google.maps.event.trigger(streetview, 'resize');
+    if(!this.online) {
+      window.alert("Funzione StreetView non disponibile. Google Maps non accessibile.");
+      return false;
+    } else {
+      var activated = OpenLayers.Control.prototype.activate.call(this);
+      if(activated) {
+        markerLayer.setVisibility(true);
+        pointerLayer.setVisibility(true);
+        this.map.addControl(click);
+        click.activate();
+        $("#"+ this.div.id).addClass("openedStreetView");//="width: 250px; height: 250px;"
+        google.maps.event.trigger(streetview, 'resize');
+        return true;
+      }
     }
   },
   deactivate: function() {
-    var deactivated = OpenLayers.Control.prototype.deactivate.call(this);
-    if(deactivated) {
-      //this.map.events.unregister("mousemove", this.map, displayCursor);
-      //this.map.events.unregister("mouseout", this.map, hideCursor);
-      markerLayer.setVisibility(false);
-      pointerLayer.setVisibility(false);
-      click.deactivate();
-      this.map.removeControl(click);
-      $("#"+ this.div.id).removeClass("openedStreetView");
-    }
+    if(!this.online) {
+      window.alert("Funzione StreetView non disponibile. Google Maps non accessibile.");
+      return false;
+    } else {
+      var deactivated = OpenLayers.Control.prototype.deactivate.call(this);
+      if(deactivated) {
+        markerLayer.setVisibility(false);
+        pointerLayer.setVisibility(false);
+        click.deactivate();
+        this.map.removeControl(click);
+        $("#"+ this.div.id).removeClass("openedStreetView");
+        return true;
+     }
+   }
   },
   getGeoWebProvider: function(pano) {
     if (pano === 'eggZio') {

@@ -1,4 +1,6 @@
 var omeminoCtrl = null;
+var BUTTON_ACTIVATE_LABEL = "Attiva Puntatore StreetView";
+var BUTTON_DEACTIVATE_LABEL = "Disattiva Puntatore StreetView";
 OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
   div: null,
   divbtns: null,
@@ -10,7 +12,6 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
         active: false,
         iconclass:"glyphicon-white glyphicon-user",
         title:"Puntatore StreetView",
-        text:"Attiva/Disattiva Puntatore StreetView",
         trigger: function() {
           if(this.active)
             this.deactivate();
@@ -37,8 +38,7 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
             click.deactivate();
           }
           this.active = false;
-        },
-
+        }
       })
     this.addControls([omeminoCtrl]);
   },

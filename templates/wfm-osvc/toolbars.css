@@ -110,6 +110,10 @@ div.olMapViewport {
 
 }
 
+.map-layout  #map-toolbar-streetview-commander {
+    text-align: center;
+}
+
 /*
     **** GeoNote Start
 */
