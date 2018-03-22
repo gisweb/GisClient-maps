@@ -5,3 +5,26 @@
 {
   color: #0000FF;
 }
+
+.alert-custom {
+    background-color: #6a6a6a;
+    box-shadow: 2px 2px 2px 2px #000000;
+    border: 1px solid #aaaaaa;
+    color: #ffffff;
+    opacity: 0.85;
+    border-radius: 8px;
+    position: absolute;
+    top: 30px;
+    right: 65px;
+    width: 20%;
+}
+
+#hintsReload {
+  position: relative;
+  bottom: 8px;
+  right: 6px;
+}
+
+#hintsButton {
+  float: right;
+}
