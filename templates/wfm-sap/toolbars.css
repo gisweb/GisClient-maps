@@ -109,6 +109,10 @@ div.olMapViewport {
 
 }
 
+.map-layout  #map-toolbar-streetview-commander {
+    text-align: center;
+}
+
 /*
     **** GeoNote Start
 */
@@ -702,4 +706,14 @@ olOptionDisabled
     50% { opacity: 0.3; }
     100% { opacity: 1.0; }
 
+}
+
+#map-toolbar-streetview-commander a.olControlButtonItemActive.olButton span.glyphicon-white.glyphicon-user:after {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    content: " Disattiva navigazione";
+}
+
+#map-toolbar-streetview-commander a.olControlButtonItemInactive.olButton span.glyphicon-white.glyphicon-user:after {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    content: " Attiva navigazione";
 }

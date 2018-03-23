@@ -10,7 +10,6 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
         active: false,
         iconclass:"glyphicon-white glyphicon-user",
         title:"Puntatore StreetView",
-        text:"Attiva/Disattiva Puntatore StreetView",
         trigger: function() {
           if(this.active)
             this.deactivate();
@@ -37,8 +36,7 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
             click.deactivate();
           }
           this.active = false;
-        },
-
+        }
       })
     this.addControls([omeminoCtrl]);
   },

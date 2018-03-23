@@ -67,7 +67,7 @@
     <link rel="stylesheet" href="../resources/themes/ole/geosilk.css" type="text/css" />
 -->
 
-
+    <script src="../../resources/jslib/hints.js"></script>
 	<script type="text/javascript">
 
 
@@ -208,6 +208,7 @@
 <div id="map-header">
     <span id="mapset-switcher"><select name="mapset"></select></span>
     <span id="mapset-login"></span>
+    <span id="mapset-question" class="glyphicon-white glyphicon-question-sign" title="Notifiche"></span>
 </div>
 
   <div id="content">
@@ -399,5 +400,11 @@
   <!--<span id="map-footer-info"></span>-->
 </div>
 <div id="tooltip"></div>
+<div id="hintsDiv" class="alert alert-custom alert-dismissible hide" role="alert">
+  <div id="hintsDivContent"></div>
+  <div id="hintsButton" type="button" title="Ricordamelo">
+    <span class="glyphicon-white glyphicon-time" aria-hidden="true"></span>
+  </div>
+</div>
 </body>
 </html>
