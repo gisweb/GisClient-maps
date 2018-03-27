@@ -15,7 +15,6 @@ $(document).ready(function() {
             show = true;
           }
         });
-        $("#mapset-question").css("display", "none");
         $("#hintsDivContent > div > :checkbox").on("click", checkHintCheckbox);
         if(show) {
           $("#hintsButton").css("display", "none");
@@ -23,6 +22,8 @@ $(document).ready(function() {
           setTimeout(function(){ closeHints(); }, 10000);
         }
       }
+      $("#mapset-question").css("display", "none");
+
   });
   
 
