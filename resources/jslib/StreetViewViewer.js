@@ -16,7 +16,7 @@ var currentMarkerPointerLineStyle ={
     externalGraphic: '../../resources/img/pointer.png',
     pointRadius: 26,
     rotation: 0,
-    display: "none",
+    display: ""/*"none"*/,
     graphicZIndex: 1
 };
 var projection;
@@ -193,7 +193,7 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
   },
   zoomEnd: function(passedZoom) {
     if(this.active) {
-      pointer.style.display = passedZoom < this.map.getNumZoomLevels() - 4 ? "none" : "";
+      pointer.style.display = /*passedZoom < this.map.getNumZoomLevels() - 4 ? "none" : */"";
       pointerLayer.redraw();
     }
   }
