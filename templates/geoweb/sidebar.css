@@ -166,6 +166,12 @@
   height: inherit;
 }
 
+#resultpanel {
+    display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: inherit;
+}
 
 .icon-layers {
     background: url("images/icons.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);

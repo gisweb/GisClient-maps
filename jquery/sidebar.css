@@ -115,25 +115,25 @@
 #sidebar-panel .panel-header .panel-clearresults{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-close{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-expand{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-collapse{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
   display:none;
 }
@@ -159,6 +159,13 @@
 
 #layertree {
   height: inherit;
+}
+
+#resultpanel {
+    display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: inherit;
 }
 
 .icon-layers {
@@ -307,7 +314,7 @@
 
 #layerlegend p{
 
-    color: #404040; 
+    color: #404040;
     font-weight: bold;
 
 }
