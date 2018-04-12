@@ -66,6 +66,11 @@
     border-radius: 0 0 0 8px;
     margin-bottom: 0px;
 }
+#map-sidebar .olButton.alone{
+  border-radius: 8px 0 0 8px;
+  margin-bottom: 0;
+  margin-top: 5px;
+}
 #map-sidebar .olButton:hover {
     background-color: #000000;
 }
@@ -115,25 +120,25 @@
 #sidebar-panel .panel-header .panel-clearresults{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-close{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-expand{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
 }
 #sidebar-panel .panel-header .panel-collapse{
   float:right;
   width:30px;
-  color:#fff;  
+  color:#fff;
   cursor: pointer;
   display:none;
 }
@@ -148,7 +153,25 @@
   display:none;
 }
 
+#sidebar-panel .panel-content .tab-content {
+  height: inherit;
+}
 
+#sidebar-panel .panel-content .tab-content>.active {
+  overflow-y: scroll;
+  height: 90%;
+}
+
+#layertree {
+  height: inherit;
+}
+
+#resultpanel {
+    display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: inherit;
+}
 
 .icon-layers {
     background: url("images/icons.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
@@ -161,8 +184,6 @@
     margin-top:8px;
     margin-left:8px;
 }
-
-
 
 
 #map-sidebar .glyphicon-white{
@@ -273,7 +294,7 @@
   *margin-right: .3em;
   line-height: 14px;
   vertical-align: text-top;
-  background-image: url("../resources/img/glyphicons-halflings.png");
+  background-image: url("../../resources/img/glyphicons-halflings.png");
   background-position: 14px 14px;
   background-repeat: no-repeat;
   background-position: -120px -120px;
@@ -283,7 +304,8 @@
 
 .tree-title.tree-title-disabled {
 
-    color:rgba(0, 0, 0, 0.6);
+    color:rgba(0, 0, 0, 1);
+    font-weight: bold;
 }
 
 
@@ -295,7 +317,7 @@
 
 #layerlegend p{
 
-    color: #404040; 
+    color: #404040;
     font-weight: bold;
 
 }

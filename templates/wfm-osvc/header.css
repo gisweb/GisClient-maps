@@ -55,3 +55,12 @@ header h1 a {
     float:left;
 }
 
+#mapset-question {
+  margin-right: 15px;
+  float: right;
+  animation-name: blinker;
+  animation-duration: 3s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+

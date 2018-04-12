@@ -1,0 +1,30 @@
+.ui-page-theme-a a, html .ui-bar-a a, html .ui-body-a a, html body .ui-group-theme-a a,
+.ui-page-theme-a a:hover, html .ui-bar-a a:hover, html .ui-body-a a:hover, html body .ui-group-theme-a a:hover,
+.ui-page-theme-a a:focus, html .ui-bar-a a:focus, html .ui-body-a a:focus, html body .ui-group-theme-a a:focus,
+.ui-page-theme-a a:visited, html .ui-bar-a a:visited, html .ui-body-a a:visited, html body .ui-group-theme-a a:visited
+{
+  color: #0000FF;
+}
+
+.alert-custom {
+    background-color: #6a6a6a;
+    box-shadow: 2px 2px 2px 2px #000000;
+    border: 1px solid #aaaaaa;
+    color: #ffffff;
+    opacity: 0.85;
+    border-radius: 8px;
+    position: absolute;
+    top: 30px;
+    right: 65px;
+    width: 20%;
+}
+
+#hintsReload {
+  position: relative;
+  bottom: 8px;
+  right: 6px;
+}
+
+#hintsButton {
+  float: right;
+}

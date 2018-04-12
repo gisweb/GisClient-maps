@@ -59,12 +59,29 @@ createGCToolbarButtons = function() {
             trigger: b.buttonFunction
          });
          if (typeof(b.customProperties) == 'object' && b.customProperties !== null) {
-             b.customProperties.forEach(function(propName, propValue) {
+             $.each (b.customProperties, function(propName, propValue) {
                  olb[propName] = propValue;
              });
-         }
+             if (result.length > 0 && typeof(olb.button_group) != 'undefined') {
+                         var lastIdx = result.length -1;
+                 if (result[lastIdx].button_group !== olb.button_group) {
+                     if(typeof(olb.tbarpos) == 'undefined')
+                             olb.tbarpos = 'first';
+                     if(typeof(result[lastIdx].tbarpos) == 'undefined')
+                               result[lastIdx].tbarpos = 'last';
+                     else if (result[lastIdx].tbarpos == 'first')
+                        result[lastIdx].tbarpos = 'alone';
+                         }
+                     }
+                 }
      result.push(olb);
     });
+    if (result.length > 0 ) {
+        if(typeof(result[result.length -1].tbarpos) == 'undefined')
+          result[result.length -1].tbarpos = 'last';
+        else if (result[result.length -1].tbarpos == 'first')
+            result[result.length -1].tbarpos = 'alone';
+    }
     return result;
 }
 
@@ -75,7 +92,7 @@ createGCMapControls = function(map, commonProperties) {
         var controlName = b.controlName;
         var olc = b.createFunction(map);
         if (typeof(commonProperties) == 'object' && commonProperties !== null) {
-            commonProperties.forEach(function(propName, propValue) {
+            $.each (b.customProperties, function(propName, propValue) {
                 olc[propName] = propValue;
             });
         }
@@ -95,17 +112,6 @@ createGCMapLayers = function(map) {
         map.addLayer(oll);
     });
     return result;
-}
-
-function adjustPanZoomBar(olControl, toolOffset){
-    var cZoom = $('.olControlPanZoomBar').offset();
-    if (toolOffset)
-    {
-        if (olControl.active)
-            $('.olControlPanZoomBar').offset({top: cZoom.top + toolOffset, left: cZoom.left } );
-        else
-            $('.olControlPanZoomBar').offset({top: cZoom.top - toolOffset, left: cZoom.left } );
-    }
 }
 
 var sidebarPanel = {
@@ -145,18 +151,28 @@ var sidebarPanel = {
 
     show: function(panelId) {
         var self = this;
+        var panels = $('div.panel-content', self.$element).children('div').toArray();
+        for (var i = 0; i < panels.length; i++) {
+            if (panels[i].id === panelId) {
+                $('#'+panels[i].id, self.$element).show();
+            }
+            else {
+                $('#'+panels[i].id, self.$element).hide();
+                var ctrlBtn = GisClientMap.map.getControlsBy('sidebar_panel', panels[i].id);
+                for (var j= 0; j < ctrlBtn.length; j++) {
+                    ctrlBtn[j].deactivate();
+                    if(typeof(ctrlBtn[j].gc_control) != 'undefined') {
+                        GisClientMap.map.getControlsBy('gc_id', ctrlBtn[j].gc_control)[0].deactivate();
+                    }
+                }
+            }
 
-        $('div.panel-content', self.$element).children('div').each(function() {
-            if($(this).hasClass('panel-header')) return;
-
-            $(this).hide();
-        });
-        $('#'+panelId, self.$element).show();
+        }
 
         self.open();
 
         // **** WFM customization
-        var selectControls = GisClientMap.map.getControlsBy('gc_id', 'queryToolbar');
+        var selectControls = GisClientMap.map.getControlsBy('gc_id', 'control-querytoolbar');
         selectControls[0].wfmSelection = false;
     },
 
@@ -239,15 +255,11 @@ var sidebarPanel = {
 };
 
 
-
-//INITMAP PER FARCI QUALCOSA
-$(function() {
-
 var customCreateControlMarkup = function(control) {
     var button = document.createElement('a'),
         icon = document.createElement('span'),
         textSpan = document.createElement('span');
-    //icon.className="myicon glyphicon-white ";
+    //icon.className="myicon glyphicon-whitLIKEe ";
     if(control.tbarpos) button.className += control.tbarpos;
     if(control.iconclass) icon.className += control.iconclass;
     button.appendChild(icon);
@@ -255,43 +267,12 @@ var customCreateControlMarkup = function(control) {
         textSpan.innerHTML = control.text;
     }
     button.appendChild(textSpan);
-
-    // **** Manually trigger sidebar buttons to avoid erratic/device dependent browser touch handling problems
-    button.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.target) {
-            e.preventDefault();
-            e.stopPropagation();
-            var objCtrl;
-            if (e.target.tagName == 'SPAN' ) {
-                objCtrl = e.target.parentElement;
-            }
-            else if (e.target.tagName == 'A' ) {
-                objCtrl = e.target;
-            }
-            else {
-                return true;
-            }
-
-            var targetCTRL = GisClientMap.map.getControlsBy('panel_div', objCtrl);
-            if (targetCTRL.length > 0) {
-                if (typeof targetCTRL[0].trigger == 'function') {
-                    targetCTRL[0].trigger();
-                }
-                else {
-                    if (targetCTRL[0].active)
-                        targetCTRL[0].deactivate();
-                    else
-                        targetCTRL[0].activate();
-                }
-            }
-        }
-        return false;});
-
     return button;
 };
 
+
+//INITMAP PER FARCI QUALCOSA
+$(function() {
 
 var initMap = function(){
     var map=this.map;
@@ -309,18 +290,6 @@ var initMap = function(){
 
     var serviceURL = self.baseUrl + "services/";
     var rootPath = '../../';
-
-
-    //SETTO IL BASE LAYER SE IMPOSTATO
-    /*
-    if(this.baseLayerName) {
-        var ret = map.getLayersByName(this.baseLayerName);
-        if(ret.length > 0) map.setBaseLayer(ret[0]);
-    }
-*/
-    //setto osm come base... vedere perché non va da author
-/*     var ret = map.getLayersByName("osm");
-    if(ret.length > 0) map.setBaseLayer(ret[0]); */
 
     sidebarPanel.init('#sidebar-panel');
 
@@ -375,16 +344,6 @@ var initMap = function(){
 
     }
 
-/*
-    var vectorEditor = new OpenLayers.Editor(map, {
-        activeControls: ['Navigation', 'SnappingSettings', 'CADTools', 'TransformFeature', 'Separator', 'DeleteFeature', 'DragFeature', 'SelectFeature', 'Separator', 'DrawHole', 'ModifyFeature', 'Separator'],
-        featureTypes: ['regular', 'polygon', 'path', 'point']
-    });
-
-*/
-    //******************** TOOLBARS STRUMENTI (IN ALTO A SX) *****************************************
-
-    //
 
     if(ConditionBuilder) {
         ConditionBuilder.baseUrl = self.baseUrl;
@@ -393,758 +352,19 @@ var initMap = function(){
 
     var GCLayers = createGCMapLayers(this.map);
     var GCButtons = createGCToolbarButtons();
+    var GCControls = createGCMapControls(this.map, null);
 
-    var reportToolbar = new OpenLayers.GisClient.reportToolbar({
-        baseUrl: self.baseUrl,
-        createControlMarkup:customCreateControlMarkup,
-        //resultTarget:document.getElementById("resultpanel"),
-        //resultLayout:"TABLE",
-        div:document.getElementById("map-toolbar-report"),
-        autoActivate:false,
-        saveState:true,
-        rowsPerPage: 200,
-        selectedCols: [],
-        filterButtonHander: function (event) {
+    // **** Remove if some base controls (first group) are turned into Components
+    if(typeof(GCButtons[0].tbarpos) == 'undefined')
+      GCButtons[0].tbarpos = 'first';
 
-            var selectedReport =  $('select.olControlReportMapSelect').val();
-
-            if(selectedReport < 1){
-                return alert('Nessun modello di report selezionato');
-            }
-
-            var reportDef = reportToolbar.getReportDef(selectedReport);
-
-            if (!reportDef) {
-                return alert('Defininzione del modello di report non trovata, ID: ' + selectedReport);
-            }
-
-            if(ConditionBuilder) {
-                ConditionBuilder.init('.query-report');
-                ConditionBuilder.setFeatureType(reportDef);
-             }
-
-            var form = '',
-                len = reportDef.properties.length, property, i;
-
-            $('#searchReportTitle').html('Filtra Report '+reportDef.title);
-
-            //form += '<form role="form">';
-            form += '<table>';
-
-            for(i = 0; i < len; i++) {
-                property = reportDef.properties[i];
-
-                if(!property.searchType) continue; //searchType undefined oppure 0
-
-                //form += '<div class="form-group">'+
-                //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
-                form += '<tr><td>'+property.header+'</td><td>';
-
-                switch(property.searchType) {
-                    case 1:
-                    case 2: //testo
-                        form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
-                    break;
-                    case 3: //lista di valori
-                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" fieldFilter="'+property.fieldFilter+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
-                    break;
-                    case 4: //numero
-                        form += '<div class="form-inline">'+
-                            '<select name="'+property.name+'_operator" class="form-control">'+
-                            '<option value="=">=</option>'+
-                            '<option value="<>">!=</option>'+
-                            '<option value="<">&lt;</option>'+
-                            '<option value=">">&gt;</option>'+
-                            '</select>'+
-                            '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">'+
-                            '</div>';
-                    break;
-                    case 5: //data
-                        form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
-                    break;
-                    case 6: //lista di valori non wfs
-                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" fieldFilter="'+property.fieldFilter+'" id="search_form_input_'+i+'" style="width:300px;">';
-                    break;
-                }
-
-                //form += '</div>';
-                form += '</td></tr>';
-            }
-            form += '</table>';
-
-            form += '<button type="submit" class="btn btn-default ui-btn ui-shadow ui-corner-all">Filtra</button>'+
-                '</form>';
-
-            $('#ricerca-report').empty().append(form);
-
-            $('#ricerca-report input[searchType="3"],#ricerca-report input[searchType="6"]').each(function(e, input) {
-                var fieldId = $(input).attr('fieldId');
-                var fieldFilter = $(input).attr('fieldFilter');
-
-                $(input).select2({
-                    minimumInputLength: 0,
-                    query: function(query) {
-                        var filterValue = '';
-                        var filterFields = '';
-                        var fieldFilterTmp = fieldFilter;
-
-                        while (fieldFilterTmp !== 'undefined' && fieldFilterTmp !== null){
-                            if ($('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').length === 0) {
-                                break;
-                            }
-                            if (typeof $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== "undefined" && $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== null) {
-                                var filterSelect = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data');
-                                filterValue +=  $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').select2('data').text + ',';
-                                filterFields += fieldFilterTmp + ',';
-                            }
-                            fieldFilterTmp = $('#ricerca-report input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
-                        }
-                        if (filterValue.length > 0) {
-                            filterValue = filterValue.slice(0, -1);
-                            filterFields = filterFields.slice(0, -1);
-                        }
-
-                        if (typeof $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
-                            $('#ricerca-report input[fieldFilter="'+fieldId+'"]').select2('data', null);
-
-                        $.ajax({
-                            url: self.baseUrl + 'services/xRpSuggest.php',
-                            data: {
-                                suggest: query.term,
-                                field_id: fieldId,
-                                filtervalue: filterValue
-        },
-                            dataType: 'json',
-                            success: function(data) {
-                                var results = [];
-                                $.each(data.data, function(e, val) {
-                                    results.push({
-                                        id: val.value,
-                                        text: val.value
-                                    });
-                                });
-                                query.callback({results:results});
-                            }
-                        });
-                    }
-                });
-            });
-
-            $('#ricerca-report button[type="submit"]').click(function(event) {
-                event.preventDefault();
-
-
-                var query = '';
-                var values = {};
-                var par_idx = 0;
-
-                $('#ricerca-report input').each(function(e, input) {
-                    var name = $(input).attr('name'),
-                        value = $(input).val(),
-                        searchType = $(input).attr('searchType'),
-                        type = '=',
-                        param_x = ':param_' + par_idx;
-
-                    if(!value || value == '') return;
-
-                    if(searchType == 4) {
-                        type = $('#ricerca select[name="'+name+'_operator"]').val();
-                    }
-                    if(searchType == 2) {
-                        type = 'ILIKE';
-                        value = '%'+value+'%';
-                    }
-
-                    if (query.length > 0) query += ' AND ';
-
-                    query += name + ' ' + type + ' ' + param_x;
-                    values[param_x] = value;
-
-                    par_idx++;
-                });
-
-                if(query.length == 0) return alert('Specificare almeno un parametro di ricerca');
-
-                reportToolbar.displayReportHandler({'query': query, 'values': values});
-
-                $('#SearchReportWindow').modal('hide');
-            });
-
-            $('#SearchReportWindow').modal('show');
-
-
-        },
-        eventListeners: {
-            'initreport': function(event) {
-                    var self = this;
-                    var reportDef = event.reportDef,
-                        len = reportDef.properties.length, i, property,
-                        table = '<table id="reportTbl"><thead><tr>',
-                        exportLinks = ' <a href="#" class="reportTbl_export" action="xls" reportID="' + event.reportID + '" ><img src="../../resources/themes/icons/xls.gif">&nbsp;Esporta in Excel</a>'
-                                    + ' <a href="#" class="reportTbl_export" action="pdf" reportID="' + event.reportID + '" ><img src="../../resources/themes/icons/acrobat.gif">&nbsp;Esporta in PDF</a>',
-                        cols = [], col, j,
-                        results, result, value, title;
-
-                    table =  exportLinks + table;
-                   // **** Insert ID column
-                   table += '<th>ID</th>';
-                   self.selectedCols.push('gc_objid');
-                    for(i = 0; i < len; i++) {
-                        property = reportDef.properties[i];
-                        title = property.header || property.name;
-                        table += '<th>'+title+'</th>';
-                        self.selectedCols.push(property.name);
-                    }
-                    table += '</tr></thead><tbody>';
-
-                    table += '</tr>';
-
-                    table += '</tbody></table>';
-
-                    $('#DetailsWindow div.modal-body').html(table);
-                    $('#DetailsWindow h4.modal-title').html('Report ' + reportDef.title);
-                    $('#DetailsWindow').modal('show');
-
-                    self.getReportData(event.reportID, self.currentPage, event.filter);
-
-                    $('.reportTbl_export').click(function() {
-                        var action = this.getAttribute('action');
-                        var reportID = this.getAttribute('reportID');
-                        var me = self;
-                        me.exportReport(reportID, action, event.filter);
-                    });
-
-                    self.evt = event;
-
-                    $("#DetailsWindow").scroll(function() {
-                        var me = self;
-                        if (me.totalRows <= me.currentPage*me.rowsPerPage)
-                            return;
-                        var docViewTop = $("#DetailsWindow").scrollTop();
-                        var rowMarker = $("#reportTbl tr").eq($("#reportTbl > tbody > tr").length - me.rowsPerPage/4);
-                        if (rowMarker) {
-                            var elemTop = rowMarker[0].offsetTop;
-                            if (elemTop <= docViewTop && me.dataLoading == false){
-                                me.currentPage += 1;
-                                    me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter);
-                            }
-                        }
-                    });
-                },
-           'insertrows': function (data) {
-               var row, col, value, rowHtml;
-               var table = $("#reportTbl > tbody:last");
-               for(i = 0; i < data.length; i++) {
-                   row = data[i];
-                   rowHtml = '<tr>';
-                   for(var j = 0; j < this.selectedCols.length; j++) {
-                        col = this.selectedCols[j];
-                        value = row[col] || '';
-
-                        rowHtml += '<td>'+value+'</td>';
-                   }
-                   rowHtml += '</tr>';
-                   table.append(rowHtml);
-                }
-           }
-        }
-    });
-    map.addControl(reportToolbar);
-
-    var queryToolbar = new OpenLayers.GisClient.queryToolbar({
-        gc_id: 'queryToolbar',
-        baseUrl: self.baseUrl,
-        createControlMarkup:customCreateControlMarkup,
-        resultTarget:document.getElementById("resultpanel"),
-        resultLayout:"TABLE",
-        div:document.getElementById("map-toolbar-query"),
-        autoActivate:false,
-        saveState:true,
-        maxWfsFeatures:MAX_LAYER_FEATURES,
-        maxVectorFeatures:MAX_QUERY_FEATURES,
-        eventListeners: {
-            //'startQueryMap': function() { sidebarPanel.show('resultpanel');},
-            'endQueryMap': function(event) {        //Aggiungo l'animazione (???? da spostare sulla pagina)
-                if(event.layer.features && event.layer.features.length) {
-                    if($(window).width() > 1000) {
-                        sidebarPanel.show('resultpanel');
-                    }
-                    $("#resultpanel .featureTypeTitle").on('click',function(){
-                        $(this).children('.featureTypeData').slideToggle(200).next('.featureTypeData').slideUp(500);
-                    });
-                    if(event.vectorFeaturesOverLimit) {
-                        alert('I risultati dell\'interrogazione sono troppi: alcuni oggetti non sono stati disegnati su mappa ');
-                    }
-
-                    $('.panel-clearresults').show();
-                    //console.log(event.mode);
-                    //console.log(event.layer.getDataExtent());
-                    if(event.mode == 'fast') {
-                        GisClientMap.map.zoomToExtent(event.layer.getDataExtent());
-                    }
-                } else {
-                    alert('Nessun risultato');
-                    if ($('#resultpanel').is(":visible"))
-                        sidebarPanel.hide();
-                }
-            },
-            'featureTypeSelected': function(fType) {
-
-            },
-            'featureselected': function(event) {
-
-                var self = this;
-                if(self.popupOpenTimeout) {
-                    clearTimeout(self.popupOpenTimeout);
-                    self.popupOpenTimeout = null;
-                    self.removePopup(event);
-                }
-
-                var feature = event.feature,
-                    featureType = feature.featureTypeName;
-
-                var element = $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]');
-                var container = $('#sidebar-panel div.panel-content');
-                container.scrollTop(0);
-                if(element.length) {
-                    //var containerTop = $('#sidebar-panel').scrollTop();
-                    var containerTop = 0;
-                    var containerBottom = containerTop + container.height();
-                    var elemTop = element.offset().top;
-                    //var elemTop = 0;
-                    var elemBottom = elemTop + $(element).height();
-
-                    if (elemTop < containerTop) {
-                        container.scrollTop(elemTop);
-                    } else if (elemBottom > containerBottom) {
-                        container.scrollTop(elemBottom - container.height());
-                    }
-                    element.css('background-color', 'yellow');
-
-                    if(!sidebarPanel.isOpened) {
-                        sidebarPanel.show('resultpanel');
-                    }
-                } else {
-                    console.log('non trovo ', featureType, feature.id);
-                }
-            },
-            'featureunselected': function(event) {
-                var feature = event.feature,
-                    featureType = feature.featureTypeName;
-
-                $('#resultpanel tr[featureType="'+featureType+'"][featureId="'+feature.id+'"]').css('background-color', 'white');
-            },
-            'featurehighlighted': function(event) {
-                var feature = event.feature;
-
-                var self = this;
-                var queryResLayer = map.getLayersByName("wfsResults")[0];
-                if (queryResLayer.selectedFeatures.indexOf(feature) < 0 && POPUP_TIMEOUT > 0)
-                {
-                    self.popupOpenTimeout = setTimeout(function() {
-                        if (self.popup)
-                            self.map.addPopup(self.popup);
-                    }, POPUP_TIMEOUT);
-                }
-            },
-            'featureunhighlighted': function(event) {
-                var self = this;
-                if(self.popupOpenTimeout) {
-                    clearTimeout(self.popupOpenTimeout);
-                    self.popupOpenTimeout = null;
-                }
-            },
-            'viewdetails': function(event) {
-                var featureType = event.featureType,
-                    fType = GisClientMap.getFeatureType(featureType),
-                    len = fType.properties.length, i, property,
-                    table = '<table><thead><tr>',
-                    cols = [], col, j,
-                    results, result, value, title;
-
-                try {
-                    results = $.parseJSON(event.response.responseText);
-                } catch(e) {
-                    return alert('Errore di sistema');
-                }
-
-                for(i = 0; i < len; i++) {
-                    property = fType.properties[i];
-
-                    if(!property.relationName || property.relationName != event.relation.relationName) continue;
-
-                    title = property.header || property.name;
-                    table += '<th>'+title+'</th>';
-                    cols.push(property.name);
-                }
-                table += '</tr></thead><tbody>';
-
-                for(i = 0; i < results.length; i++) {
-                    result = results[i];
-
-                    table += '<tr>';
-
-                    for(j = 0; j < cols.length; j++) {
-                        col = cols[j];
-                        value = result[col] || '';
-
-                        table += '<td>'+value+'</td>';
-                    }
-                    table += '</tr>';
-                }
-                table += '</tbody></table>';
-
-                $('#DetailsWindow div.modal-body').html(table);
-                var title = event.relation.relationTitle || event.relation.relationName;
-                $('#DetailsWindow h4.modal-title').html(title + ' di ' + fType.title);
-                $('#DetailsWindow').modal('show');
-            }
-        },
-        searchButtonHander: function(selectedFeatureType, mode) {
-            var mode = mode || 'default',
-                selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val(),
-                queryToolbar = this,
-                fType;
-
-            if(mode == 'default') {
-                $('li[role="advanced-search"]').show();
-            } else {
-                $('li[role="advanced-search"]').hide();
-            }
-
-            if(selectedFeatureType == OpenLayers.GisClient.queryToolbar.VISIBLE_LAYERS ||
-                selectedFeatureType == OpenLayers.GisClient.queryToolbar.ALL_LAYERS) {
-                return alert('Seleziona un livello prima');
-            }
-
-            fType = GisClientMap.getFeatureType(selectedFeatureType);
-            if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
-
-            if(ConditionBuilder) {
-                ConditionBuilder.init('.query');
-                ConditionBuilder.setFeatureType(fType);
-            }
-
-            var form = '',
-                properties = fType.properties,
-                len = properties.length, property, i;
-
-            $('#searchFormTitle').html('Ricerca '+fType.title);
-
-            //form += '<form role="form">';
-            form += '<table>';
-
-            for(i = 0; i < len; i++) {
-                property = properties[i];
-
-                if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
-
-                //form += '<div class="form-group">'+
-                //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
-                form += '<tr><td>'+property.header+'</td><td>';
-
-                switch(property.searchType) {
-                    case 1:
-                    case 2: //testo
-                        form += '<input type="text" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
-                    break;
-                    case 3: //lista di valori
-                        form += '<input type="text" name="'+property.name+'" fieldId="'+property.fieldId+'" fieldFilter="'+property.fieldFilter+'" searchType="'+property.searchType+'" id="search_form_input_'+i+'"  style="width:300px;">';
-                    break;
-                    case 4: //numero
-                        form += '<div class="form-inline">'+
-                            '<select name="'+property.name+'_operator" class="form-control">'+
-                            '<option value="'+OpenLayers.Filter.Comparison.EQUAL_TO+'">=</option>'+
-                            '<option value="'+OpenLayers.Filter.Comparison.NOT_EQUAL_TO+'">!=</option>'+
-                            '<option value="'+OpenLayers.Filter.Comparison.LESS_THAN+'">&lt;</option>'+
-                            '<option value="'+OpenLayers.Filter.Comparison.GREATER_THAN+'">&gt;</option>'+
-                            '</select>'+
-                            '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">'+
-                            '</div>';
-                    break;
-                    case 5: //data
-                        form += '<input type="date" name="'+property.name+'" searchType="'+property.searchType+'" class="form-control" id="search_form_input_'+i+'">';
-                    break;
-                    case 6: //lista di valori non wfs
-                        form += '<input type="number" name="'+property.name+'" searchType="'+property.searchType+'" fieldFilter="'+property.fieldFilter+'" id="search_form_input_'+i+'" style="width:300px;">';
-                    break;
-                }
-
-                //form += '</div>';
-                form += '</td></tr>';
-            }
-            form += '</table>';
-
-            if(mode == 'default') {
-                form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>';
-            }
-            form += '<button type="submit" class="btn btn-default ui-btn ui-shadow ui-corner-all">Cerca</button>'+
-                '</form>';
-
-            $('#ricerca').empty().append(form);
-
-            $('#ricerca input[searchType="3"],#ricerca input[searchType="6"]').each(function(e, input) {
-                var fieldId = $(input).attr('fieldId');
-                var fieldFilter = $(input).attr('fieldFilter');
-
-                $(input).select2({
-                    minimumInputLength: 0,
-                    query: function(query) {
-                        var filterValue = '';
-                        var filterFields = '';
-                        var fieldFilterTmp = fieldFilter;
-
-                        while (fieldFilterTmp !== 'undefined' && fieldFilterTmp !== null){
-                            if ($('#ricerca input[fieldId="'+fieldFilterTmp+'"]').length === 0) {
-                                break;
-                            }
-                            if (typeof $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data') !== null) {
-                                var filterSelect = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data');
-                                filterValue +=  $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').select2('data').text + ',';
-                                filterFields += fieldFilterTmp + ',';
-                            }
-                            fieldFilterTmp = $('#ricerca input[fieldId="'+fieldFilterTmp+'"]').attr('fieldFilter');
-                        }
-                        if (filterValue.length > 0) {
-                            filterValue = filterValue.slice(0, -1);
-                            filterFields = filterFields.slice(0, -1);
-                        }
-
-                        if (typeof $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== "undefined" && $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data') !== null)
-                            $('#ricerca input[fieldFilter="'+fieldId+'"]').select2('data', null);
-
-                        $.ajax({
-                            url: self.baseUrl + 'services/xSuggest.php',
-                            data: {
-                                suggest: query.term,
-                                field_id: fieldId,
-                                filterfields: filterFields,
-                                filtervalue: filterValue
-                            },
-                            dataType: 'json',
-                            success: function(data) {
-                                var results = [];
-                                $.each(data.data, function(e, val) {
-                                    results.push({
-                                        id: val.value,
-                                        text: val.value
-                                    });
-                                });
-                                query.callback({results:results});
-                            }
-                        });
-                    }
-                });
-            });
-
-            $('#ricerca button[type="submit"]').click(function(event) {
-                event.preventDefault();
-
-                var filters = [];
-                $('#ricerca input[gcfilter!="false"]').each(function(e, input) {
-                    var name = $(input).attr('name'),
-                        value = $(input).val(),
-                        searchType = $(input).attr('searchType'),
-                        type = OpenLayers.Filter.Comparison.EQUAL_TO;
-
-                    if(!value || value == '') return;
-
-                    if(searchType == 4) {
-                        type = $('#ricerca select[name="'+name+'_operator"]').val();
-                    }
-                    if(searchType == 2) {
-                        type = OpenLayers.Filter.Comparison.LIKE;
-                        value = '%'+value+'%';
-                    }
-
-                    filters.push(new OpenLayers.Filter.Comparison({
-                        type: type,
-                        property: name,
-                        value: value
-                    }));
-
-                });
-
-                if(filters.length == 0) return alert('Specificare almeno un parametro di ricerca');
-
-                var geometry;
-                if($('#ricerca input[name="use_current_extent"]').prop('checked')) {
-                    geometry = GisClientMap.map.getExtent();
-                } else {
-                    geometry = GisClientMap.map.maxExtent;
-                }
-
-                if(filters.length > 1) {
-                    var filter = new OpenLayers.Filter.Logical({
-                        type: OpenLayers.Filter.Logical.AND,
-                        filters: filters
-                    });
-                } else {
-                    var filter = filters[0];
-                }
-
-                var control = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
-                var oldQueryFeatureType = null;
-                var oldOnlyVisibleLayers = null;
-                var oldLayers = null;
-
-                if(mode == 'fast') {
-                    oldLayers = control.layers;
-                    oldQueryFeatureType = control.queryFeatureType;
-                    oldOnlyVisibleLayers = control.onlyVisibleLayers;
-                    control.layers = [queryToolbar.getLayerFromFeature(fType.typeName)];
-                    control.queryFeatureType = fType.typeName;
-                    control.onlyVisibleLayers = false;
-                }
-
-                var oldQueryFilters = control.queryFilters[fType.typeName];
-                control.queryFilters[fType.typeName] = filter;
-                //var oldHighlight = control.highLight;
-                //control.highLight = true;
-
-                control.select(geometry, mode);
-
-                control.queryFilters[fType.typeName] = oldQueryFilters;
-                if (mode == 'fast'){
-                    control.layers = oldLayers;
-                    control.queryFeatureType = oldQueryFeatureType;
-                    control.onlyVisiblelayers = oldOnlyVisibleLayers;
-                    if (queryToolbar.resultLayer)
-                        queryToolbar.resultLayer.setVisibility(true);
-                }
-                //control.highLight = oldHighlight;
-
-                $('#SearchWindow').modal('hide');
-            });
-
-            //$('#myModal').modal({remote:'test_table.html'});
-            $('#SearchWindow').modal('show');
-
-        }
-
-    });
-    queryToolbar.defaultControl = queryToolbar.controls[0];
-    map.addControl(queryToolbar);
-
-
-    $('.panel-clearresults').click(function(event) {
-        event.preventDefault();
-
-        queryToolbar.clearResults();
-        if ($('#resultpanel').is(":visible"))
-            sidebarPanel.hide();
-        this.style.display = 'none';
-        //sidebarPanel.close();
-    });
-
-
-
-
-    //RICERCA E INTERROGAZIONE VELOCE DA COMBO IN BASSO
-    //popolo la select nel footer per le ricerche veloci
-    var options = [];
-    for(var layerId in queryToolbar.wfsCache) {
-        var layer = queryToolbar.wfsCache[layerId];
-        for(var i = 0; i < layer.featureTypes.length; i++) {
-            var featureType = layer.featureTypes[i];
-
-            if(featureType.searchable != 2) continue;
-            options.push('<option value="'+featureType.typeName+'">'+featureType.title+'</option>');
-        }
+    if (typeof(window.GCComponents.Functions.setQueryToolbar) != 'undefined'){
+        window.GCComponents.Functions.setQueryToolbar(this.map);
     }
-    $('#map-fast-search select').html(options);
-    $('#map-fast-search a.searchButton').click(function(event) {
-        queryToolbar.searchButtonHander.call(queryToolbar, $('#map-fast-search select').val(), 'fast');
-    });
-    $('#map-fast-search a.infoButton').click(function(event) {
-        if($(this).hasClass('active')){
-            queryToolbar.controls[0].deactivate();
-        }
-        else{
-            var control = queryToolbar.controls[0];
-            var layer =  queryToolbar.getLayerFromFeature($('#map-fast-search select').val());
-            control.layers = [layer];
-            control.queryFeatureType = $('#map-fast-search select').val();
-            control.activate();
-        }
-    });
-
-    var isGeodesicMeasure = (this.map.projection == 'EPSG:3857' || this.map.projection == 'EPSG:4326')?true:false;
-
-    var measureToolbar = new OpenLayers.Control.Panel({
-        createControlMarkup:customCreateControlMarkup,
-        div:document.getElementById("map-toolbar-measure"),
-        autoActivate:false,
-        saveState:true
-    })
-    var controls = [
-            new OpenLayers.Control.DynamicMeasure(OpenLayers.Handler.Path,{
-                iconclass:"glyphicon-white glyphicon-resize-horizontal",
-                text:"Misura distanza",
-                title:"Misura distanza",
-                geodesic:isGeodesicMeasure,
-                eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
-            }),
-            new OpenLayers.Control.DynamicMeasure(OpenLayers.Handler.Polygon,{
-                iconclass:"glyphicon-white glyphicon-retweet",
-                text:"Misura superficie",
-                title:"Misura superficie",
-                geodesic:isGeodesicMeasure,
-                eventListeners: {'activate': function(){map.currentControl.deactivate();map.currentControl=this}}
-            })
-        ]
-    measureToolbar.addControls(controls)
-    map.addControl(measureToolbar);
-    //measureToolbar.activate();
-
-    var redlineToolbar = new OpenLayers.GisClient.geoNoteToolbar({
-        baseUrl: self.baseUrl,
-        panelsUrl: rootPath + 'panels/',
-        createControlMarkup:customCreateControlMarkup,
-        div:document.getElementById("map-toolbar-redline"),
-        autoActivate:false,
-        saveState:true,
-        divdrawbtns: "map-toolbar-redline-draw",
-        divopsgbtns: "map-toolbar-redline-opsg",
-        divopsnbtns: "map-toolbar-redline-opsn"
-    })
-
-    map.addControl(redlineToolbar);
-    //redlineToolbar.activate();
-
-    var toolsToolbar = new OpenLayers.Control.Panel({
-        createControlMarkup:customCreateControlMarkup,
-        div:document.getElementById("map-toolbar-tools"),
-        autoActivate:false,
-        saveState:true,
-    })
-
-    var pSelect = new OpenLayers.Control.PIPESelect(
-            OpenLayers.Handler.Click,
-            {
-                clearOnDeactivate:true,
-                serviceURL:self.baseUrl + 'services/iren/findPipes.php',
-                distance:50,
-                highLight: true,
-                iconclass:"glyphicon-white glyphicon-tint",
-                tbarpos:"last",
-                title:"Ricerca valvole",
-                trigger: function() {
-                    if (this.active) {
-                        this.deactivate();
-                    }
-                    else
-                    {
-                        sidebarPanel.close();
-                        map.currentControl.deactivate();
-                        map.currentControl=this;
-                        this.activate();
-                    }
-                }
-            }
-        );
-
-        var GCControls = createGCMapControls(this.map, null);
+    else {
+        $('#map-fast-search select').hide();
+        $('#map-fast-search a.searchButton').hide();
+    }
 
     //******************** TOOLBAR VERTICALE *****************************************
 
@@ -1153,9 +373,7 @@ var initMap = function(){
         createControlMarkup:customCreateControlMarkup
     });
 
-    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){
-                map.currentControl && map.currentControl.deactivate();
-                map.currentControl=this}}});
+    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
     map.defaultControl = defaultControl;
 
     var geolocateControl = new OpenLayers.Control.Geolocate({
@@ -1188,7 +406,7 @@ var initMap = function(){
     });
     geolocateControl.events.register('locationupdated', self, function(event) {
         var point = event.point;
-        //alert('Found position X:' + point.x + ', Y:' + point.y);
+        //alert('Found position X:' + point.x + ', Y:' + point.this.redlineLayer,y);
         var lonLat = new OpenLayers.LonLat(point.x, point.y);
         if(!map.isValidLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' non valida');
         if(!map.maxExtent.containsLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' fuori extent');
@@ -1219,351 +437,9 @@ var initMap = function(){
             iconclass:"glyphicon-white glyphicon-globe",
             title:"Zoom estensione"
         }),
-        geolocateControl,
+        geolocateControl
 
-        btnSearch = new OpenLayers.Control.Button({
-            iconclass:"glyphicon-white  glyphicon-info-sign",
-            title:"Pannello di ricerca",
-            tbarpos:"first",
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    queryToolbar.deactivate();
-                }
-                else
-                {
-                    this.activate();
-                    queryToolbar.activate();
-                    if (this.map.currentControl != queryToolbar.controls[0])
-                        queryToolbar.controls[0].activate();
-                }
-            }
-        }),
-        btnLayertree = new OpenLayers.Control.Button({
-            id: 'button-layertree',
-            exclusiveGroup: 'sidebar',
-            iconclass:"icon-layers",
-            title:"Pannello dei livelli",
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    sidebarPanel.hide('layertree');
-                }
-                else
-                {
-                    this.activate();
-                    sidebarPanel.show('layertree');
-                }
-            }
-        }),
-        btnResult = new OpenLayers.Control.Button({
-            id: 'button-resultpanel',
-            exclusiveGroup: 'sidebar',
-            iconclass:"glyphicon-white glyphicon-list-alt",
-            title:"Tabella dei risultati",
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    sidebarPanel.hide('resultpanel');
-                }
-                else
-                {
-                    this.activate();
-                    sidebarPanel.show('resultpanel');
-                }
-            }
-        }),
-
-        btnReport = new OpenLayers.Control.Button({
-            iconclass:"glyphicon-white  glyphicon-stats",
-            title:"Pannello di visualizzazione reports",
-            tbarpos:"last",
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    reportToolbar.deactivate();
-                    //adjustPanZoomBar(reportToolbar, 60);
-                }
-                else
-                {
-                    this.activate();
-                    reportToolbar.activate();
-                    //queryToolbar.controls[0].activate();
-                    //adjustPanZoomBar(reportToolbar, 60);
-
-                }
-            }
-        }),
-
-        new OpenLayers.Control.Button({tbarpos:"first",iconclass:"glyphicon-white glyphicon-resize-small", title:"Misure",
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    measureToolbar.deactivate();
-                    //adjustPanZoomBar(measureToolbar, 27);
-                }
-                else
-                {
-                    this.activate();
-                    measureToolbar.activate();
-                    //adjustPanZoomBar(measureToolbar, 27);
-                }
-            }
-        }),
-
-/*
-        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-edit", type: OpenLayers.Control.TYPE_TOGGLE, title:"Editor vettoriale",
-
-            eventListeners: {
-                'activate': function(){vectorEditor.startEditMode();},
-                'deactivate': function(){vectorEditor.stopEditMode();}
-            }
-        }),
-
-   */
-        new OpenLayers.Control.Button({iconclass:"glyphicon-white glyphicon-pencil", title:"Redline",
-            trigger: function() {
-                if (this.active) {
-
-                    this.deactivate();
-                    redlineToolbar.deactivate();
-                    $('#map-toolbars').css('top', '2px');
-                    //adjustPanZoomBar(redlineToolbar, 44);
-                }
-                else
-                {
-                    this.activate();
-                    redlineToolbar.activate();
-                        var nShift = $('#map-toolbars-edit').height() + 3;
-                    $('#map-toolbars').css('top', nShift + 'px');
-                    //adjustPanZoomBar(redlineToolbar, 44);
-                }
-            }
-        })].concat(GCButtons).concat([
-        pSelect,
-
-        btnPrint = new OpenLayers.Control.PrintMap({
-            tbarpos:"first",
-            //type: OpenLayers.Control.TYPE_TOGGLE,
-            baseUrl:self.baseUrl,
-            defaultLayers: self.mapsetTiles?self.activeLayers.slice(0):[],
-            formId: 'printpanel',
-            exclusiveGroup: 'sidebar',
-            iconclass:"glyphicon-white glyphicon-print",
-            title:"Pannello di stampa",
-            waitFor: 'panelready',
-            allowDrag: true,
-            printLegend: 'yes',
-            defaultTemplateHTML: PRINT_TEMPLATE_HTML,
-            defaultTemplatePDF: PRINT_TEMPLATE_PDF,
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    sidebarPanel.hide('printpanel');
-                }
-                else
-                {
-                    this.activate();
-                    var me = this;
-
-                    if($.trim($('#printpanel').html()) == '') {
-                        $("#printpanel").load(rootPath + 'panels/print_panel_mobile.html', function() {
-                            me.events.triggerEvent('panelready');
-                        });
-                    }
-                    else {
-                        //this.drawPrintArea();
-                    }
-
-                    sidebarPanel.show('printpanel');
-                }
-            },
-            eventListeners: {
-                'panelready': function(event) {
-                    var me = this, timerid,
-                    scale = Math.round(me.map.getScale()),
-                    userScale = $('#'+me.formId+' input[name="scale"]').val();
-
-                    $('#print_panel_legend').controlgroup();
-                    $('#print_panel_layout').controlgroup();
-                    $('#print_panel_format').controlgroup();
-                    $('#print_panel_scalemode').controlgroup();
-
-                    $('#'+me.formId+' input[name="scale"]').textinput();
-
-                    if(!userScale) {
-                        me.boxScale?$('#'+me.formId+' input[name="scale"]').val(me.boxScale):$('#'+me.formId+' input[name="scale"]').val(scale);
-                        $('#'+me.formId+' input[name="scale"]').prop('disabled', true);
-                    }
-
-                    if (me.pages) {
-                        var pagesList;
-                        $('#'+me.formId+' select[name="formato"]').children().remove().end();
-                        $('#'+me.formId+' input[name="direction"]:checked').val() == 'vertical'?pagesList=me.pages.vertical:pagesList=me.pages.horizontal;
-                        $.each(pagesList, function (page, dims) {
-                            if (page == me.pageFormat) {
-                                $('#'+me.formId+' select[name="formato"]').append('<option selected value="' + page + '">' + page + '</option>');
-                            }
-                            else {
-                                $('#'+me.formId+' select[name="formato"]').append('<option value="' + page + '">' + page + '</option>');
-                            }
-                        });
-                    }
-
-                    $('#'+me.formId+' input[name="scale_mode"]').change(function() {
-                        if (this.value == 'user') {
-                            $('#'+me.formId+' input[name="scale"]').prop('disabled', false);
-                            var userScale = $('#'+me.formId+' input[name="scale"]').val();
-                            var currentScale = me.boxScale?me.boxScale:me.map.getScale();
-                            if (userScale > currentScale) {
-                                userScale = Math.round(currentScale);
-                                $('#'+me.formId+' input[name="scale"]').val(userScale);
-                            }
-                            me.boxScale = userScale;
-                            me.updatePrintBox();
-                        }
-                        else {
-                            $('#'+me.formId+' input[name="scale"]').prop('disabled', true);
-                            me.removePrintBox();
-                            me.boxScale = null;
-                            me.drawPrintBox.apply(me);
-                        }
-                    });
-                    $('#'+me.formId+' input[name="scale"]').on('input', function() {
-                        var value = $(this).val();
-                        if($(this).data("lastval")!= value){
-
-                            $(this).data("lastval",value);
-                            clearTimeout(timerid);
-
-                            timerid = setTimeout(function() {
-                                if ($('#'+me.formId+' input[name="scale_mode"]:checked').val() == 'user') {
-                                    me.boxScale = value;
-                                    me.updatePrintBox();
-                                }
-                            },500);
-                        };
-                    });
-
-                    $('#'+me.formId+' input[name="direction"]').change(function() {
-                        if (me.pages) {
-                            var pagesList;
-                            $('#'+me.formId+' select[name="formato"]').children().remove().end();
-                            $('#'+me.formId+' input[name="direction"]:checked').val() == 'vertical'?pagesList=me.pages.vertical:pagesList=me.pages.horizontal;
-                            $.each(pagesList, function (page, dims) {
-                                if (page == me.pageFormat) {
-                                    $('#'+me.formId+' select[name="formato"]').append('<option selected value="' + page + '">' + page + '</option>');
-                                }
-                                else {
-                                    $('#'+me.formId+' select[name="formato"]').append('<option value="' + page + '">' + page + '</option>');
-                                }
-                            });
-                        }
-                        me.pageLayout= $('#'+me.formId+' input[name="direction"]:checked').val();
-                        if ( $('#'+me.formId+' input[name="scale_mode"]:checked').val() == 'user') {
-                            me.updatePrintBox();
-                        }
-                        else {
-                            me.removePrintBox();
-                            me.boxScale = null;
-                            me.drawPrintBox.apply(me);
-                        }
-                    });
-                    $('#'+me.formId+' select[name="formato"]').change(function() {
-                        me.pageFormat = $('#'+me.formId+' select[name="formato"]').val();
-                        me.updatePrintBox();
-                    });
-
-                    $('#'+me.formId+' select[name="print_resolution"]').change(function() {
-                        me.printResolution = this.value;
-                    });
-
-                    $('#'+me.formId+' textarea[name="text"]').change(function() {
-                        me.printText = this.value;
-                    });
-
-                    $('#'+me.formId+' input[name="date"]').change(function() {
-                        me.printDate = this.value;
-                    });
-
-                    $('#'+me.formId+' input[name="legend"]').change(function() {
-                        this.value=='yes'?me.printLegend = this.value:me.printLegend=null;
-                    });
-
-                    $('#'+me.formId+' input[name="format"]').change(function() {
-                        me.printFormat = this.value;
-                    });
-
-                    $('#'+me.formId).on('click', 'a[role="html"],a[role="pdf"]', function(event) {
-                        if($(this).attr("href") == "#") event.preventDefault();
-                    });
-
-                    $('#'+me.formId).on('click', 'button[role="print"]', function(event) {
-                        event.preventDefault();
-                        $('#'+me.formId+' a[role="pdf"], #printpanel a[role="html"]').attr('href', '#');
-                        $('#'+me.formId+' span[role="icon"]').removeClass('glyphicon-white').addClass('glyphicon-disabled');
-                        me.doPrint();
-                    });
-
-                },
-                'deactivate' : function(event) {
-                    sidebarPanel.hide('printpanel');
-                    this.removePrintBox();
-                },
-                'activate' : function(event) {
-                    var me = this;
-                    if (me.map.currentControl!=me) {
-                        me.map.currentControl.deactivate();
-                        me.map.currentControl=me;
-                    }
-                    $('#'+me.formId+' input[name="scale_mode"]:checked').val() == 'user' ? me.boxScale = $('#'+me.formId+' input[name="scale"]').val() : me.boxScale = null;
-                    me.drawPrintBox.apply(me);
-                },
-                'printed' : function (event) {
-                    var me = this;
-                    if(event.format == 'HTML') {
-                        $('#'+me.formId+' a[role="html"]').attr('href', event.file);
-                        $('#'+me.formId+' a[role="html"] span[role="icon"]').removeClass('glyphicon-disabled').addClass('glyphicon-white');
-                    } else if(event.format == 'PDF') {
-                        $('#'+me.formId+' a[role="pdf"]').attr('href', event.file);
-                        $('#'+me.formId+' a[role="pdf"] span[role="icon"]').removeClass('glyphicon-disabled').addClass('glyphicon-white');
-                    }
-
-                    var win = window.open(event.file, '_blank');
-                    win.focus();
-                }
-            }
-        }),
-
-        new OpenLayers.Control.Button({
-            iconclass:"glyphicon-white  glyphicon-eye-open",
-            title:"Mappa di riferimento",
-            tbarpos:"last",
-            trigger: function() {
-                if (this.active) {
-                    this.deactivate();
-                    GisClientMap.overviewMap.hide();
-                }
-                else
-                {
-                    this.activate();
-                    GisClientMap.overviewMap.show();
-                }
-            }
-        })
-
-   /*
-        ,
-        btnSettings = new OpenLayers.Control.Button({
-            tbarpos:"last",
-            exclusiveGroup: 'sidebar',
-            type: OpenLayers.Control.TYPE_TOGGLE,
-            iconclass:"glyphicon-white glyphicon-wrench",
-            title:"Settings",
-
-        })
-*/
-    ]));
+    ].concat(GCButtons));
 
     sideBar.defaultControl = sideBar.controls[2];
     map.addControl(sideBar);
@@ -1575,8 +451,6 @@ var initMap = function(){
         element:document.getElementById("map-coordinates"),
         prefix: '<a target="_blank" ' + 'href="http://spatialreference.org/ref/epsg/' + v[1] + '/">' + projection + '</a> coordinate: '
     }));
-
-
 
     //ELENCO DELLE SCALE
     var scale, zoomLevel = 0, option;
@@ -1596,39 +470,13 @@ var initMap = function(){
         map.zoomTo(this.value);
     });
     map.events.register('zoomend', null, function(){
-        $('#map-select-scale').val(map.getZoom());
-        if (queryToolbar.active)
-            queryToolbar.redraw();
+      $('#map-select-scale').val(map.getZoom());
+      window.GCComponents["Controls"].controls.forEach(function(b) {
+        var ctrl = map.getControlsBy('gc_id', b.controlName)[0];
+        if(ctrl.zoomEnd != undefined)
+          ctrl.zoomEnd(map.getZoom());
+      });
     });
-
-
-
-/*    return;
-
-
-    var showCurrentScale = function() {
-        var currentZoom = map.getZoom();
-
-        $('#map-select-scale').val(currentZoom);
-    };
-    showCurrentScale.call(null);
-
-    map.events.register('zoomend', null, showCurrentScale);*/
-
-
-    //TOLTO IL 29/8/14 a cosa serviva?????
-    //if(this.mapOptions.center) map.setCenter(this.mapOptions.center);
-   // if(this.mapOptions.zoom) map.setCenter(this.mapOptions.center,this.mapOptions.zoom);
-    //queryToolbar.activate();
-    //queryToolbar.controls[0].activate();
-    // if(this.mapOptions.center){
-    //     var center = new OpenLayers.LonLat(this.mapOptions.center[0],this.mapOptions.center[1]).transform(map.displayProjection, map.projection);
-    //     map.setCenter(center);
-    // }
-    // if(this.mapOptions.scale){
-    //     map.zoomToScale(this.mapOptions.scale)
-    // }
-
 
     $('#mapset-title').html(GisClientMap.title);
 
@@ -1676,11 +524,6 @@ var initMap = function(){
     $(window).resize(onResize);
     onResize.call();
 
-
-    //queryToolbar.activate();
-    //queryToolbar.controls[0].activate();
-    //map.zoomToScale(2000)
-
     var len = GisClientMap.mapsets.length, i, mapset,
         options = [], option;
 
@@ -1708,8 +551,6 @@ var initMap = function(){
 }//END initMap
 
 
-
-
     var layerLegend = new OpenLayers.Control.LayerLegend({
         div: OpenLayers.Util.getElement('layerlegend'),
         autoLoad: false
@@ -1726,12 +567,11 @@ var initMap = function(){
         useMapproxy:true,
         mapProxyBaseUrl:MAPPROXY_URL,
         baseUrl: GisClientBaseUrl,
+        rootPath: '../../',
         mapOptions:{
             controls:[
-                //new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.LoadingPanel(),
-                //new OpenLayers.Control.PanZoomBar(),
                 new OpenLayers.Control.ScaleLine(),
                 new OpenLayers.Control.TouchNavigation({
                     dragPanOptions: {
@@ -1745,19 +585,11 @@ var initMap = function(){
                 }),
                 layerLegend
             ]
-            //scale:2000,
-            //center:[8.92811, 44.41320]
         },
         callback:initMap
     })
 
-
-
-
 });
-
-
-
 
 
 OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
@@ -1778,13 +610,3 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
         OpenLayers.Control.Panel.prototype.activateControl.apply(this, [control]);
     }
 });
-/*
-$(document).on('pagebeforeshow', null, function(){
-    $(document).on('click', null,function(e) {
-        alert('Button click');
-    });
-    $(document).on('mouseup', null,function(e) {
-        alert('Button click');
-    });
-});
-*/

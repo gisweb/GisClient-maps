@@ -151,6 +151,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     initWfsCache:function(){//NON USATA INIZIALIZZO FUORI
         var layer;
         for (var i = 0; i < this.map.config.featureTypes.length; i++) {
+            if (typeof(this.map.config.featureTypes[i].hidden) !== 'undefined' && this.map.config.featureTypes[i].hidden !== 0) {
+                continue;
+            }        
             //console.log(this.map.config.featureTypes[i].WMSLayerName, this.map.config.featureTypes);
             layer =  this.map.getLayersByName(this.map.config.featureTypes[i].WMSLayerName)[0];
             if(layer){
@@ -1078,7 +1081,10 @@ popup.autoSize = true;
 
         me.events.triggerEvent('featureunhighlighted', {feature:feature});
     },
-
+    zoomEnd: function() {
+      if (this.active)
+        this.redraw();
+    },
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"
 
 });

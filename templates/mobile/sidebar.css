@@ -63,6 +63,7 @@
         margin-top:2px;
         margin-left:2px;
     }
+
 }
 
 @media  only screen and (min-height: 481px) and (max-height: 580px) {
@@ -334,6 +335,7 @@
         margin-top:14px;
         margin-left:14px;
     }
+
 }
 
 @media only screen and (min-height: 901px) {
@@ -401,6 +403,7 @@
         margin-top:17px;
         margin-left:17px;
     }
+
 }
 
 .glyphicon-white{
@@ -442,6 +445,11 @@
 #map-sidebar .olButton.last{
     border-radius: 0 0 0 8px;
     margin-bottom: 0px;
+}
+#map-sidebar .olButton.alone{
+    border-radius: 8px 0 0 8px;
+    margin-bottom: 0;
+    margin-top: 5px;
 }
 #map-sidebar .olButton:hover {
     background-color: #000000;
@@ -506,6 +514,26 @@
   width:2px;
   height:100%;
   display:none;
+}
+
+#sidebar-panel .panel-content .tab-content {
+  height: inherit;
+}
+
+#sidebar-panel .panel-content .tab-content>.active {
+  overflow-y: scroll;
+  height: 90%;
+}
+
+#layertree {
+  height: inherit;
+}
+
+#resultpanel {
+    display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: inherit;
 }
 
 #map-sidebar a[class*="ItemActive"] {
@@ -608,7 +636,7 @@
   *margin-right: .3em;
   line-height: 14px;
   vertical-align: text-top;
-  background-image: url("../resources/img/glyphicons-halflings.png");
+  background-image: url("../../resources/img/glyphicons-halflings.png");
   background-position: 14px 14px;
   background-repeat: no-repeat;
   background-position: -120px -120px;
@@ -618,7 +646,8 @@
 
 .tree-title.tree-title-disabled {
 
-    color:rgba(0, 0, 0, 0.6);
+    color:rgba(0, 0, 0, 1);
+    font-weight: bold;
 }
 
 

@@ -20,3 +20,6 @@ var PRINT_TEMPLATE_PDF = null;
 // **** Dimensioni della Reference Map (in pixel)
 var OVERVIEW_MAP_W = 360;
 var OVERVIEW_MAP_H = 180;
+
+// **** Chiave per caricamento suggerimenti
+var HINTS_KEY = "gisclient-maps";
