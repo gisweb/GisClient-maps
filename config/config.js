@@ -4,7 +4,15 @@
  * and open the template in the editor.
  */
 
-var GISCLIENT_URL = '/gisclient-snapo';
+
+
+
+var GISCLIENT_URL = '/gisclient';
+if (window.location.hostname.indexOf('rapallo')!=-1){
+    GISCLIENT_URL = '/gisclient3';
+}
+
+
 var MAPPROXY_URL = 'http://172.16.5.72/';
 var POPUP_TIMEOUT = 2000;
 
@@ -16,3 +24,5 @@ var MAX_QUERY_FEATURES = 500;
 
 PRINT_TEMPLATE_HTML = '';
 PRINT_TEMPLATE_PDF = '';
+
+
