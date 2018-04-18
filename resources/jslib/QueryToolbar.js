@@ -153,7 +153,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         for (var i = 0; i < this.map.config.featureTypes.length; i++) {
             if (typeof(this.map.config.featureTypes[i].hidden) !== 'undefined' && this.map.config.featureTypes[i].hidden !== 0) {
                 continue;
-            }        
+            }
             //console.log(this.map.config.featureTypes[i].WMSLayerName, this.map.config.featureTypes);
             layer =  this.map.getLayersByName(this.map.config.featureTypes[i].WMSLayerName)[0];
             if(layer){
@@ -537,6 +537,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     if (typeof(this.map.config.baseDocUrl) != 'undefined')
                         value = this.map.config.baseDocUrl + '/' + value;
                     value = '<a href="'+value+'" target="_blank" class="olControlButtonItemInactive olButton olLikeButton"><span class="glyphicon-white glyphicon-link"></span></a>';
+                }
+            break;
+            case 8: //immagine
+                if(value) {
+                    if (typeof(this.map.config.baseDocUrl) != 'undefined')
+                        value = this.map.config.baseDocUrl + '/' + value;
+                    value = '<a href="'+value+'" target="_blank"><img src="'+value+'" class="resultPanelImgPreview"/></a>';
                 }
             break;
         }
