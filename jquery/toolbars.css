@@ -502,7 +502,7 @@ olOptionDisabled
     border: 1px solid #ddd; /* Gray border */
     border-radius: 4px;  /* Rounded border */
     padding: 5px; /* Some padding */
-    width: 50px; /* Set a small width */
+    width: 120px; /* Set a small width */
 }
 
 #resultpanelddd {
