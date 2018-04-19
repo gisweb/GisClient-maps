@@ -2,6 +2,8 @@
 Script che provvede al caricamento/gestione dei suggerimenti da parte dell'utente
 **/
 $(document).ready(function() {
+  if (typeof(HINTS_KEY) == 'undefined')
+    var HINTS_KEY = null;
   //chiamata ajax per lista file suggerimento
   $.post(GisClientMap.baseUrl + "/services/listHints.php", { app: HINTS_KEY},
     function(returnedData){
