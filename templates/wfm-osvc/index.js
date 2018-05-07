@@ -465,7 +465,7 @@ var initMap = function(){
     if(!GisClientMap.logged_username) {
         $('#mapset-login').html("<a action='login' href='#'>Accedi</a>");
 
-        $('#LoginWindow button').on('click',function(e){
+        $('#LoginWindow #LoginButton').on('click',function(e){
             e.preventDefault();
 
             $.ajax({
@@ -487,6 +487,11 @@ var initMap = function(){
                     alert('Errore di sistema');
                 }
             });
+        });
+        $('#LoginWindow .close').on('click',function(e){
+            e.preventDefault();
+            $('#LoginWindow input[name="username"]').val("");
+            $('#LoginWindow input[name="password"]').val("");
         });
     } else {
         $('#mapset-login').html(GisClientMap.logged_username+', <a href="'+self.baseUrl+'logout.php'+location.search+'" action="logout">Logout</a>');
