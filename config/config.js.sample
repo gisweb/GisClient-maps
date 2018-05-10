@@ -1,7 +1,7 @@
 /*
  *
  *
- * 
+ *
  */
 
 var GISCLIENT_URL = '/gisclient3';
@@ -20,6 +20,9 @@ var PRINT_TEMPLATE_PDF = null;
 // **** Dimensioni della Reference Map (in pixel)
 var OVERVIEW_MAP_W = 360;
 var OVERVIEW_MAP_H = 180;
+
+// **** Larghezza del pannello laterale per layertree/query result (in pixel)
+var RESULT_SMALLTABLE_SIZE = 300;
 
 // **** Chiave per caricamento suggerimenti
 var HINTS_KEY = "gisclient-maps";

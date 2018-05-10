@@ -117,15 +117,21 @@ createGCMapLayers = function(map) {
 var sidebarPanel = {
     closeTimeout: null,
     isOpened: false,
-    width: 45,
+    closedWidth: 45,
+    smallTableSize: 300,
 
     init: function(selector) {
         var self = this;
 
         self.selector = selector;
         self.$element = $(selector);
+        self.$parentElement = self.$element.parent();
 
-        self.width = $("#map-overlay-panel").css('width');
+        self.closedWidth = parseInt(self.$parentElement.first().css('width'),10);
+
+        if (typeof(RESULT_SMALLTABLE_SIZE) != 'undefined') {
+            self.smallTableSize = RESULT_SMALLTABLE_SIZE<$(document).width()?RESULT_SMALLTABLE_SIZE:$(document).width();
+        }
 
         $('.panel-close', self.$element).click(function(){
             GisClientMap.map.getControlsBy('id', 'button-layertree')[0].deactivate();
@@ -144,9 +150,23 @@ var sidebarPanel = {
     },
 
     getCSSWidth: function () {
-        var el = $("#map-overlay-panel");
-        if (!el.hasClass('panel-open'))
-            this.width = window.getComputedStyle(document.getElementById("map-overlay-panel")).getPropertyValue('width');
+        var self = this;
+        var el = self.$parentElement.first();
+        el.removeAttr('style');
+        var resizeTimeout = setTimeout(function() {
+            self.closedWidth = parseInt(el.css('width'),10);
+            if (el.hasClass('panel-open')) {
+                var wr = self.closedWidth - 20;
+                el.css('right', wr+'px');
+                if ($('#resultpanel').hasClass('smalltable')) {
+                    el.width(self.smallTableSize);
+                }
+                else {
+                    el.width(($(document).width() / 4) * 3);
+                }
+
+            }
+        }, 100);
     },
 
     show: function(panelId) {
@@ -188,16 +208,11 @@ var sidebarPanel = {
             this.closeTimeout = null;
         }
 
-        var el = $("#map-overlay-panel");
-        //var w = width || 300;
-        var w = parseInt(this.width,10);
-        var wd = w + 255;
-        var wr = w - 20;
-        //var ell = document.getElementById("map-overlay-panel");
-        //ell.style.width = "300px";
+        var el = this.$parentElement.first();
+        var w = this.smallTableSize;
+        var wr = this.closedWidth - 20;
 
-        el.css({width:wd+"px"});
-        //el.animate({width:w+"px"}, 10);
+        el.width(w);
         el.addClass("panel-open");
         $("#resultpanel").addClass("smalltable");
         $('div.panel-header', this.$element).show();
@@ -207,44 +222,33 @@ var sidebarPanel = {
     },
 
     close: function() {
-        var el = $("#map-overlay-panel");
-        //var w = width || 45;
-        //var w = 45;
-        //var ell = document.getElementById("map-overlay-panel");
-        //ell.style.width = "45px";
+        var el = this.$parentElement.first();
 
-        el.css({width:this.width});
-        //el.animate({width:w+"px"}, 10);
+        el.removeAttr('style');
         el.removeClass("panel-open");
         $("#resultpanel").addClass("smalltable");
         $('div.panel-header', this.$element).hide();
-        $('#map-overlay-panel').css('right', '0px');
+        //$('#map-overlay-panel').css('right', '0px');
 
         this.isOpened = false;
     },
 
     expand: function() {
-        var el = $('#map-overlay-panel');
-        var w = ($(document).width() / 3) * 2;
-        el.css({width:w+"px"});
-        //el.animate({width: width + 'px'},  10, 'linear', {
-        //    complete: function() {
-                $('#resultpanel').find('.featureTypeData').first().slideDown(200);
-        //    }
-        //});
-        $('#resultpanel').removeClass('smalltable');
+        var el = this.$parentElement.first();
+        var w = ($(document).width() / 4) * 3;
+        el.width(w);
 
+        $('#resultpanel').find('.featureTypeData').first().slideDown(200);
+        $('#resultpanel').removeClass('smalltable');
         $('.panel-expand', this.$element).hide();
         $('.panel-collapse', this.$element).show();
     },
 
     collapse: function() {
-        var el = $('#map-overlay-panel');
-        //el.animate({width: '300px'}, 10);
-        var w = 300;
-        el.css({width:w+"px"});
-        $('#resultpanel').addClass('smalltable');
+        var el = this.$parentElement.first();
+        el.width(this.smallTableSize);
 
+        $('#resultpanel').addClass('smalltable');
         $('.panel-expand', this.$element).show();
         $('.panel-collapse', this.$element).hide();
     }

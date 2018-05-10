@@ -70,6 +70,11 @@
 }
 */
 
+div.openedStreetView {
+  display: block;
+  width: 250px;
+  height: 250px;
+}
 
 div.olMapViewport {
      z-index: 0;
@@ -166,12 +171,6 @@ div.olMapViewport {
         position:absolute;
         overflow: hidden;
     }
-}
-
-div.openedStreetView {
-  display: block;
-  width: 250px;
-  height: 250px;
 }
 
 .map-layout  #map-toolbar-streetview-commander {
@@ -365,6 +364,21 @@ div.openedStreetView {
     border-radius: 6px;
 }
 
+#map-toolbar-report {
+    width: 18em;
+}
+
+#map-toolbar-query {
+    display:inline-block;
+}
+
+#map-toolbar-measure {
+    display:inline-block;
+}
+
+#map-toolbar-streetview-commander {
+    width: 250px
+}
 
 .map-layout  #map-toolbars .olToolbarsControl .olButton, .olLikeButton {
     background-color: rgba(0, 0, 0, 0.3);
@@ -388,8 +402,13 @@ div.openedStreetView {
     font-size: 10px;
     display: block;
     height: 25px;
-    width: 23em;
+    width: 28em;
 }
+
+.olControlQueryMapActive {
+    cursor: url(icons/query_map.png), auto;
+}
+
 .map-layout #map-toolbars .olControlQueryMapSelect .olOptionDisabled {
     color:#aaaaaa;
 }
@@ -398,13 +417,12 @@ div.openedStreetView {
     font-size: 10px;
     display: block;
     height: 25px;
-    width: 23em;
+    width: 20em;
 }
 .map-layout #map-toolbars .olControlReportMapSelect .olOptionDisabled {
     color:#aaaaaa;
 }
 
-olOptionDisabled
 .map-layout  #map-toolbars .olToolbarsControl .olButton:hover {
     background-color: #000000;
 }
@@ -423,14 +441,6 @@ olOptionDisabled
 .map-layoutxx  #map-toolbars .olToolbarsControl a[class*="ItemInactive"] {
     background-color: #FF00FF;
 }
-
-
-
-
-
-
-
-
 
 .map-layout #map-toolbars div {
 

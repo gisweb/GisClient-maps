@@ -119,10 +119,14 @@ var sidebarPanel = {
     isOpened: false,
     // **** Avoid ghost chicks from JQuery/Openlayers conflicts in mobile browsers
     handleEvent: false,
+    smallTableSize: 300,
 
     init: function(selector) {
         var self = this;
 
+        if (typeof(RESULT_SMALLTABLE_SIZE) != 'undefined') {
+            self.smallTableSize = RESULT_SMALLTABLE_SIZE<$(document).width()?RESULT_SMALLTABLE_SIZE:$(document).width();
+        }
         self.selector = selector;
         self.$element = $(selector);
 
@@ -192,14 +196,14 @@ var sidebarPanel = {
 
         var el = $("#map-overlay-panel");
         //var w = width || 300;
-        var w = 300;
+        var w = this.smallTableSize;
         //var ell = document.getElementById("map-overlay-panel");
         //ell.style.width = "300px";
 
         //el.css({width:w+"px"});
         el.animate({width:w+"px"});
         el.addClass("panel-open");
-        if(w == 300) {
+        if(w == this.smallTableSize) {
             $("#resultpanel").addClass("smalltable");
         }
         $('div.panel-header', this.$element).show();
@@ -227,7 +231,7 @@ var sidebarPanel = {
 
     expand: function() {
         var el = $('#map-overlay-panel');
-        var width = ($(document).width() / 3) * 2;
+        var width = ($(document).width() / 4) * 3;
         el.animate({width: width + 'px'}, {
             complete: function() {
                 $('#resultpanel').find('.featureTypeData').first().slideDown(200);
@@ -241,7 +245,7 @@ var sidebarPanel = {
 
     collapse: function() {
         var el = $('#map-overlay-panel');
-        el.animate({width: '300px'});
+        el.animate({width: this.smallTableSize + 'px'});
         $('#resultpanel').addClass('smalltable');
 
         $('.panel-expand', this.$element).show();
@@ -340,7 +344,6 @@ var initMap = function(){
         ConditionBuilder.baseUrl = self.baseUrl;
         ConditionBuilder.resourcesPath = rootPath + 'resources/';
     }
-
     var GCLayers = createGCMapLayers(this.map);
     var GCButtons = createGCToolbarButtons();
     var GCControls = createGCMapControls(this.map, null);
@@ -459,7 +462,6 @@ var initMap = function(){
           ctrl.zoomEnd(map.getZoom());
       });
     });
-
     $('#mapset-title').html(GisClientMap.title);
 
     if(!GisClientMap.logged_username) {
