@@ -55,8 +55,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	maxVectorFeatures: 100,
 
     //Features che non sono state renderizzate su mappa a causa del limite sopra
-    vectorFeaturesOverLimit: [],
+    vectorFeaturesOverLimit: new Array(),
 
+	deactivateAfterSelect: true,
 
 	selectionSymbolizer: {
         'Polygon': {strokeColor: '#FFFF00',fillColor:'#FF0000'},
@@ -269,8 +270,10 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	 */
     select: function(geometry, mode) {
         var mode = mode || 'default';
+		if (this.deactivateAfterSelect) {
+			this.map.defaultControl.activate();
+		}
 
-        this.map.defaultControl.activate();
         this._queue = function() {
 			var layer, featureTypes, geometryAttribute, filterId, params;
 			var selection = {};
@@ -539,11 +542,11 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                 for(var i = 0; i < features.length; i++) {
                     features[i].featureTypeName = featureType.typeName;
                 }
-                if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) {
-                    if(features.length && this.resultLayer.hasPreviousResults) {
-                        this.resultLayer.removeAllFeatures();
-                        delete this.resultLayer.hasPreviousResults;
-                    }
+				if(features.length && this.resultLayer.hasPreviousResults) {
+					this.resultLayer.removeAllFeatures();
+					delete this.resultLayer.hasPreviousResults;
+				}
+                if((this.resultLayer.features.length + features.length) <= this.maxVectorFeatures) {
                     this.resultLayer.addFeatures(features);
                 } else {
                     this.vectorFeaturesOverLimit.push(features);
@@ -572,7 +575,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                     };
                     if(this.vectorFeaturesOverLimit.length) {
                         event.vectorFeaturesOverLimit = this.vectorFeaturesOverLimit.slice(0);
-                        this.vectorFeaturesOverLimit = [];
+                        this.vectorFeaturesOverLimit = new Array();
                     }
 					this.events.triggerEvent('endQueryMap', event);
 				}
