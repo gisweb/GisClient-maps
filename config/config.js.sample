@@ -17,6 +17,11 @@ var MAX_QUERY_FEATURES = 500;
 var PRINT_TEMPLATE_HTML = null;
 var PRINT_TEMPLATE_PDF = null;
 
+// **** Default Print Settings
+var PRINT_LEGEND_DEFAULT = 'yes'; // ** null to omit legend by default **
+var PRINT_LAYOUT_DEFAULT = 'vertical'; // ** can be set to 'horizontal' **
+var PRINT_FORMAT_DEFAULT = 'HTML'; // ** Can be set to 'PDF' **
+
 // **** Dimensioni della Reference Map (in pixel)
 var OVERVIEW_MAP_W = 360;
 var OVERVIEW_MAP_H = 180;
