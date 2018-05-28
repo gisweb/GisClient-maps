@@ -16,7 +16,7 @@ var currentMarkerPointerLineStyle ={
     externalGraphic: '../../resources/img/pointer.png',
     pointRadius: 26,
     rotation: 0,
-    display: ""/*"none"*/,
+    display: "",
     graphicZIndex: 1
 };
 var projection;
@@ -79,9 +79,14 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
         }
       }
       var self = this
-      $.getScript(location.protocol + "//maps.googleapis.com/maps/api/js?key=AIzaSyCqG2a5aKkhA4eGamsp8Y4mrdeEqp8Ez9g", function( data, textStatus, jqxhr ) {
-        self.initStreetView();
-        this.online = true;
+      $.get(GisClientMap.baseUrl + "/services/clientConfig.php", { variable: "GMAPURL"},
+        function(returnedData){
+        if(returnedData != "") {
+          $.getScript(returnedData, function( data, textStatus, jqxhr ) {
+            self.initStreetView();
+            this.online = true;
+          });
+        }
       });
     } else {
       this.initStreetView();
@@ -193,7 +198,7 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
   },
   zoomEnd: function(passedZoom) {
     if(this.active) {
-      pointer.style.display = /*passedZoom < this.map.getNumZoomLevels() - 4 ? "none" : */"";
+      pointer.style.display = "";
       pointerLayer.redraw();
     }
   }

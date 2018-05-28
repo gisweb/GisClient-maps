@@ -26,10 +26,11 @@ $(document).ready(function() {
       }
       $("#mapset-question").css("display", "none");
 
+  }).fail(function( jqxhr, settings, exception ) {
+    window.alert("Inclusione componente HINTS :" + +exception);
+    $("#mapset-question").css("display", "none");
   });
-  
 
-  
   $("#mapset-question").on("click", function() {
     $('#mapset-question').css("display", "none");
     $("#hintsDiv").show();
