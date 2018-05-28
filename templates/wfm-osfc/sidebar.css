@@ -535,6 +535,12 @@
     height: inherit;
 }
 
+#printpanel {
+    display: block;
+    overflow-y: auto;
+    height: inherit;
+}
+
 #map-sidebar a[class*="ItemActive"] {
     background-color: #000000;
 }

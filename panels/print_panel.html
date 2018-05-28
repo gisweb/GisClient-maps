@@ -12,23 +12,23 @@
     <div class="form-group">
         <label for="print_panel_legend">Legenda</label>
         <label class="radio-inline">
-            <input type="radio" name="legend" id="print_panel_legend" value="yes" checked> Si
+            <input type="radio" name="legend" value="yes" checked> Si
         </label>
         <label class="radio-inline">
-            <input type="radio" name="legend" id="" value="no"> No
+            <input type="radio" name="legend" value="no"> No
         </label>
     </div>
-    
+
     <div class="form-group">
         <label for="print_panel_layout">Layout di stampa</label>
         <label class="radio-inline">
-            <input type="radio" name="direction" id="print_panel_layout" value="vertical" checked> Verticale
+            <input type="radio" name="direction" value="vertical" checked> Verticale
         </label>
         <label class="radio-inline">
-            <input type="radio" name="direction" id="" value="horizontal"> Orizzontale
+            <input type="radio" name="direction" value="horizontal"> Orizzontale
         </label>
     </div>
-    
+
     <div class="form-group">
         <label for="print_panel_printformat">Formato di stampa</label>
         <select name="formato" id="print_panel_printformat" class="form-control">
@@ -37,17 +37,17 @@
             <option value="A2">A2</option>
         </select>
     </div>
-    
+
     <div class="form-group">
         <label for="print_panel_format">Formato</label>
         <label class="radio-inline">
-            <input type="radio" name="format" id="print_panel_format" value="HTML" checked> HTML
+            <input type="radio" name="format" value="HTML" checked> HTML
         </label>
         <label class="radio-inline">
-            <input type="radio" name="format" id="" value="PDF"> PDF
+            <input type="radio" name="format" value="PDF"> PDF
         </label>
     </div>
-    
+
     <div class="form-group">
         <label for="print_panel_scalemode">Scala</label>
         <br />
@@ -57,7 +57,7 @@
         <br />
         <input type="radio" name="scale_mode" id="print_panel_scalemode_user" value="user" >1: <input type="text" name="scale" style="color:black;">
     </div>
-    
+
     <div class="form-group">
         <label for="print_panel_resolution">Risoluzione</label>
         <select id="print_panel_resolution" name="print_resolution" class="form-control">
@@ -65,17 +65,17 @@
             <option value="300">Alta</option>
         </select>
     </div>
-    
+
     <p>
         <button type="button" role="print" class="btn btn-default">Stampa</button>
         <a href="#" target="_blank" role="html"><span role="icon" class="glyphicon-disabled glyphicon-file print-download-icon"></span><span></span></a>
         <a href="#" target="_blank" role="pdf"><span role="icon" class="glyphicon-disabled glyphicon-print print-download-icon"></span><span></span> </a>
     </p>
-    
+
     <div class="results" style="display: none;">
         <span name="result">
-            
+
         </span>
     </div>
-    
+
 </form>

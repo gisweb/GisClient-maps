@@ -7,7 +7,9 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
         formId: 'printpanel',
         waitFor: 'panelready',
         allowDrag: true,
-        printLegend: 'yes',
+        printLegend: typeof(PRINT_LEGEND_DEFAULT)!='undefined'?PRINT_LEGEND_DEFAULT:'yes',
+        pageLayout: typeof(PRINT_LAYOUT_DEFAULT)!='undefined'?PRINT_LAYOUT_DEFAULT:'vertical',
+        printFormat: typeof(PRINT_FORMAT_DEFAULT)!='undefined'?PRINT_FORMAT_DEFAULT:'HTML',
         defaultTemplateHTML: PRINT_TEMPLATE_HTML,
         defaultTemplatePDF: PRINT_TEMPLATE_PDF,
         eventListeners: {
@@ -23,6 +25,11 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
                     $('#print_panel_scalemode').controlgroup();
                     $('#'+me.formId+' input[name="scale"]').textinput();
                 }
+
+                var printCtrlVal = me.printLegend?'yes':'no';
+                $('#'+me.formId+' input[name="direction"][value="'+me.pageLayout+'"]').prop('checked', true);
+                $('#'+me.formId+' input[name="legend"][value="'+printCtrlVal+'"]').prop('checked', true);
+                $('#'+me.formId+' input[name="format"][value="'+me.printFormat+'"]').prop('checked', true);
 
                 if(!userScale) {
                     me.boxScale?$('#'+me.formId+' input[name="scale"]').val(me.boxScale):$('#'+me.formId+' input[name="scale"]').val(scale);
