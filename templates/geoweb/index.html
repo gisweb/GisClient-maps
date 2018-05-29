@@ -11,11 +11,12 @@
     <!--
       **** Include common configuration
     -->
-    <script src="../../config/config.js"></script>
     <script type="text/javascript" src="../../resources/external/FlexiColorPicker/colorpicker.js"></script>
     <link rel="stylesheet" type="text/css" href="../../resources/external/FlexiColorPicker/themes.css">
     <script type="text/javascript" src="../../resources/jslib/jquery.min.js"></script>
     <script type="text/javascript" src="../../resources/jslib/jquery.easyui.min.js"></script>
+    <script src="../../config/config.dynamic.js"></script>
+    <script src="../../config/x-template.config.js"></script>
     <script type="text/javascript" src="../../resources/external/select2/select2.js"></script>
     <script type="text/javascript" src="../../resources/external/sprintf.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../../resources/themes/black/tree.css">
@@ -37,111 +38,15 @@
     <script src="../../resources/jslib/ReportToolbar.js"></script>
     <script src="/gisclient3/services/iren/pipeSelect.js" type="text/javascript"></script>
 
+    <script src="../../resources/jslib/dynamicTemplateFunction.js" type="text/javascript"></script>
+    <script src="../../resources/jslib/gcComponents.js" type="text/javascript"></script>
     <script src="index.js" type="text/javascript"></script>
-
-    <!--
-      **** Include components
-    -->
-    <script src="../../components/StreetViewControl.js"></script>
-    <script src="../../components/LayerTreeButton.js"></script>
-    <script src="../../components/QueryControl.js"></script>
-    <script src="../../components/ReportControl.js"></script>
-    <script src="../../components/MeasureControl.js"></script>
-    <script src="../../components/GeoNoteControl.js"></script>
-    <script src="../../components/PipeSelectControl.js"></script>
-    <script src="../../components/PrintControl.js"></script>
-    <script src="../../components/ReferenceMapControl.js"></script>
-
 
     <script src="../../resources/jslib/bootstrap.min.js"></script>
     <script src="../../resources/jslib/proj4js.js"></script>
     <script src="../../resources/jslib/md5.min.js"></script>
-    <!--
-    <script type="text/javascript" src="../resources/jslib/ole/loader.js"></script>
-    <link rel="stylesheet" href="../resources/themes/ole/geosilk.css" type="text/css" />
-    -->
+
     <script src="../../resources/jslib/hints.js"></script>
-
-    <script type="text/javascript">
-      function testpanel(fileToLoad){
-        if($(".gisclient-toolbar-container").hasClass("open")){
-          $(".gisclient-toolbar-container").animate({
-            width:'45px'
-          });
-          $(".gisclient-toolbar-container").removeClass("open")
-        } else {
-          $(".gisclient-toolbar-container").animate({
-            width:'320px'
-          });
-          $(".gisclient-toolbar-container").addClass("open");
-          if(fileToLoad) {
-            $( "#mypanel" ).load(fileToLoad);
-          }
-        }
-      }
-      
-      $(document).ready(function() {
-        $('#btnAdvancedQuery').click(function(event) {
-          console.log('advanced query click');
-          event.preventDefault();
-          var selectedFeatureType = $('select.olControlQueryMapSelect').val(),
-          fType = GisClientMap.getFeatureType(selectedFeatureType);
-          if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
-          var queryMap = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
-		  queryMap.resultLayer.removeAllFeatures();
-		  queryMap.events.triggerEvent('startQueryMap');
-          var params = ConditionBuilder.getQuery();
-          params.projectName = GisClientMap.projectName;
-          params.mapsetName = GisClientMap.mapsetName;
-          params.srid = GisClientMap.map.projection;
-          params.featureType = selectedFeatureType;
-          $.ajax({
-            url: GISCLIENT_URL + '/services/xMapQuery.php',
-            method: 'POST',
-            dataType: 'json',
-            data: params,
-            success: function(response) {
-              if(!response || typeof(response) != 'object') {
-                return alert('Errore di sistema');
-              }
-              if(!response.length) {
-                return alert('Nessun risultato');
-              }
-              var features = [],
-              len = response.length, result, i, geometry, feature;
-              for(i = 0; i < len; i++) {
-                result = response[i];
-                geometry = result.gc_geom && OpenLayers.Geometry.fromWKT(result.gc_geom);
-                if(!geometry) continue;
-                delete result.gc_geom;
-                feature = new OpenLayers.Feature.Vector(geometry, result);
-                feature.featureTypeName = selectedFeatureType;
-                features.push(feature);
-              }
-              fType.features = features;
-              queryMap.events.triggerEvent('featuresLoaded',fType);
-              queryMap.resultLayer.addFeatures(features);
-              queryMap.events.triggerEvent('endQueryMap');
-              $('#SearchWindow').modal('hide');
-              $("#resultpanel").addClass("smalltable"); //non so perchè l'ho dovuto mettere qui....
-            },
-            error: function() {
-              alert('Errore di sistema');
-            }
-          });
-        });
-
-        $('#btnAdvancedReport').click(function(event) {
-          console.log('advanced query click');
-          event.preventDefault();
-          var selectedReport = $('select.olControlReportMapSelect').val();
-          var filter = ConditionBuilder.getQuery();
-          var reportToolbar = GisClientMap.map.getControlsByClass('OpenLayers.GisClient.reportToolbar')[0];
-          reportToolbar.displayReportHandler(filter);
-          $('#SearchReportWindow').modal('hide');
-        });
-      });
-    </script>
 
     <script src="../../resources/jslib/ConditionBuilder.js" type="text/javascript"></script>
     <link rel="stylesheet" href="header.css" type="text/css">

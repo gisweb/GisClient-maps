@@ -11,10 +11,17 @@ var clientConfig = {
  // **** Templates di stampa
  PRINT_TEMPLATE_HTML : null,
  PRINT_TEMPLATE_PDF : null,
+ // **** Default Print Settings
+ PRINT_LEGEND_DEFAULT :'yes', // ** null to omit legend by default **
+ PRINT_LAYOUT_DEFAULT :'vertical', // ** can be set to 'horizontal' **
+ PRINT_FORMAT_DEFAULT :'HTML', // ** Can be set to 'PDF' **
  // **** Dimensioni della Reference Map (in pixel)
  OVERVIEW_MAP_W : 360,
  OVERVIEW_MAP_H : 180,
+ // **** Dimensioni del pannello laterale (in pixel)
+ RESULT_SMALLTABLE_SIZE : 300,
  // **** Chiave per caricamento suggerimenti
+ HINTS_KEY  : "gisclient-maps",
  CLIENT_COMPONENTS : ["StreetViewControl:1:alone", "LayerTreeButton:2:data", "QueryControl:1:data",
                       "PrintControl:1:print", "ReferenceMapControl:2:print"],
 };
