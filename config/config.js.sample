@@ -26,6 +26,10 @@ var PRINT_FORMAT_DEFAULT = 'HTML'; // ** Can be set to 'PDF' **
 var OVERVIEW_MAP_W = 360;
 var OVERVIEW_MAP_H = 180;
 
+// **** Url servizio di recupero configurazione utente
+var URL_CLIENT_CONFIG = GISCLIENT_URL + "/services/clientConfig.php";
+// **** Configurazione di default del client in caso URL_CLIENT_CONFIG non sia definita
+var DEF_COMPONENTS = ["StreetViewControl", "LayerTreeButton", "QueryControl", "PrintControl", "ReferenceMapControl"];
 // **** Larghezza del pannello laterale per layertree/query result (in pixel)
 var RESULT_SMALLTABLE_SIZE = 300;
 

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>GEOweb map</title>
+    <link rel="stylesheet" href="../../resources/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="../../resources/themes/openlayers/style.css" type="text/css">
+    <!--
+      **** Include common configuration
+    -->
+    <script type="text/javascript" src="../../resources/external/FlexiColorPicker/colorpicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../resources/external/FlexiColorPicker/themes.css">
+    <script type="text/javascript" src="../../resources/jslib/jquery.min.js"></script>
+    <script type="text/javascript" src="../../resources/jslib/jquery.easyui.min.js"></script>
+    <script src="../../config/config.dynamic.js"></script>
+    <script src="../../config/x-template.config.js"></script>
+    <script type="text/javascript" src="../../resources/external/select2/select2.js"></script>
+    <script type="text/javascript" src="../../resources/external/sprintf.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../resources/themes/black/tree.css">
+
+    <script src="../../resources/jslib/OpenLayers.js"></script>
+    <script src="../../resources/jslib/gcOloverride.js"></script>
+    <script src="../../resources/jslib/QueryMap.js"></script>
+    <script src="../../resources/jslib/GisClientMap.js"></script>
+    <script src="../../resources/jslib/OverviewMap.js"></script>
+    <script src="../../resources/jslib/LayerTree.js"></script>
+    <script src="../../resources/jslib/LayerLegend.js"></script>
+    <script src="../../resources/jslib/LoadingPanel.js"></script>
+    <script src="../../resources/jslib/PrintMap.js"></script>
+    <script src="../../resources/jslib/DynamicMeasure.js"></script>
+    <script src="../../resources/jslib/GeoNoteToolbar.js"></script>
+    <script src="../../resources/jslib/StreetViewToolbar.js"></script>
+    <script src="../../resources/jslib/StreetViewViewer.js"></script>
+    <script src="../../resources/jslib/QueryToolbar.js"></script>
+    <script src="../../resources/jslib/ReportToolbar.js"></script>
+    <script src="/gisclient3/services/iren/pipeSelect.js" type="text/javascript"></script>
+
+    <script src="../../resources/jslib/dynamicTemplateFunction.js" type="text/javascript"></script>
+    <script src="../../resources/jslib/gcComponents.js" type="text/javascript"></script>
+    <script src="index.js" type="text/javascript"></script>
+
+    <script src="../../resources/jslib/bootstrap.min.js"></script>
+    <script src="../../resources/jslib/proj4js.js"></script>
+    <script src="../../resources/jslib/md5.min.js"></script>
+
+    <script src="../../resources/jslib/hints.js"></script>
+
+    <script src="../../resources/jslib/ConditionBuilder.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="header.css" type="text/css">
+    <link rel="stylesheet" href="toolbars.css" type="text/css">
+    <link rel="stylesheet" href="sidebar.css" type="text/css">
+    <link rel="stylesheet" href="common.css" type="text/css">
+    <link rel="stylesheet" href="../../resources/external/select2/select2.css" type="text/css">
+  </head>
+<body class="map-layout">
+<!--  <header>
+
+    <h1> intestazione...... </h1>
+
+  </header>
+-->
+
+<div id="map-header">
+    <span id="mapset-switcher"><select name="mapset"></select></span>
+    <span id="mapset-login"></span>
+    <span id="mapset-question" class="glyphicon-white glyphicon-question-sign" title="Notifiche"></span>
+</div>
+
+  <div id="content">
+    <div id="map"></div>
+    <div id="map-toolbars-edit">
+       <div id="map-toolbar-redline" class="olToolbarsControl"></div>
+    </div>
+    <div id="map-toolbars">
+      <div id="map-toolbar-query" class="olToolbarsControl"></div>
+      <div id="map-toolbar-report" class="olToolbarsControl"></div>
+      <div id="map-toolbar-measure" class="olToolbarsControl"></div>
+      <div id="map-toolbar-tools" class="olToolbarsControl"></div>
+      <div id="map-toolbar-streetview" class="olToolbarsControl"></div>
+      <div id="map-toolbar-streetview-commander" class="olToolbarsControl"></div>
+    </div>
+
+    <div id="map-overlay-panel">
+      <div id="map-sidebar"></div>
+      <div id="sidebar-panel" >
+        <div class="panel-header" style="display:none;">
+            <div class="panel-title"></div>
+            <div class="panel-clearresults"><span class="glyphicon-white glyphicon-ban-circle"></span><span></span></div>
+            <div class="panel-close"><span class="glyphicon-white glyphicon-remove"></span><span></span></div>
+            <div class="panel-expand"><span class="glyphicon-white glyphicon-arrow-left"></span><span></span></div>
+            <div class="panel-collapse"><span class="glyphicon-white glyphicon-arrow-right"></span><span></span></div>
+        </div>
+        <div class="panel-content">
+            <div id="layertree" style="display:none">
+                <div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#layertree-tree" data-toggle="tab">Layer</a></li>
+                        <li><a href="#layerlegend" data-toggle="tab">Legenda</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="layertree-tree"></div>
+                    <div class="tab-pane" id="layerlegend"></div>
+                </div>
+            </div>
+            <div id="resultpanel" style="display:none"></div>
+            <div id="printpanel" style="display:none"></div>
+        </div>
+      </div>
+      <div id="sidebar-drag"></div>
+    </div>
+  </div>
+
+
+
+<!-- Modal -->
+
+<div id="SearchWindow" class="modal fade bs-example-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title" id="searchFormTitle">Ricerca</h4>
+    </div>
+    <div class="modal-body" style="overflow:auto;">
+           <!-- Nav tabs -->
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#ricerca" data-toggle="tab">Ricerca</a></li>
+        <li role="advanced-search"><a href="#avanzata" data-toggle="tab">Ricerca avanzata</a></li>
+        <!--<li><a href="#stile" data-toggle="tab">Stile</a></li>-->
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div class="tab-pane active" id="ricerca">
+
+          Form di ricerca per il livello indicato
+
+        </div>
+        <div class="tab-pane" id="avanzata">
+          <span> Form di ricerca avanzata per il livello indicato</span>
+          <div class="query"></div>
+          <button id="btnAdvancedQuery" class="btn btn-default">Cerca</button>
+
+        </div>
+        <div class="tab-pane" id="stile">
+
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="SearchReportWindow" class="modal fade bs-example-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title" id="searchReportTitle">Ricerca</h4>
+    </div>
+    <div class="modal-body" style="overflow:auto;">
+           <!-- Nav tabs -->
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#ricerca-report" data-toggle="tab">Filtro semplice</a></li>
+        <li role="advanced-search"><a href="#avanzata-report" data-toggle="tab">Filtro complesso</a></li>
+        <!--<li><a href="#stile" data-toggle="tab">Stile</a></li>-->
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div class="tab-pane active" id="ricerca-report">
+
+          Filtro per il report indicato
+
+        </div>
+        <div class="tab-pane" id="avanzata-report">
+          <span> Filtro complesso per il report indicato</span>
+          <div class="query-report"></div>
+          <button id="btnAdvancedReport" class="btn btn-default">Filtra</button>
+
+        </div>
+        <div class="tab-pane" id="stile">
+
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="DetailsWindow" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title">Dettagli oggetto</h4>
+    </div>
+    <div class="modal-body" style="overflow:auto;">
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="LoginWindow" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="max-width:400px">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title">Accedi:</h4>
+    </div>
+    <div class="modal-body" style="overflow:auto;">
+      <form >
+            <p><label class="control-label" for="username">Utente</label><br />
+            <input type="text" id="username" name="username" placeholder="Utente"></p>
+            <p><label class="control-label" for="password">Password</label><br />
+            <input type="password" id="password" name="password" placeholder="Password"></p>
+            <button id="LoginButton">Invia</button>
+      </form>
+
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="ErrorWindow" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title">Errori:</h4>
+    </div>
+    <div class="modal-body" data-role="content" style="overflow:auto;">
+    </div>
+    <div class="modal-body" data-role="loading" style="overflow:auto;">
+    Loading....
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="map-footer">
+  <span id="map-fast-search">
+    <select name="featureType"></select>
+    <a class="searchButton olLikeButton btn" title="Ricerca"><span class="glyphicon-white glyphicon-search"></span><span>Ricerca</span></a>
+  </span>
+  <span id="map-scale">
+    <select id="map-select-scale"><option>ELENCO SCALE</option></select>
+  </span>
+  <span id="map-coordinates"></span>
+  <!--<span id="map-footer-info"></span>-->
+</div>
+<div id="tooltip"></div>
+<div id="hintsDiv" class="alert alert-custom alert-dismissible hide" role="alert">
+  <div id="hintsDivContent"></div>
+  <div id="hintsButton" type="button" title="Ricordamelo">
+    <span class="glyphicon-white glyphicon-time" aria-hidden="true"></span>
+  </div>
+</div>
+</body>
+</html>

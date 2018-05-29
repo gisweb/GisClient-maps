@@ -104,7 +104,7 @@ OpenLayers.GisClient.reportToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         if(Object.keys(this.reportsCache).length == 0){
             var span = document.createElement("div");
             OpenLayers.Element.addClass(span, "olControlReportMapSelect");
-            span.innerHTML = "Nessun report interrogabile";
+            span.innerHTML = "<font color=\"white\">Nessun report interrogabile</font>";
             this.reportsCombo = span;
             return;
         }
