@@ -2,7 +2,7 @@
 window.GCComponents.Functions.setQueryToolbar = function(map) {
     // **** Get main selection control
     var selectControls = map.getControlsBy('gc_id', 'control-querytoolbar');
-    if (selectControls.length != 1) {
+    if (selectControls.length < 1) {
         $('#map-fast-search select').hide();
         $('#map-fast-search a.searchButton').hide();
         return;
@@ -12,6 +12,8 @@ window.GCComponents.Functions.setQueryToolbar = function(map) {
         $('#map-fast-search a.searchButton').hide();
        return;
    }
+   $('#map-fast-search select').show();
+   $('#map-fast-search a.searchButton').show();
     var queryToolbar = selectControls[0];
 
     queryToolbar.defaultControl = queryToolbar.controls[0];
@@ -70,6 +72,9 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
         maxWfsFeatures:MAX_LAYER_FEATURES,
         maxVectorFeatures:MAX_QUERY_FEATURES,
         eventListeners: {
+            initialized: function(options) {
+                window.GCComponents.Functions.setQueryToolbar(GisClientMap.map);
+            },
             //'startQueryMap': function() { sidebarPanel.show('resultpanel');},
             'endQueryMap': function(event) {        //Aggiungo l'animazione (???? da spostare sulla pagina)
                 if(event.layer.features && event.layer.features.length) {

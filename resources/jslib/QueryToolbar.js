@@ -391,6 +391,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             }
         }
         OpenLayers.Control.Panel.prototype.draw.apply(this);
+        this.events.triggerEvent("initialized", this);
         return this.div
     },
 
