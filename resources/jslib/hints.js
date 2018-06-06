@@ -1,9 +1,7 @@
 /**
 Script che provvede al caricamento/gestione dei suggerimenti da parte dell'utente
 **/
-$(document).ready(function() {
-  if (typeof(HINTS_KEY) == 'undefined')
-    var HINTS_KEY = null;
+function generateHints() {
   //chiamata ajax per lista file suggerimento
   $.post(GisClientMap.baseUrl + "/services/listHints.php", { app: HINTS_KEY},
     function(returnedData){
@@ -38,7 +36,7 @@ $(document).ready(function() {
   $("#hintsButton").on("click", function() {
     closeHints();
   });
-});
+}
 
 function checkBoxManagement(arg) {
   if(localStorage.getItem(HINTS_KEY+"."+arg))

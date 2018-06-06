@@ -531,6 +531,8 @@ var initMap = function(){
 
         window.location.href = newUrl;
     });
+    if(generateHints != undefined)
+      generateHints();
 
 
 }//END initMap

@@ -1,4 +1,4 @@
-var configLoaded = $.Deferred();
+var configLoaded = jQuery.Deferred();
 var clientConfig = {
  GISCLIENT_URL : '/gisclient3',
  URL_CLIENT_CONFIG : "/gisclient3/services/clientConfig.php",
@@ -27,5 +27,9 @@ var clientConfig = {
 };
 $.get(clientConfig.URL_CLIENT_CONFIG, function(returnedData){
   Object.assign(clientConfig, JSON.parse(returnedData));
+  clientConfig.SCRIPT_PLUGINS.forEach(function(item, index) {
+    $("head").append(item);
+  });
   configLoaded.resolve();
 });
+

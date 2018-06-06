@@ -260,9 +260,14 @@ function initMap() {
   manageResize();
   manageMapsets();
   createGCControls(this.map);
+  if(generateHints != undefined)
+    generateHints();
 }
 
-$.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {
+$.when(configLoaded, wrapperConfigLoaded).then(startGui);
+
+function startGui() {
+$(document).ready(function() {
   GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
     useMapproxy:true,
     mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
@@ -285,4 +290,5 @@ $.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {
     callback:initMap
   });
   initAdvancedButtons();
-}));
+})
+}
