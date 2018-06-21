@@ -30,7 +30,8 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
           hideCursor();
           this.map.events.unregister("mousemove", this.map, displayCursor);
           this.map.events.unregister("mouseout", this.map, hideCursor);
-          if(this.map.defaultControl !== undefined) {
+          //per fare quanto segue deve esserci un controller di default e soprattutto un currentControl già assegnato
+          if(this.map.defaultControl !== undefined && this.map.currentControl !== undefined && this.map.currentControl != this.map.defaultControl) {
             this.map.currentControl = this.map.defaultControl;
             this.map.currentControl.activate();
             click.deactivate();

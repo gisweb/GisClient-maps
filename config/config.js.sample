@@ -38,3 +38,7 @@ var RESULT_SMALLTABLE_SIZE = 300;
 
 // **** Chiave per caricamento suggerimenti
 var HINTS_KEY = "gisclient-maps";
+
+var SEARCH_WINDOW_H = 400;
+
+

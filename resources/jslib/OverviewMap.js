@@ -283,12 +283,12 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         var lockExtent = document.createElement('a');
         lockExtent.href = '#';
         lockExtent.className = 'olControlButtonItemInactive olButton olLikeButton';
-        lockExtent.innerHTML = '<span>Lock Extent</span>';
+        lockExtent.innerHTML = '<span>Estensione corrente</span>';
 
         var maxExtent = document.createElement('a');
         maxExtent.href = '#';
         maxExtent.className = 'olControlButtonItemInactive olButton olLikeButton';
-        maxExtent.innerHTML = '<span>Max Extent</span>';
+        maxExtent.innerHTML = '<span>Estensione massima</span>';
 
         var separator = document.createElement('span');
         separator.innerHTML = ' | ';

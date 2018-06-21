@@ -86,7 +86,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     },
                     iconclass: "glyphicon glyphicon-record",
                     title:"Interroga la mappa",
-                    text:"Circle",
+                    text:"Cerchio",
                     eventListeners: {'activate': function(){
                             this.map.currentControl.deactivate();
                             var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
@@ -113,7 +113,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     },
                     iconclass:"glyphicon-white glyphicon-edit",
                     title:"Interroga la mappa",
-                    text:"free",
+                    text:"Forma",
                     eventListeners: {'activate': function(){
                             this.map.currentControl.deactivate();
                             var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
@@ -137,7 +137,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     vectorFeaturesOverLimit: new Array(),
                     iconclass:"glyphicon-white glyphicon-screenshot",
                     title:"Interroga la mappa",
-                    text:"Click",
+                    text:"Punto",
                     eventListeners: {'activate': function(){
                             this.map.currentControl.deactivate();
                             var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");

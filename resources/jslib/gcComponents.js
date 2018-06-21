@@ -98,8 +98,9 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
     if(this.startControl.length > 0) {
       for(var index = 0; index < this.startControl.length; index++)
         this.activateControl(this.startControl[index]);
-    } else
+    } else {
       this.activateControl(this.defaultControl);
+    }
   },
 });
 

@@ -363,7 +363,8 @@ var initMap = function(){
         createControlMarkup:customCreateControlMarkup
     });
 
-    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
+    var defaultControl = new OpenLayers.Control.DragPan({iconclass:"glyphicon-white glyphicon-move", title:"Sposta", eventListeners: {'activate': function(){
+    window.alert("DENTRI");map.currentControl && map.currentControl.deactivate();map.currentControl=this}}});
     map.defaultControl = defaultControl;
 
     var geolocateControl = new OpenLayers.Control.Geolocate({

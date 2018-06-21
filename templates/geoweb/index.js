@@ -122,12 +122,19 @@ function createSideToolbar(innerMap) {
     id: "move",
     iconclass:"glyphicon-white glyphicon-move",
     title:"Sposta",
+    map: innerMap,
     eventListeners: {
       'activate': function(){
         innerMap.currentControl && innerMap.currentControl.deactivate();
         innerMap.currentControl=this;
       }
-    }
+    },
+    /*'panMapStart': function() {
+        OpenLayers.Control.DragPan.prototype.panMapStart.apply(this, arguments);
+      },
+    'panMapDone': function(evt) {
+        window.alert("Paolo...");
+        }*/
   });
   innerMap.defaultControl = defaultControl;
   var geolocateControl = new OpenLayers.Control.Geolocate({

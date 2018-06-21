@@ -37,7 +37,8 @@ window.GCComponents.Functions.setQueryToolbar = function(map) {
             var featureType = layer.featureTypes[i];
 
             if(featureType.searchable != 2) continue;
-            options.push('<option value="'+featureType.typeName+'">'+featureType.title+'</option>');
+            var selected = ((typeof(FAST_SEARCH_DEFAULT) !== 'undefined') && (FAST_SEARCH_DEFAULT == featureType.typeName)) ? "selected" : "";
+            options.push('<option value="'+featureType.typeName+'" '+selected+'>'+featureType.title+'</option>');
         }
     }
     $('#map-fast-search select').html(options);

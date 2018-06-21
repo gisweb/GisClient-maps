@@ -35,10 +35,9 @@ function setZoomAndScales(self) {
   self.map.events.register('zoomend', null, function(){
     $('#map-select-scale').val(self.map.getZoom());
     self.map.controls.forEach(function(b) {
-      if(b.controlName != undefined) {
-        var ctrl = self.map.getControlsBy('gc_id', b.controlName)[0];
-        if(ctrl.zoomEnd != undefined)
-        ctrl.zoomEnd(map.getZoom());
+      if(b.gc_id != undefined) {
+        if(b.zoomEnd != undefined)
+        b.zoomEnd(self.map.getZoom());
       }
     });
   });
@@ -170,4 +169,6 @@ function initAdvancedButtons() {
     reportToolbar.displayReportHandler(filter);
     $('#SearchReportWindow').modal('hide');
   });
+  
+  $('#searchWindowModalContent').css('height', clientConfig.SEARCH_WINDOW_H+"px");
 }

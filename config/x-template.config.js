@@ -8,7 +8,11 @@ var PRINT_TEMPLATE_PDF;
 var PRINT_LEGEND_DEFAULT;
 var PRINT_LAYOUT_DEFAULT;
 var PRINT_FORMAT_DEFAULT;
+var OVERVIEW_MAP_W;
+var OVERVIEW_MAP_H;
 var DEFAULT_CONTROL;
+var SEARCH_WINDOW_H;
+var FAST_SEARCH_DEFAULT;
 
 configLoaded.then(fillLocalVariables);
 
@@ -22,5 +26,9 @@ function fillLocalVariables() {
   PRINT_LAYOUT_DEFAULT = clientConfig.PRINT_LAYOUT_DEFAULT;
   PRINT_FORMAT_DEFAULT = clientConfig.PRINT_FORMAT_DEFAULT;
   HINTS_KEY = clientConfig.HINTS_KEY;
+  OVERVIEW_MAP_W = clientConfig.OVERVIEW_MAP_W;
+  OVERVIEW_MAP_H = clientConfig.OVERVIEW_MAP_H;
+  SEARCH_WINDOW_H = clientConfig.SEARCH_WINDOW_H;
+  FAST_SEARCH_DEFAULT = clientConfig.FAST_SEARCH_DEFAULT;
   wrapperConfigLoaded.resolve();
 }
