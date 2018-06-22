@@ -280,6 +280,8 @@ function initMap() {
   manageResize();
   manageMapsets();
   createGCControls(this.map);
+  if(generateHints != undefined)
+    generateHints();
 }
 
 $.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {

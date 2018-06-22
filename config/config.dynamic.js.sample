@@ -1,4 +1,4 @@
-var configLoaded = $.Deferred();
+var configLoaded = jQuery.Deferred();
 var clientConfig = {
  GISCLIENT_URL : '/gisclient3',
  URL_CLIENT_CONFIG : "/gisclient3/services/clientConfig.php",
@@ -18,14 +18,21 @@ var clientConfig = {
  // **** Dimensioni della Reference Map (in pixel)
  OVERVIEW_MAP_W : 360,
  OVERVIEW_MAP_H : 180,
+ // **** Altezza finestra di ricerca (in pixel)
+ SEARCH_WINDOW_H : 400,
  // **** Dimensioni del pannello laterale (in pixel)
  RESULT_SMALLTABLE_SIZE : 300,
  // **** Chiave per caricamento suggerimenti
  HINTS_KEY  : "gisclient-maps",
  CLIENT_COMPONENTS : ["StreetViewControl:1:alone", "LayerTreeButton:2:data", "QueryControl:1:data",
-                      "PrintControl:1:print", "ReferenceMapControl:2:print"],
+                      "PrintControl:1:print", "ReferenceMapControl:2:print"]//,
+ //DEFAULT_CONTROL : "move"		      
 };
 $.get(clientConfig.URL_CLIENT_CONFIG, function(returnedData){
   Object.assign(clientConfig, JSON.parse(returnedData));
+  clientConfig.SCRIPT_PLUGINS.forEach(function(item, index) {
+    $("head").append(item);
+  });
   configLoaded.resolve();
 });
+

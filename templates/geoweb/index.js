@@ -122,12 +122,19 @@ function createSideToolbar(innerMap) {
     id: "move",
     iconclass:"glyphicon-white glyphicon-move",
     title:"Sposta",
+    map: innerMap,
     eventListeners: {
       'activate': function(){
         innerMap.currentControl && innerMap.currentControl.deactivate();
         innerMap.currentControl=this;
       }
-    }
+    },
+    /*'panMapStart': function() {
+        OpenLayers.Control.DragPan.prototype.panMapStart.apply(this, arguments);
+      },
+    'panMapDone': function(evt) {
+        window.alert("Paolo...");
+        }*/
   });
   innerMap.defaultControl = defaultControl;
   var geolocateControl = new OpenLayers.Control.Geolocate({
@@ -260,9 +267,14 @@ function initMap() {
   manageResize();
   manageMapsets();
   createGCControls(this.map);
+  if(generateHints != undefined)
+    generateHints();
 }
 
-$.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {
+$.when(configLoaded, wrapperConfigLoaded).then(startGui);
+
+function startGui() {
+$(document).ready(function() {
   GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
     useMapproxy:true,
     mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
@@ -285,4 +297,5 @@ $.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {
     callback:initMap
   });
   initAdvancedButtons();
-}));
+})
+}

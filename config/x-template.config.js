@@ -1,4 +1,5 @@
-var wrapperConfigLoaded = $.Deferred();
+var wrapperConfigLoaded = jQuery.Deferred();
+var HINTS_KEY;
 var MAX_LAYER_FEATURES;
 var MAX_QUERY_FEATURES;
 var POPUP_TIMEOUT;
@@ -7,8 +8,15 @@ var PRINT_TEMPLATE_PDF;
 var PRINT_LEGEND_DEFAULT;
 var PRINT_LAYOUT_DEFAULT;
 var PRINT_FORMAT_DEFAULT;
+var OVERVIEW_MAP_W;
+var OVERVIEW_MAP_H;
 var DEFAULT_CONTROL;
-$.when(configLoaded).then(function() {
+var SEARCH_WINDOW_H;
+var FAST_SEARCH_DEFAULT;
+
+configLoaded.then(fillLocalVariables);
+
+function fillLocalVariables() {
   MAX_LAYER_FEATURES = clientConfig.MAX_LAYER_FEATURES;
   MAX_QUERY_FEATURES = clientConfig.MAX_QUERY_FEATURES;
   POPUP_TIMEOUT = clientConfig.POPUP_TIMEOUT;
@@ -17,5 +25,10 @@ $.when(configLoaded).then(function() {
   PRINT_LEGEND_DEFAULT = clientConfig.PRINT_LEGEND_DEFAULT;
   PRINT_LAYOUT_DEFAULT = clientConfig.PRINT_LAYOUT_DEFAULT;
   PRINT_FORMAT_DEFAULT = clientConfig.PRINT_FORMAT_DEFAULT;
+  HINTS_KEY = clientConfig.HINTS_KEY;
+  OVERVIEW_MAP_W = clientConfig.OVERVIEW_MAP_W;
+  OVERVIEW_MAP_H = clientConfig.OVERVIEW_MAP_H;
+  SEARCH_WINDOW_H = clientConfig.SEARCH_WINDOW_H;
+  FAST_SEARCH_DEFAULT = clientConfig.FAST_SEARCH_DEFAULT;
   wrapperConfigLoaded.resolve();
-});
+}

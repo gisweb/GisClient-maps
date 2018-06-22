@@ -534,6 +534,8 @@ var initMap = function(){
 
         window.location.href = newUrl;
     });
+    if(generateHints != undefined)
+      generateHints();
 
     // **** WFM customization
     window.GCComponents.Functions.centerMapWFM();
