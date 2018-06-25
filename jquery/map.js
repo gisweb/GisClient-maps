@@ -1538,7 +1538,7 @@ var initMap = function(){
 
     //queryToolbar.activate();
     //queryToolbar.controls[0].activate();
-    //map.zoomToScale(2000)
+    
 
     var len = GisClientMap.mapsets.length, i, mapset,
         options = [], option;
@@ -1563,6 +1563,22 @@ var initMap = function(){
         window.location.href = newUrl;
     });
 
+
+    //var lonLat = new OpenLayers.LonLat(2511414, 5034631);
+    //map.setCenter([2511414,5034631],5000);
+    var query = window.location.search.substring(1);
+    var qs={};
+    var params = query.split('&');
+    for (var i = 0; i < params.length; i++) {
+        var param = params[i].split('=');
+        qs[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || '');
+    }
+    if (qs["x"] && qs["y"] && qs["s"]){
+        var lonLat = new OpenLayers.LonLat(qs["x"], qs["y"]);
+        var scale = parseInt(qs["s"]);
+        map.setCenter(lonLat,scale);
+        map.zoomToScale(scale);
+    }
 
 }//END initMap
 
@@ -1605,7 +1621,7 @@ var initMap = function(){
                 layerLegend
             ]
             //scale:2000,
-            //center:[8.92811, 44.41320]
+            //center:[1393215, 5683722]
         },
         callback:initMap
     })
