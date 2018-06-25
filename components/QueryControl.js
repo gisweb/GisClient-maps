@@ -72,6 +72,7 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
         saveState:true,
         maxWfsFeatures:MAX_LAYER_FEATURES,
         maxVectorFeatures:MAX_QUERY_FEATURES,
+        resultStyle:typeof(RESULT_LAYER_STYLE)!='undefined'?new OpenLayers.StyleMap(RESULT_LAYER_STYLE):null,
         eventListeners: {
             initialized: function(options) {
                 window.GCComponents.Functions.setQueryToolbar(GisClientMap.map);
