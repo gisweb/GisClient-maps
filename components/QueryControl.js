@@ -1,5 +1,5 @@
 // **** Set query toolbar defaults, fast search controls integration
-window.GCComponents.Functions.setQueryToolbar = function(map) {
+window.GCComponents.InitFunctions.setQueryToolbar = function(map) {
     // **** Get main selection control
     var selectControls = map.getControlsBy('gc_id', 'control-querytoolbar');
     if (selectControls.length < 1) {
@@ -74,10 +74,6 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
         maxVectorFeatures:MAX_QUERY_FEATURES,
         resultStyle:typeof(RESULT_LAYER_STYLE)!='undefined'?new OpenLayers.StyleMap(RESULT_LAYER_STYLE):null,
         eventListeners: {
-            initialized: function(options) {
-                window.GCComponents.Functions.setQueryToolbar(GisClientMap.map);
-            },
-            //'startQueryMap': function() { sidebarPanel.show('resultpanel');},
             'endQueryMap': function(event) {        //Aggiungo l'animazione (???? da spostare sulla pagina)
                 if(event.layer.features && event.layer.features.length) {
                     if($(window).width() > 1000) {

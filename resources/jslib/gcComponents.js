@@ -4,6 +4,8 @@ window.GCComponents = {};
 
 window.GCComponents["Functions"] = {};
 
+window.GCComponents["InitFunctions"] = {};
+
 window.GCComponents["SideToolbar.Buttons"] = {
   addButton: function(id, title, icon, buttonFunction, customProperties) {
     var olb = new OpenLayers.Control.Button({
@@ -101,6 +103,9 @@ OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
     } else {
       this.activateControl(this.defaultControl);
     }
+    $.each(window.GCComponents["InitFunctions"] , function( key, value ) {
+        value(GisClientMap.map);
+    });
   },
 });
 
