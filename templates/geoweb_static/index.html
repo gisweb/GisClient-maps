@@ -79,7 +79,7 @@
           }
         }
       }
-      
+
       $(document).ready(function() {
         $('#btnAdvancedQuery').click(function(event) {
           console.log('advanced query click');
@@ -140,6 +140,7 @@
           reportToolbar.displayReportHandler(filter);
           $('#SearchReportWindow').modal('hide');
         });
+        if (typeof(SEARCH_WINDOW_H)!= 'undefined')
         $('#searchWindowModalContent').css('height', SEARCH_WINDOW_H+"px");
       });
     </script>

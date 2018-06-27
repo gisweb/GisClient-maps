@@ -248,12 +248,6 @@ function initMap() {
     ConditionBuilder.resourcesPath = rootPath + 'resources/';
   }
   var GCLayers = createGCMapLayers(this.map);
-  if (typeof(window.GCComponents.Functions.setQueryToolbar) != 'undefined')
-    window.GCComponents.Functions.setQueryToolbar(this.map);
-  else {
-    $('#map-fast-search select').hide();
-    $('#map-fast-search a.searchButton').hide();
-  }
   createSideToolbar(this.map);
   var projection = this.mapOptions.displayProjection || this.mapOptions.projection;
   this.map.addControl(

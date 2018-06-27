@@ -174,7 +174,8 @@
 
         $('#SearchReportWindow').modal('hide');
     });
-    $('#searchWindowModalContent').css('height', SEARCH_WINDOW_H+"px");
+    if (typeof(SEARCH_WINDOW_H)!= 'undefined')
+        $('#searchWindowModalContent').css('height', SEARCH_WINDOW_H+"px");
     });
 
 
