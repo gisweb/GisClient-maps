@@ -209,13 +209,20 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                         results, result, value, title;
 
                     table =  exportLinks + table;
+                    self.selectedCols = [];
+                    self.currentPage = 0;
                    // **** Insert ID column
-                   table += '<th>ID</th>';
+                   table += '<th>#</th>';
                    self.selectedCols.push('gc_objid');
                     for(i = 0; i < len; i++) {
                         property = reportDef.properties[i];
                         title = property.header || property.name;
-                        table += '<th>'+title+'</th>';
+                        table += '<th class="report-col-header" colName="' + property.name + '">';
+                        if (event.orderBy == property.name + ' ASC')
+                            table += '<span class="glyphicon glyphicon-chevron-up"></span>'
+                        if (event.orderBy == property.name + ' DESC')
+                            table += '<span class="glyphicon glyphicon-chevron-down"></span>'
+                        table += title + '</th>';
                         self.selectedCols.push(property.name);
                     }
                     table += '</tr></thead><tbody>';
@@ -226,9 +233,21 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
 
                     $('#DetailsWindow div.modal-body').html(table);
                     $('#DetailsWindow h4.modal-title').html('Report ' + reportDef.title);
+
+                    //document.getElementById("loading_reports").showModal();
+                    $('.report-col-header').on("click", function() {
+                        if (event.orderBy == $( this ).attr('colName') + ' ASC') {
+                            event.orderBy = $( this ).attr('colName') + ' DESC';
+                        }
+                        else {
+                            event.orderBy = $( this ).attr('colName') + ' ASC'
+                        }
+                        self.events.triggerEvent('initreport', event);
+                    });
                     $('#DetailsWindow').modal('show');
 
-                    self.getReportData(event.reportID, self.currentPage, event.filter);
+                    $('#LoadingReports').modal('show');
+                    self.getReportData(event.reportID, self.currentPage, event.filter, event.orderBy);
 
                     $('.reportTbl_export').click(function() {
                         var action = this.getAttribute('action');
@@ -249,7 +268,8 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                             var elemTop = rowMarker[0].offsetTop;
                             if (elemTop <= docViewTop && me.dataLoading == false){
                                 me.currentPage += 1;
-                                me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter);
+                                $('#LoadingReports').modal('show');
+                                me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter, self.evt.orderBy);
                             }
                         }
                     });
@@ -260,7 +280,8 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                for(i = 0; i < data.length; i++) {
                    row = data[i];
                    rowHtml = '<tr>';
-                   for(var j = 0; j < this.selectedCols.length; j++) {
+                   rowHtml += '<td>'+ (this.currentPage*this.rowsPerPage + i + 1) + '</td>';
+                   for(var j = 1; j < this.selectedCols.length; j++) {
                         col = this.selectedCols[j];
                         value = row[col] || '';
 
@@ -269,6 +290,7 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                    rowHtml += '</tr>';
                    table.append(rowHtml);
                 }
+                $('#LoadingReports').modal('hide');
            }
         }
     });

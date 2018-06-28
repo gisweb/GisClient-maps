@@ -365,7 +365,28 @@ div.olMapViewport {
 }
 
 #map-toolbar-report {
-    width: 18em;
+    width: 19em;
+}
+
+.report-col-header {
+    cursor: pointer;
+}
+
+.report-col-header .glyphicon{
+  margin:10px;
+}
+
+.reportLoadingPanel {
+    background-image:url('icons/loading.gif');
+    background-position:center;
+    background-repeat:no-repeat;
+    overflow:hidden;
+    width: 120px;
+    height: 120px;
+    position: fixed;
+    top: 45%;
+    left: 45%;
+    z-index: 1550;
 }
 
 #map-toolbar-query {
