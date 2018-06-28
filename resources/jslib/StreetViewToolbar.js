@@ -34,6 +34,7 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
           if(this.map.defaultControl !== undefined && this.map.currentControl !== undefined && this.map.currentControl != this.map.defaultControl) {
             this.map.currentControl = this.map.defaultControl;
             this.map.currentControl.activate();
+            this.map.currentControl.active = true;
             click.deactivate();
           }
           this.active = false;
