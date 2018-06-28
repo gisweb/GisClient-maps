@@ -4,6 +4,8 @@ window.GCComponents = {};
 
 window.GCComponents["Functions"] = {};
 
+window.GCComponents["InitFunctions"] = {};
+
 window.GCComponents["SideToolbar.Buttons"] = {
     buttons: [],
     addButton: function(id, title, icon, buttonFunction, customProperties) {
@@ -362,8 +364,8 @@ var initMap = function(){
     if(typeof(GCButtons[0].tbarpos) == 'undefined')
       GCButtons[0].tbarpos = 'first';
 
-    if (typeof(window.GCComponents.Functions.setQueryToolbar) != 'undefined'){
-        window.GCComponents.Functions.setQueryToolbar(this.map);
+    if (typeof(window.GCComponents.InitFunctions.setQueryToolbar) != 'undefined'){
+        window.GCComponents.InitFunctions.setQueryToolbar(this.map);
     }
     else {
         $('#map-fast-search select').hide();

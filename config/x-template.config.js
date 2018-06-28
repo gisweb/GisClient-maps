@@ -13,6 +13,7 @@ var OVERVIEW_MAP_H;
 var DEFAULT_CONTROL;
 var SEARCH_WINDOW_H;
 var FAST_SEARCH_DEFAULT;
+var RESULT_LAYER_STYLE;
 
 configLoaded.then(fillLocalVariables);
 
@@ -30,5 +31,6 @@ function fillLocalVariables() {
   OVERVIEW_MAP_H = clientConfig.OVERVIEW_MAP_H;
   SEARCH_WINDOW_H = clientConfig.SEARCH_WINDOW_H;
   FAST_SEARCH_DEFAULT = clientConfig.FAST_SEARCH_DEFAULT;
+  RESULT_LAYER_STYLE = clientConfig.RESULT_LAYER_STYLE;
   wrapperConfigLoaded.resolve();
 }
