@@ -14,19 +14,11 @@ OpenLayers.GisClient.UnRedo = OpenLayers.Class(OpenLayers.Control,{
       this.future = [];
     }
   },
-  zoomEnd: function(passedZoom) {
-    //registriamo uno stato
-    if(!this.checkInsert(this.map.center, this.map.zoom)) {
-      this.status.push({position: this.map.center, zoom: this.map.zoom});
-      this.future = [];
-    }
-  },
   undo: function() {
     if(this.status.length > 1) {
       this.future.push(this.status.pop());
       var current = this.status[this.status.length - 1];
-      this.map.setCenter(current.position);
-      this.map.zoomTo(current.zoom);
+      this.map.setCenter(current.position, current.zoom);
     } else {
       window.alert("Impossibile procedere");
     }
@@ -35,8 +27,7 @@ OpenLayers.GisClient.UnRedo = OpenLayers.Class(OpenLayers.Control,{
     if(this.future.length > 0) {
       this.status.push(this.future.pop());
       var current = this.status[this.status.length - 1];
-      this.map.setCenter(current.position);
-      this.map.zoomTo(current.zoom);
+      this.map.setCenter(current.position, current.zoom);
     } else {
       window.alert("Impossibile procedere");
     }

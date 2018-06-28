@@ -5,9 +5,9 @@ window.GCComponents["Controls"].addControl('control-unredo', function(map){
     createControlMarkup:customCreateControlMarkup,
     autoActivate:false
   });
-  map.defaultControl.panMapStart = function() {
+  map.events.register('moveend', map, function() {
     undoredo.recordZoomAndPosition()
-  };
+  });
   return undoredo;
 });
 
