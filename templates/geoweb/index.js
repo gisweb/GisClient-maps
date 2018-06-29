@@ -118,6 +118,7 @@ function createSideToolbar(innerMap) {
     div:document.getElementById("map-sidebar"),
     createControlMarkup:customCreateControlMarkup
   });
+  
   var defaultControl = new OpenLayers.Control.DragPan({
     id: "move",
     iconclass:"glyphicon-white glyphicon-move",
@@ -128,13 +129,7 @@ function createSideToolbar(innerMap) {
         innerMap.currentControl && innerMap.currentControl.deactivate();
         innerMap.currentControl=this;
       }
-    },
-    /*'panMapStart': function() {
-        OpenLayers.Control.DragPan.prototype.panMapStart.apply(this, arguments);
-      },
-    'panMapDone': function(evt) {
-        window.alert("Paolo...");
-        }*/
+    }
   });
   innerMap.defaultControl = defaultControl;
   var geolocateControl = new OpenLayers.Control.Geolocate({
@@ -199,8 +194,28 @@ function createSideToolbar(innerMap) {
       iconclass:"glyphicon-white glyphicon-globe",
       title:"Zoom estensione"
     }),
+    new OpenLayers.Control.Button({
+      id: "pointer",
+      iconclass:"glyphicon-white glyphicon-flag",
+      title:"Vai a coordinata",
+      trigger : function(){
+        if (sidebarPanel.handleEvent || typeof(sidebarPanel.handleEvent) === 'undefined') {
+          var ctrl = this.map.getControlsBy('gc_id', 'control-goto')[0];
+          if (ctrl.active) {
+            if(ctrl.deactivate())
+              this.deactivate();
+          } else {
+            if(ctrl.activate())
+              this.activate();
+          }
+          if (typeof(sidebarPanel.handleEvent) !== 'undefined')
+            sidebarPanel.handleEvent = false;
+        }
+      }
+    }),
     geolocateControl
   ]);
+  initGotoDestinationPanel(innerMap);
   sideBar.defaultControl = defaultControl;
   innerMap.addControl(sideBar);
 }

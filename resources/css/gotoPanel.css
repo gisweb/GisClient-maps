@@ -1,0 +1,17 @@
+.gotoPanelLabel {
+  float: left;
+  width: 110px;
+  margin-top:10px;
+  margin-left:5px;
+  color: white;
+  font-weight: bold;
+}
+
+.gotoPanelElement {
+  float: left;
+  margin: 5px;
+}
+
+.gotoPanelSeparator {
+  clear: both;
+}
