@@ -191,7 +191,7 @@ OpenLayers.GisClient.reportToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
     },
 
-    getReportData: function (reportID, pageNum, filter, orderBy=null) {
+    getReportData: function (reportID, pageNum, filter, orderBy) {
         var limitRows = this.rowsPerPage > 0 ? this.rowsPerPage : null;
 
         this.dataLoading = true;

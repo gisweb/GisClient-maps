@@ -95,7 +95,7 @@ var clientConfig = {
 */
 };
 $.get(clientConfig.URL_CLIENT_CONFIG, function(returnedData){
-  Object.assign(clientConfig, JSON.parse(returnedData));
+  jQuery.extend(clientConfig, JSON.parse(returnedData));
   clientConfig.SCRIPT_PLUGINS.forEach(function(item, index) {
     $("head").append(item);
   });
