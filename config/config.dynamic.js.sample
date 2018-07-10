@@ -1,4 +1,5 @@
 var configLoaded = jQuery.Deferred();
+var applicationReady = jQuery.Deferred();
 var clientConfig = {
  GISCLIENT_URL : '/gisclient3',
  URL_CLIENT_CONFIG : "/gisclient3/services/clientConfig.php",

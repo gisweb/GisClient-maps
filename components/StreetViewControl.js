@@ -10,7 +10,6 @@ window.GCComponents["Controls"].addControl('control-streetview', function(map){
   window.GCComponents["Controls"].addControl('control-streetview-commander', function(map){
     return new OpenLayers.GisClient.streetViewToolbar({
         gc_id: 'control-streetview-commander',
-        map: map,
         createControlMarkup:customCreateControlMarkup,
         div: document.getElementById("map-toolbar-streetview-commander"),
         autoActivate:false

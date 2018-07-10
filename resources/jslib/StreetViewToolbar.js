@@ -2,7 +2,6 @@ var omeminoCtrl = null;
 OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
   div: null,
   divbtns: null,
-  map: null,
   initialize: function(options) {
     OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
     omeminoCtrl = new OpenLayers.Control.Button({
@@ -18,28 +17,28 @@ OpenLayers.GisClient.streetViewToolbar = OpenLayers.Class(OpenLayers.Control.Pan
         },
         activate: function() {
           OpenLayers.Control.Button.prototype.activate.call(this);
-          this.map.events.register("mousemove", this.map, displayCursor);
-          this.map.events.register("mouseout", this.map, hideCursor);
-          this.map.currentControl.deactivate();
-          this.map.currentControl = omeminoCtrl;
+          GisClientMap.map.events.register("mousemove", GisClientMap.map, displayCursor);
+          GisClientMap.map.events.register("mouseout", GisClientMap.map, hideCursor);
+          GisClientMap.map.currentControl.deactivate();
+          GisClientMap.map.currentControl = omeminoCtrl;
           click.activate();
           this.active = true;
         },
         deactivate: function() {
           OpenLayers.Control.Button.prototype.deactivate.call(this);
           hideCursor();
-          this.map.events.unregister("mousemove", this.map, displayCursor);
-          this.map.events.unregister("mouseout", this.map, hideCursor);
+          GisClientMap.map.events.unregister("mousemove", GisClientMap.map, displayCursor);
+          GisClientMap.map.events.unregister("mouseout", GisClientMap.map, hideCursor);
           //per fare quanto segue deve esserci un controller di default e soprattutto un currentControl già assegnato
-          if(this.map.defaultControl !== undefined && this.map.currentControl !== undefined && this.map.currentControl != this.map.defaultControl) {
-            this.map.currentControl = this.map.defaultControl;
-            this.map.currentControl.activate();
-            this.map.currentControl.active = true;
+          if(GisClientMap.map.defaultControl !== undefined && GisClientMap.map.currentControl !== undefined && GisClientMap.map.currentControl != GisClientMap.map.defaultControl) {
+            GisClientMap.map.currentControl = GisClientMap.map.defaultControl;
+            GisClientMap.map.currentControl.activate();
+            GisClientMap.map.currentControl.active = true;
             click.deactivate();
           }
           this.active = false;
         }
-      })
+      });
     this.addControls([omeminoCtrl]);
   },
   draw: function() {

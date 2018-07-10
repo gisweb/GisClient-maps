@@ -278,6 +278,7 @@ function initMap() {
   createGCControls(this.map);
   if(generateHints != undefined)
     generateHints();
+  applicationReady.resolve();
 }
 
 $.when(configLoaded, wrapperConfigLoaded).then(startGui);
