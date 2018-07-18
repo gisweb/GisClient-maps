@@ -1,4 +1,5 @@
 var configLoaded = jQuery.Deferred();
+var applicationReady = jQuery.Deferred();
 var clientConfig = {
  GISCLIENT_URL : '/gisclient3',
  URL_CLIENT_CONFIG : "/gisclient3/services/clientConfig.php",
@@ -24,6 +25,7 @@ var clientConfig = {
  RESULT_SMALLTABLE_SIZE : 300,
  // **** Chiave per caricamento suggerimenti
  HINTS_KEY  : "gisclient-maps",
+ GOTO_DEFAULT_EPSG : ["EPSG:3857", "EPSG:4326", "EPSG:3003", "EPSG:25832", "EPSG:32632"],
  CLIENT_COMPONENTS : ["StreetViewControl:1:alone", "LayerTreeButton:2:data", "QueryControl:1:data",
                       "PrintControl:1:print", "ReferenceMapControl:2:print"]//,
  //DEFAULT_CONTROL : "move"	,
@@ -94,7 +96,7 @@ var clientConfig = {
 */
 };
 $.get(clientConfig.URL_CLIENT_CONFIG, function(returnedData){
-  Object.assign(clientConfig, JSON.parse(returnedData));
+  jQuery.extend(clientConfig, JSON.parse(returnedData));
   clientConfig.SCRIPT_PLUGINS.forEach(function(item, index) {
     $("head").append(item);
   });

@@ -47,6 +47,17 @@ window.GCComponents["Layers"] = {
     }
 };
 
+function initGotoDestinationPanel(innermap) {
+  var olc = new OpenLayers.GisClient.gotoDestinationPanel({
+    gc_id: 'control-goto',
+    createControlMarkup:customCreateControlMarkup,
+    div: document.getElementById("map-toolbar-goto"),
+    divOpts: document.getElementById("map-toolbar-goto-insert"),
+    autoActivate:false
+  });
+  innermap.addControl(olc);
+}
+
 OpenLayers.GisClient.Toolbar = OpenLayers.Class(OpenLayers.Control.Panel, {
   CLASS_NAME: "OpenLayers.GisClient.Toolbar",
   auxIndex: 0,

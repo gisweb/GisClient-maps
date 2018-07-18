@@ -816,3 +816,23 @@ div.olMapViewport {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     content: " Attiva navigazione";
 }
+
+#map-toolbar-goto a.olControlButtonItemActive.olButton span.glyphicon-white.glyphicon-map-marker:after {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    content: " Vai a coordinata";
+}
+
+#map-toolbar-goto a.olControlButtonItemInactive.olButton span.glyphicon-white.glyphicon-map-marker:after {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    content: " Vai a coordinata";
+}
+
+#map-toolbar-goto a.olControlButtonItemActive.olButton span.glyphicon-white.glyphicon-tree-conifer:after {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    content: " Disabilita lettura coordinata";
+}
+
+#map-toolbar-goto a.olControlButtonItemInactive.olButton span.glyphicon-white.glyphicon-tree-conifer:after {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    content: " Attiva lettura coordinata";
+}

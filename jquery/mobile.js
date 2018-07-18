@@ -454,7 +454,7 @@ var initMap = function(){
                     $('#DetailsWindow h4.modal-title').html('Report ' + reportDef.title);
                     $('#DetailsWindow').modal('show');
 
-                    self.getReportData(event.reportID, self.currentPage, event.filter);
+                    self.getReportData(event.reportID, self.currentPage, event.filter, null);
 
                     $('.reportTbl_export').click(function() {
                         var action = this.getAttribute('action');
@@ -475,7 +475,7 @@ var initMap = function(){
                             var elemTop = rowMarker[0].offsetTop;
                             if (elemTop <= docViewTop && me.dataLoading == false){
                                 me.currentPage += 1;
-                                    me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter);
+                                    me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter, null);
                             }
                         }
                     });
