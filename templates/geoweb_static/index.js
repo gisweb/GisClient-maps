@@ -289,54 +289,8 @@ var initMap = function(){
     sidebarPanel.init('#sidebar-panel');
 
     //SE HO SETTATO LA NAVIGAZIONE VELOCE????
-    if(this.mapsetTiles){
-        for(i=0;i<map.layers.length;i++){
-            if(!map.layers[i].isBaseLayer && map.layers[i].visibility){
-                map.layers[i].setVisibility(false);
-                this.activeLayers.push(map.layers[i]);
-            }
-        }
-
-        $(".dataLayersDiv").hide();
-        this.mapsetTileLayer.setVisibility(true);
-
-        var chk = $("<input class='fast-navigate' type='checkbox'>");
-        $(".baseLbl :checkbox").addClass('fast-navigate');
-        $(".dataLbl")
-        .html(" Naviga veloce sulla mappa")
-        .append(chk);
-        $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
-        chk.attr("checked",true);
-
-        var self = this;
-        chk.on("click",function(){
-
-            //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
-
-            if($(this).is(':checked')){
-                $(".dataLayersDiv").hide();
-                $("div.fast-navigate").show();
-                self.activeLayers = [];
-                for(i=0;i<map.layers.length;i++){
-                    if(!map.layers[i].isBaseLayer && map.layers[i].visibility){
-                        map.layers[i].setVisibility(false);
-                        self.activeLayers.push(map.layers[i]);
-                    }
-                }
-                self.mapsetTileLayer.setVisibility(true);
-
-            }
-            else{
-                $(".dataLayersDiv").show();
-                $("div.fast-navigate").hide();
-                self.mapsetTileLayer.setVisibility(false);
-                for(var i=0; i<self.activeLayers.length;i++){
-                    self.activeLayers[i].setVisibility(true);
-                }
-            }
-        })
-  }
-
+    if (typeof window.GCComponents.InitFunctions.setFastNavigate === "function")
+        window.GCComponents.InitFunctions.setFastNavigate(this.map);
 
     if(ConditionBuilder) {
         ConditionBuilder.baseUrl = self.baseUrl;
@@ -566,6 +520,7 @@ var initMap = function(){
                 new OpenLayers.Control.PanZoomBar(),
                 new OpenLayers.Control.ScaleLine(),
                 new OpenLayers.Control.LayerTree({
+                    gc_id: 'control-layertree',
                     emptyTitle:'',
                     div:OpenLayers.Util.getElement('layertree-tree')
                 }),

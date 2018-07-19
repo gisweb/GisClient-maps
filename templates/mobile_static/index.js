@@ -296,56 +296,8 @@ var initMap = function(){
     sidebarPanel.init('#sidebar-panel');
 
     //SE HO SETTATO LA NAVIGAZIONE VELOCE????
-    if(this.mapsetTiles){
-        for(i=0;i<map.layers.length;i++){
-            if(!map.layers[i].isBaseLayer && map.layers[i].visibility){
-                map.layers[i].setVisibility(false);
-                this.activeLayers.push(map.layers[i]);
-            }
-        }
-
-        $(".dataLayersDiv").hide();
-        this.mapsetTileLayer.setVisibility(true);
-
-       // console.log(this.activeLayers)
-
-        $(".dataLbl").html('<input type="checkbox" name="checkbox_fastNavigate" id="checkbox_fastNavigate" class="custom" data-mini="true"><label for="checkbox_fastNavigate">Attiva navigazione veloce</label>');
-        $("#checkbox_fastNavigate").checkboxradio();
-        $("#checkbox_fastNavigate").prop( "checked", true ).checkboxradio( "refresh" );
-
-        $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
-
-        var self = this;
-        $("#checkbox_fastNavigate").change(function(){
-
-            //SPENGO TUTTI I LAYERS IN OVERLAY ACCESI DOPO EVER MEMORIZZATO LA LISTA E ATTIVO LA NAVIGAZIONE VELOCE
-            if(this.checked){
-                $(".dataLayersDiv").hide();
-                $("div.fast-navigate").show();
-                self.activeLayers = [];
-                for(i=0;i<map.layers.length;i++){
-                    if(!map.layers[i].isBaseLayer && map.layers[i].visibility){
-                        map.layers[i].setVisibility(false);
-                        self.activeLayers.push(map.layers[i]);
-                    }
-                }
-                self.mapsetTileLayer.setVisibility(true);
-
-            }
-            else{
-                $(".dataLayersDiv").show();
-                $("div.fast-navigate").hide();
-                self.mapsetTileLayer.setVisibility(false);
-                for(var i=0; i<self.activeLayers.length;i++){
-                    self.activeLayers[i].setVisibility(true);
-                }
-            }
-
-            $("#checkbox_fastNavigate").checkboxradio("refresh");
-        });
-
-    }
-
+    if (typeof window.GCComponents.InitFunctions.setFastNavigate === "function")
+        window.GCComponents.InitFunctions.setFastNavigate(this.map);
 
     if(ConditionBuilder) {
         ConditionBuilder.baseUrl = self.baseUrl;
@@ -589,6 +541,7 @@ var initMap = function(){
                 }),
                 //new OpenLayers.Control.PinchZoom(),
                 new OpenLayers.Control.LayerTree({
+                    gc_id: 'control-layertree',
                     emptyTitle:'',
                     div:OpenLayers.Util.getElement('layertree-tree')
                 }),

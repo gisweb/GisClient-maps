@@ -92,33 +92,12 @@ var sidebarPanel = {
   }
 };
 
-function fastNavigate(chk, self) {
-  if($(chk).is(':checked')){
-    $(".dataLayersDiv").hide();
-    $("div.fast-navigate").show();
-    self.activeLayers = [];
-    for(var i=0;i<self.map.layers.length;i++){
-      if(!self.map.layers[i].isBaseLayer && self.map.layers[i].visibility){
-        self.map.layers[i].setVisibility(false);
-        self.activeLayers.push(self.map.layers[i]);
-      }
-    }
-    self.mapsetTileLayer.setVisibility(true);
-  } else {
-    $(".dataLayersDiv").show();
-    $("div.fast-navigate").hide();
-    self.mapsetTileLayer.setVisibility(false);
-    for(var i=0; i<self.activeLayers.length;i++)
-      self.activeLayers[i].setVisibility(true);
-  }
-}
-
 function createSideToolbar(innerMap) {
   sideBar = new OpenLayers.GisClient.Toolbar({
     div:document.getElementById("map-sidebar"),
     createControlMarkup:customCreateControlMarkup
   });
-  
+
   var defaultControl = new OpenLayers.Control.DragPan({
     id: "move",
     iconclass:"glyphicon-white glyphicon-move",
@@ -241,23 +220,6 @@ function initMap() {
   var serviceURL = this.baseUrl + "services/";
   var rootPath = '../../';
   sidebarPanel.init('#sidebar-panel');
-  if(this.mapsetTiles){
-    for(i=0;i<this.map.layers.length;i++){
-      if(!this.map.layers[i].isBaseLayer && this.map.layers[i].visibility){
-        this.map.layers[i].setVisibility(false);
-        this.activeLayers.push(this.map.layers[i]);
-      }
-    }
-    $(".dataLayersDiv").hide();
-    this.mapsetTileLayer.setVisibility(true);
-    var chk = $("<input class='fast-navigate' type='checkbox'>");
-    $(".baseLbl :checkbox").addClass('fast-navigate');
-    $(".dataLbl").html(" Naviga veloce sulla mappa").append(chk);
-    $(".dataLbl").append($("<div class='fast-navigate'>STAI NAVIGANDO SULLA MAPPA IMPOSTATA SUI LIVELLI VISIBILI IN AVVIO.<BR />DISATTIVA LA NAVIGAZIONE VELOCE PER TORNARE ALL'ALBERO DEI LIVELLI</div>"))
-    chk.attr("checked",true);
-    var self = this;
-    chk.on("click",function() { fastNavigate(this, self);});
-  }
   if(ConditionBuilder) {
     ConditionBuilder.baseUrl = this.baseUrl;
     ConditionBuilder.resourcesPath = rootPath + 'resources/';
@@ -298,6 +260,7 @@ $(document).ready(function() {
         new OpenLayers.Control.PanZoomBar(),
         new OpenLayers.Control.ScaleLine(),
         new OpenLayers.Control.LayerTree({
+          gc_id: 'control-layertree',
           emptyTitle:'',
           div:OpenLayers.Util.getElement('layertree-tree')
         }),

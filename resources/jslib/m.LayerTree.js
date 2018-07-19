@@ -1,6 +1,10 @@
 
 OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher, {
 
+    showBaseLbl: true,
+    showBaseLayers: true,
+    showDataLbl: true,
+    showDataLayers: true,
 
     emptyTitle:'',
 
@@ -193,12 +197,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //this.dataLbl.innerHTML += '<div ><span class="tree-hit tree-collapsed"> </span><input type="radio" name="chkOverlays"><span>Disattiva navigazione veloce</span></div>';
 
         // if no overlays, dont display the overlay label and  tree
-        this.dataLbl.style.display = (containsOverlays) ? "" : "none";
-        this.dataLayersDiv.style.display = (containsOverlays) ? "" : "none";
+        this.dataLbl.style.display = (containsOverlays && this.showDataLbl) ? "" : "none";
+        this.dataLayersDiv.style.display = (containsOverlays && this.showDataLayers) ? "" : "none";
 
         // if no baselayers, dont display the baselayer label and  tree
-        this.baseLbl.style.display = (containsBaseLayers) ? "" : "none";
-        self.baseLayersDiv.style.display = (containsBaseLayers) ? "" : "none";
+        this.baseLbl.style.display = (containsBaseLayers && this.showBaseLbl) ? "" : "none";
+        self.baseLayersDiv.style.display = (containsBaseLayers && this.showBaseLayers) ? "" : "none";
 
         var $ovelaysDiv = jQuery(this.dataLayersDiv);
 
