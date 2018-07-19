@@ -100,6 +100,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
         var params = me.getParams();
         params["tiles"] = me.getTiles();
         params["vectors"] = me.getVectors();
+        params["vectors_srid"] = this.map.projection;
         params["format"] = me.printFormat;
         params["printFormat"] = me.pageFormat;
         params["legend"] = me.printLegend;
