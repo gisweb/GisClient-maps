@@ -174,10 +174,6 @@ var sidebarPanel = {
         }
 
         self.open();
-
-        // **** WFM customization
-        var selectControls = GisClientMap.map.getControlsBy('gc_id', 'control-querytoolbar');
-        selectControls[0].wfmSelection = false;
     },
 
     hide: function(panelId) {
@@ -494,6 +490,7 @@ var initMap = function(){
       generateHints();
 
     // **** WFM customization
+    window.GCComponents.InitFunctions.deactivateWFMSelection(map);
     window.GCComponents.Functions.centerMapWFM();
 }//END initMap
 

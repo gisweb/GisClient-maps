@@ -1,4 +1,11 @@
 // *******************************************************************************************
+window.GCComponents.InitFunctions.deactivateWFMSelection = function(map) {
+    var selectControls = map.getControlsBy('gc_id', 'control-querytoolbar');
+    if (selectControls.length == 1)
+        selectControls[0].events.register('endQueryMap', null, function(e) {
+            this.wfmSelection = false;
+        });
+}
 
 // **** Toolbar integration
 $(function(){
@@ -127,6 +134,7 @@ window.GCComponents["Layers"].addLayer('layer-wfm-highlight', {
                 }
             }
         }
+
         window.GCComponents.Functions.sendToWFM(wfmExportData);
     }
 });
@@ -177,47 +185,101 @@ window.GCComponents["Layers"].addLayer('layer-wfm-markpoint', {
         }
         var featureTypes = '';
         var selectLayers = [];
-        for (var i=0; i<WFM_LAYERS.length; i++) {
-            for (var j=0; j<WFM_LAYERS[i].layers.length; j++) {
-                var tmpLayer = selectControl.getLayerFromFeature(WFM_LAYERS[i].layers[j]);
-                var idx;
-                for (idx = 0; idx < selectLayers.length; idx++)  {
-                    if (selectLayers[idx].id === tmpLayer.id)
-                        break;
-                }
-                if (idx === selectLayers.length)
-                    selectLayers.push(tmpLayer);
+        var selectControlAuto = this.map.getControlsBy('gc_id', 'control-wfm-autoselect')[0];
 
-                featureTypes += WFM_LAYERS[i].layers[j] + ',';
+        this.keepFeatures = true;
+
+        for (var i=0; i<WFM_LAYERS.length; i++) {
+            if (typeof(WFM_LAYERS[i].auto) != undefined && WFM_LAYERS[i].auto) {
+                var featureTypesAuto = '';
+                var selectLayersAuto = [];
+
+                for (var j=0; j<WFM_LAYERS[i].layers.length; j++) {
+                    var tmpLayer = selectControl.getLayerFromFeature(WFM_LAYERS[i].layers[j]);
+                    var idx;
+                    for (idx = 0; idx < selectLayersAuto.length; idx++)  {
+                        if (selectLayersAuto[idx].id === tmpLayer.id)
+                            break;
+                    }
+                    if (idx === selectLayersAuto.length)
+                        selectLayersAuto.push(tmpLayer);
+                    featureTypesAuto += WFM_LAYERS[i].layers[j] + ',';
+                }
+
+                selectControlAuto.layers = selectLayersAuto;
+                selectControlAuto.queryFeatureType = featureTypesAuto.substring(0, featureTypesAuto.length -1);
+                selectControlAuto.wfsCache = selectControls[0].wfsCache;
+                selectControlAuto.resultLayer = this.map.getLayersByName('layer-wfm-highlight')[0];
+                selectControlAuto.maxFeatures = WFM_LAYERS[i].numfeats;
+                selectControlAuto.activate();
+                selectControlAuto.select(obj.feature.geometry);
+                selectControlAuto.deactivate();
+            }
+            else {
+                for (var j=0; j<WFM_LAYERS[i].layers.length; j++) {
+                    var tmpLayer = selectControl.getLayerFromFeature(WFM_LAYERS[i].layers[j]);
+                    var idx;
+                    for (idx = 0; idx < selectLayers.length; idx++)  {
+                        if (selectLayers[idx].id === tmpLayer.id)
+                            break;
+                    }
+                    if (idx === selectLayers.length)
+                        selectLayers.push(tmpLayer);
+                    featureTypes += WFM_LAYERS[i].layers[j] + ',';
+                }
             }
         }
-        if (selectLayers.length < 1)
-            return;
 
-        selectControl.controls[0].layers = selectLayers;
-        selectControl.controls[0].queryFeatureType = featureTypes.substring(0, featureTypes.length -1);
+        if (selectLayers.length > 0) {
+            selectControl.controls[0].layers = selectLayers;
+            selectControl.controls[0].queryFeatureType = featureTypes.substring(0, featureTypes.length -1);
 
-        // **** Build selection rectangle
-        var selWidth = (typeof(WFM_SELECTION_WIDTH) === 'undefined')?5:WFM_SELECTION_WIDTH;
-        var XCoord = obj.feature.geometry.x;
-        var YCoord = obj.feature.geometry.y;
-        var pointLL = new OpenLayers.Geometry.Point(XCoord -selWidth, YCoord -selWidth);
-        var pointLU = new OpenLayers.Geometry.Point(XCoord -selWidth, YCoord +selWidth);
-        var pointRU = new OpenLayers.Geometry.Point(XCoord +selWidth, YCoord +selWidth);
-        var pointRL = new OpenLayers.Geometry.Point(XCoord +selWidth, YCoord -selWidth);
-        var selRectangle = new OpenLayers.Geometry.LinearRing([pointLL, pointLU, pointRU, pointRL, pointLL]);
+            // **** Build selection rectangle
+            var XCoord = obj.feature.geometry.x;
+            var YCoord = obj.feature.geometry.y;
+            var selWidth = (typeof(WFM_SELECTION_WIDTH) === 'undefined')?5:WFM_SELECTION_WIDTH;
+            var pointLL = new OpenLayers.Geometry.Point(XCoord -selWidth, YCoord -selWidth);
+            var pointLU = new OpenLayers.Geometry.Point(XCoord -selWidth, YCoord +selWidth);
+            var pointRU = new OpenLayers.Geometry.Point(XCoord +selWidth, YCoord +selWidth);
+            var pointRL = new OpenLayers.Geometry.Point(XCoord +selWidth, YCoord -selWidth);
+            var selRectangle = new OpenLayers.Geometry.LinearRing([pointLL, pointLU, pointRU, pointRL, pointLL]);
 
-        // **** Apply selection
-        this.keepFeatures = true;
-        selectControl.controls[0].activate();
-        selectControl.clearResults();
-        selectControl.controls[0].select(selRectangle);
-        selectControl.activateVectorControl();
-        selectControl.resultLayer.setVisibility(true);
-        selectControl.controls[0].deactivate();
-        selectControl.wfmSelection = true;
+            // **** Apply selection
+            selectControl.controls[0].activate();
+            selectControl.clearResults();
+            selectControl.controls[0].select(selRectangle);
+            selectControl.activateVectorControl();
+            selectControl.resultLayer.setVisibility(true);
+            selectControl.controls[0].deactivate();
+            selectControl.wfmSelection = true;
+        }
+
         this.keepFeatures = false;
     }
+});
+
+// **** Auto select click control
+window.GCComponents["Controls"].addControl('control-wfm-autoselect', function(map){
+    return new OpenLayers.Control.QueryMap(
+        OpenLayers.Handler.Click,
+        {
+            gc_id: 'control-wfm-autoselect',
+            baseUrl: GisClientMap.baseUrl,
+            maxFeatures:1,
+            deactivateAfterSelect: true,
+            vectorFeaturesOverLimit: new Array(),
+            eventListeners: {
+                'activate': function(){
+                    var selectControls = this.map.getControlsBy('gc_id', 'control-querytoolbar');
+                    if (selectControls.length != 1)
+                        return false;
+
+                },
+                'endQueryMap': function(event) {
+                }
+            }
+        }
+    )
 });
 
 // **** Point marker draw control

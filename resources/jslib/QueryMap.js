@@ -499,7 +499,6 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
             if(this.resultLayer.features.length > 0) {
                 this.resultLayer.hasPreviousResults = true;
             }
-			//this.resultLayer.removeAllFeatures();
 			this.events.triggerEvent('startQueryMap');
 		}
 
