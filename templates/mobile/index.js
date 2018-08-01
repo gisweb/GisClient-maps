@@ -286,5 +286,4 @@ $.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {
     },
     callback:initMap
   });
-  initAdvancedButtons();
 }));

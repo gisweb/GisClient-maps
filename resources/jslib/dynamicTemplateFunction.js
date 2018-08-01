@@ -1,6 +1,8 @@
 var GisClientMap;
 var GisClientBaseUrl = clientConfig.GISCLIENT_URL + "/";
 
+OpenLayers.ImgPath = "../../resources/themes/openlayers/img/";
+
 var customCreateControlMarkup = function(control) {
   var button = document.createElement('a'),
     icon = document.createElement('span'),
@@ -12,8 +14,6 @@ var customCreateControlMarkup = function(control) {
   button.appendChild(textSpan);
   return button;
 };
-
-OpenLayers.ImgPath = "../../resources/themes/openlayers/img/";
 
 function setZoomAndScales(self) {
   //ELENCO DELLE SCALE
@@ -110,65 +110,4 @@ function createLayerLegend() {
       layerLegend.load();
   });
   return layerLegend;
-}
-
-function initAdvancedButtons() {
-  $('#btnAdvancedQuery').click(function(event) {
-    console.log('advanced query click');
-    event.preventDefault();
-    var selectedFeatureType = $('select.olControlQueryMapSelect').val(),
-        fType = GisClientMap.getFeatureType(selectedFeatureType);
-    if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
-    var queryMap = GisClientMap.map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
-	queryMap.resultLayer.removeAllFeatures();
-	queryMap.events.triggerEvent('startQueryMap');
-    var params = ConditionBuilder.getQuery();
-    params.projectName = GisClientMap.projectName;
-    params.mapsetName = GisClientMap.mapsetName;
-    params.srid = GisClientMap.map.projection;
-    params.featureType = selectedFeatureType;
-    $.ajax({
-      url: clientConfig.GISCLIENT_URL + '/services/xMapQuery.php',
-      method: 'POST',
-      dataType: 'json',
-      data: params,
-      success: function(response) {
-        if(!response || typeof(response) != 'object')
-          return alert('Errore di sistema');
-        if(!response.length)
-          return alert('Nessun risultato');
-        var features = [], len = response.length, result, i, geometry, feature;
-        for(i = 0; i < len; i++) {
-          result = response[i];
-          geometry = result.gc_geom && OpenLayers.Geometry.fromWKT(result.gc_geom);
-          if(!geometry) continue;
-          delete result.gc_geom;
-          feature = new OpenLayers.Feature.Vector(geometry, result);
-          feature.featureTypeName = selectedFeatureType;
-          features.push(feature);
-        }
-        fType.features = features;
-        queryMap.events.triggerEvent('featuresLoaded',fType);
-        queryMap.resultLayer.addFeatures(features);
-        queryMap.events.triggerEvent('endQueryMap');
-        $('#SearchWindow').modal('hide');
-        $("#resultpanel").addClass("smalltable"); //non so perchè l'ho dovuto mettere qui....
-      },
-      error: function() {
-        alert('Errore di sistema');
-      }
-    });
-  });
-
-  $('#btnAdvancedReport').click(function(event) {
-    console.log('advanced query click');
-    event.preventDefault();
-    var selectedReport = $('select.olControlReportMapSelect').val();
-    var filter = ConditionBuilder.getQuery();
-    var reportToolbar = GisClientMap.map.getControlsByClass('OpenLayers.GisClient.reportToolbar')[0];
-    reportToolbar.displayReportHandler(filter);
-    $('#SearchReportWindow').modal('hide');
-  });
-  
-  $('#searchWindowModalContent').css('height', clientConfig.SEARCH_WINDOW_H+"px");
 }

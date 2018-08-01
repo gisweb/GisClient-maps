@@ -1,3 +1,18 @@
+window.GCComponents.InitFunctions.initAdvancedReportButtons = function(map) {
+
+  $('#btnAdvancedReport').click(function(event) {
+    console.log('advanced query click');
+    event.preventDefault();
+    var selectedReport = $('select.olControlReportMapSelect').val();
+    var filter = ConditionBuilder.getQuery();
+    var reportToolbar = map.getControlsByClass('OpenLayers.GisClient.reportToolbar')[0];
+    reportToolbar.displayReportHandler(filter);
+    $('#SearchReportWindow').modal('hide');
+  });
+
+  $('#searchWindowModalContent').css('height', clientConfig.SEARCH_WINDOW_H+"px");
+}
+
 // **** Report toolbar
 window.GCComponents["Controls"].addControl('control-reports', function(map){
     return  new OpenLayers.GisClient.reportToolbar({

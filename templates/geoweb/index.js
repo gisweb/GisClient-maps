@@ -269,6 +269,5 @@ $(document).ready(function() {
     },
     callback:initMap
   });
-  initAdvancedButtons();
 })
 }
