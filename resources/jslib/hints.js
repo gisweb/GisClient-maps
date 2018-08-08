@@ -3,13 +3,13 @@ Script che provvede al caricamento/gestione dei suggerimenti da parte dell'utent
 **/
 function generateHints() {
   //chiamata ajax per lista file suggerimento
-  $.post(GisClientMap.baseUrl + "/services/listHints.php", { app: HINTS_KEY},
+  $.post(GisClientMap.baseUrl + "/services/listHints.php", { app: clientConfig.HINTS_KEY},
     function(returnedData){
       if($.trim(returnedData)) {
         $("#hintsDivContent").append(returnedData);
         var show = false;
         $("#hintsDivContent > div").each(function() {
-          if(localStorage.getItem(HINTS_KEY+"."+this.id)) {
+          if(localStorage.getItem(clientConfig.HINTS_KEY+"."+this.id)) {
             $(this).css("display", "none");
           } else {
             show = true;
@@ -39,10 +39,10 @@ function generateHints() {
 }
 
 function checkBoxManagement(arg) {
-  if(localStorage.getItem(HINTS_KEY+"."+arg))
-    localStorage.removeItem(HINTS_KEY+"."+arg);
+  if(localStorage.getItem(clientConfig.HINTS_KEY+"."+arg))
+    localStorage.removeItem(clientConfig.HINTS_KEY+"."+arg);
   else
-    localStorage.setItem(HINTS_KEY+"."+arg, arg);
+    localStorage.setItem(clientConfig.HINTS_KEY+"."+arg, arg);
 }
 
 function closeHints() {

@@ -37,7 +37,7 @@ window.GCComponents.InitFunctions.setQueryToolbar = function(map) {
             var featureType = layer.featureTypes[i];
 
             if(featureType.searchable != 2) continue;
-            var selected = ((typeof(FAST_SEARCH_DEFAULT) !== 'undefined') && (FAST_SEARCH_DEFAULT == featureType.typeName)) ? "selected" : "";
+            var selected = ((typeof(clientConfig.FAST_SEARCH_DEFAULT) !== 'undefined') && (clientConfig.FAST_SEARCH_DEFAULT == featureType.typeName)) ? "selected" : "";
             options.push('<option value="'+featureType.typeName+'" '+selected+'>'+featureType.title+'</option>');
         }
     }
@@ -119,9 +119,9 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
         div:document.getElementById("map-toolbar-query"),
         autoActivate:false,
         saveState:true,
-        maxWfsFeatures:MAX_LAYER_FEATURES,
-        maxVectorFeatures:MAX_QUERY_FEATURES,
-        resultStyle:typeof(RESULT_LAYER_STYLE)!='undefined'?new OpenLayers.StyleMap(RESULT_LAYER_STYLE):null,
+        maxWfsFeatures:clientConfig.MAX_LAYER_FEATURES,
+        maxVectorFeatures:clientConfig.MAX_QUERY_FEATURES,
+        resultStyle:typeof(clientConfig.RESULT_LAYER_STYLE)!='undefined'?new OpenLayers.StyleMap(clientConfig.RESULT_LAYER_STYLE):null,
         eventListeners: {
             'endQueryMap': function(event) {        //Aggiungo l'animazione (???? da spostare sulla pagina)
                 if(event.layer.features && event.layer.features.length) {
@@ -199,12 +199,12 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
 
                 var self = this;
                 var queryResLayer = map.getLayersByName("wfsResults")[0];
-                if (queryResLayer.selectedFeatures.indexOf(feature) < 0 && POPUP_TIMEOUT > 0)
+                if (queryResLayer.selectedFeatures.indexOf(feature) < 0 && clientConfig.POPUP_TIMEOUT > 0)
                 {
                     self.popupOpenTimeout = setTimeout(function() {
                         if (self.popup)
                             self.map.addPopup(self.popup);
-                    }, POPUP_TIMEOUT);
+                    }, clientConfig.POPUP_TIMEOUT);
                 }
             },
             'featureunhighlighted': function(event) {

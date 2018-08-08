@@ -523,10 +523,10 @@ var initMap = function(){
     });
 
     OpenLayers.ImgPath = "../../resources/themes/openlayers/img/";
-    var GisClientBaseUrl = GISCLIENT_URL + "/"
+    var GisClientBaseUrl = clientConfig.GISCLIENT_URL + "/"
     GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:MAPPROXY_URL,
+        mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
         baseUrl: GisClientBaseUrl,
         rootPath: '../../',
         mapOptions:{

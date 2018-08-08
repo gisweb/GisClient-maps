@@ -1582,7 +1582,7 @@ var initMap = function(){
     var GisClientBaseUrl = GISCLIENT_URL + "/"
     GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
         useMapproxy:true,
-        mapProxyBaseUrl:MAPPROXY_URL,
+        mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
         baseUrl: GisClientBaseUrl,
         mapOptions:{
             controls:[

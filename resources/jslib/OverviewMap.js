@@ -8,8 +8,8 @@ OpenLayers.GisClient.OverviewMap = OpenLayers.Class(OpenLayers.Control.OverviewM
         this.handlers = {};
         OpenLayers.Control.prototype.initialize.apply(this, [options]);
         this.displayClass = 'gcOverviewMap';
-        if (typeof(OVERVIEW_MAP_W) !== 'undefined' && typeof(OVERVIEW_MAP_H) !== 'undefined')
-            this.size = new OpenLayers.Size(OVERVIEW_MAP_W,OVERVIEW_MAP_H);
+        if (typeof(clientConfig.OVERVIEW_MAP_W) !== 'undefined' && typeof(clientConfig.OVERVIEW_MAP_H) !== 'undefined')
+            this.size = new OpenLayers.Size(clientConfig.OVERVIEW_MAP_W,clientConfig.OVERVIEW_MAP_H);
     },
 
     show: function(e) {

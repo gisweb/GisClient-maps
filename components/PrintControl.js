@@ -7,11 +7,11 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
         formId: 'printpanel',
         waitFor: 'panelready',
         allowDrag: true,
-        printLegend: typeof(PRINT_LEGEND_DEFAULT)!='undefined'?PRINT_LEGEND_DEFAULT:'yes',
-        pageLayout: typeof(PRINT_LAYOUT_DEFAULT)!='undefined'?PRINT_LAYOUT_DEFAULT:'vertical',
-        printFormat: typeof(PRINT_FORMAT_DEFAULT)!='undefined'?PRINT_FORMAT_DEFAULT:'HTML',
-        defaultTemplateHTML: PRINT_TEMPLATE_HTML,
-        defaultTemplatePDF: PRINT_TEMPLATE_PDF,
+        printLegend: typeof(clientConfig.PRINT_LEGEND_DEFAULT)!='undefined'?clientConfig.PRINT_LEGEND_DEFAULT:'yes',
+        pageLayout: typeof(clientConfig.PRINT_LAYOUT_DEFAULT)!='undefined'?clientConfig.PRINT_LAYOUT_DEFAULT:'vertical',
+        printFormat: typeof(clientConfig.PRINT_FORMAT_DEFAULT)!='undefined'?clientConfig.PRINT_FORMAT_DEFAULT:'HTML',
+        defaultTemplateHTML: clientConfig.PRINT_TEMPLATE_HTML,
+        defaultTemplatePDF: clientConfig.PRINT_TEMPLATE_PDF,
         eventListeners: {
             'panelready': function(event) {
                 var me = this, timerid,

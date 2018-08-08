@@ -1,3 +1,13 @@
+var configLoaded = $.Deferred();
+var applicationReady = jQuery.Deferred();
+$.get(clientConfig.URL_CLIENT_CONFIG, function(returnedData){
+  jQuery.extend(clientConfig, JSON.parse(returnedData));
+  clientConfig.SCRIPT_PLUGINS.forEach(function(item, index) {
+    $("head").append(item);
+  });
+  configLoaded.resolve();
+});
+
 var sideBar;
 var currentGroupPos;
 window.GCComponents = {};
@@ -35,15 +45,10 @@ window.GCComponents["Controls"] = {
 };
 
 window.GCComponents["Layers"] = {
-    layers: [],
     addLayer: function(layerName, options, events) {
-        var b = {
-            layerName: layerName,
-            options: options,
-            events: events
-        };
-        this.layers.push(b);
-        return b;
+        var oll = new OpenLayers.Layer.Vector(layerName, options);
+        oll.events.on(events);
+        GisClientMap.map.addLayer(oll);
     }
 };
 
@@ -159,39 +164,43 @@ createGCControls = function(innerMap) {
     sideBar.finalize();
 }
 
-createGCMapLayers = function(map) {
-    var ext = window.GCComponents["Layers"];
-    var result = [];
-    ext.layers.forEach(function(b) {
-        var oll = new OpenLayers.Layer.Vector(b.layerName, b.options);
-        oll.events.on(b.events);
-        result.push(oll);
-        map.addLayer(oll);
-    });
-    return result;
-}
-
 function includeComponents(arr) {
   var cont = 0;
   var includedFileNames = [];
   arr.forEach(function(current, index) {
     var cmpPosGrp = current.split(":");
-    if($.inArray(cmpPosGrp[0], includedFileNames) == -1) {
-      includedFileNames.push(cmpPosGrp[0]);
+    if (cmpPosGrp.length == 3) { // **** Native component
+        var cmpPath = "../../components/";
+        var cmpName = cmpPosGrp[0];
+        var cmpGroup = cmpPosGrp[1];
+        var cmpOrder = cmpPosGrp[2];
+    }
+    else if (cmpPosGrp.length == 4) { // **** Plugin component
+        var cmpPath = "../../plugins/" + cmpPosGrp[0] + "/components/";
+        var cmpName = cmpPosGrp[1];
+        var cmpGroup = cmpPosGrp[2];
+        var cmpOrder = cmpPosGrp[3];
+    }
+    else {
+        window.alert('Formato componente errato: ' +  current);
+        return;
+    }
+    if($.inArray(cmpName, includedFileNames) == -1) {
+      includedFileNames.push(cmpName);
       $.ajax({
         async : false,
-        url: "../../components/"+cmpPosGrp[0]+".js",
+        url: cmpPath + cmpName + ".js",
         beforeSend: function() {
-          currentGroupPos = [cmpPosGrp[1] , cmpPosGrp[2]];
+          currentGroupPos = [cmpGroup , cmpOrder];
         }
       }).done(function( data, textStatus, jqxhr) {
         cont = checkSidebarFinalization(arr, cont);
       }).fail(function( jqxhr, settings, exception ) {
-        window.alert("Inclusione componente file: " + cmpPosGrp[0] + ".js - " + exception);
+        window.alert("Inclusione componente file: " + cmpName + ".js - " + exception);
         cont = checkSidebarFinalization(arr, cont);
       });
     } else {
-      window.alert("File " + cmpPosGrp[0] + ".js precedentemente incluso.");
+      window.alert("File " + cmpName + ".js precedentemente incluso.");
       cont = checkSidebarFinalization(arr, cont);
     }
   });

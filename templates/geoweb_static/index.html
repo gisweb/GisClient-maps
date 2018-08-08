@@ -96,7 +96,7 @@
           params.srid = GisClientMap.map.projection;
           params.featureType = selectedFeatureType;
           $.ajax({
-            url: GISCLIENT_URL + '/services/xMapQuery.php',
+            url: clientConfig.GISCLIENT_URL + '/services/xMapQuery.php',
             method: 'POST',
             dataType: 'json',
             data: params,

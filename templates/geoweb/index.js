@@ -224,7 +224,7 @@ function initMap() {
     ConditionBuilder.baseUrl = this.baseUrl;
     ConditionBuilder.resourcesPath = rootPath + 'resources/';
   }
-  var GCLayers = createGCMapLayers(this.map);
+
   createSideToolbar(this.map);
   var projection = this.mapOptions.displayProjection || this.mapOptions.projection;
   this.map.addControl(
@@ -243,7 +243,7 @@ function initMap() {
   applicationReady.resolve();
 }
 
-$.when(configLoaded, wrapperConfigLoaded).then(startGui);
+$.when(configLoaded).then(startGui);
 
 function startGui() {
 $(document).ready(function() {

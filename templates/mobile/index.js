@@ -241,7 +241,6 @@ function initMap() {
     ConditionBuilder.baseUrl = this.baseUrl;
     ConditionBuilder.resourcesPath = rootPath + 'resources/';
   }
-  var GCLayers = createGCMapLayers(this.map);
   createSideToolbar(this.map);
   var projection = this.mapOptions.displayProjection || this.mapOptions.projection;
   this.map.addControl(
@@ -260,7 +259,7 @@ function initMap() {
   applicationReady.resolve();
 }
 
-$.when(configLoaded, wrapperConfigLoaded).then($(document).ready(function() {
+$.when(configLoaded).then($(document).ready(function() {
   GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
     useMapproxy:true,
     mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
