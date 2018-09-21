@@ -240,6 +240,7 @@ function initMap() {
   createGCControls(this.map);
   if(generateHints != undefined)
     generateHints();
+  centerMapset();
   applicationReady.resolve();
 }
 

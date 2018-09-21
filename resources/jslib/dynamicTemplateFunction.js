@@ -95,6 +95,15 @@ function manageMapsets(){
   $('#mapset-switcher select').change(function() {
     var mapset = $(this).val();
     if(mapset == GisClientMap.mapsetName) return;
+    var mapCenter = GisClientMap.map.getExtent().getCenterLonLat();
+    if (clientConfig.MAPSET_EXTENT_STICKY === true) {
+        if (storageAvailable('localStorage')) {
+            localStorage.setItem('gcMapsetX', mapCenter.lon);
+            localStorage.setItem('gcMapsetY', mapCenter.lat);
+            localStorage.setItem('gcMapsetSRID', GisClientMap.map.getProjection());
+            localStorage.setItem('gcMapsetZoom', GisClientMap.map.getScale());
+        }
+    }
     var newUrl = (window.location.href).replace('mapset='+GisClientMap.mapsetName, 'mapset='+mapset);
     window.location.href = newUrl;
   });
@@ -110,4 +119,82 @@ function createLayerLegend() {
       layerLegend.load();
   });
   return layerLegend;
+}
+
+function centerMapset() {
+    if (storageAvailable('localStorage')) {
+        var xCoord = localStorage.getItem('gcMapsetX');
+        if (typeof(xCoord) === 'undefined' || xCoord === null)
+            return;
+        var yCoord = localStorage.getItem('gcMapsetY');
+        if (typeof(yCoord) === 'undefined' || yCoord === null)
+            return;
+        var srid = localStorage.getItem('gcMapsetSRID');
+        if (typeof(srid) === 'undefined' || srid === null)
+            return;
+        var zoom = localStorage.getItem('gcMapsetZoom');
+        if (typeof(zoom) === 'undefined' || zoom === null)
+            return;
+
+        var lonLat = new OpenLayers.LonLat(xCoord, yCoord);
+        var GCMap = GisClientMap.map;
+        var retValue = {result: 'ok'};
+        if (srid != GCMap.projection) {
+            lonLat.transform(srid, GCMap.projection);
+        }
+        if(!GCMap.isValidLonLat(lonLat)){
+            retValue.result = 'error';
+            retValue.message = 'Posizione non valida: X ' +lonLat.lon+', Y '+lonLat.lat+', SRID ' + srid;
+            alert(retValue.message);
+            return retValue;
+        }
+        if(!GCMap.getMaxExtent().containsLonLat(lonLat)){
+            retValue.result = 'error';
+            retValue.message = 'Posizione fuori extent: X ' +lonLat.lon+', Y '+lonLat.lat+', SRID ' + srid;
+            alert(retValue.message);
+            return retValue;
+        }
+        GCMap.setCenter(lonLat);
+        GCMap.zoomToScale(zoom, true);
+
+        localStorage.removeItem('gcMapsetX');
+        localStorage.removeItem('gcMapsetY');
+        localStorage.removeItem('gcMapsetSRID');
+        localStorage.removeItem('gcMapsetZoom');
+
+        return retValue;
+    }
+}
+
+function storageAvailable(type) {
+    try {
+        var storage = window[type],
+            x = '__storage_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    }
+    catch(e) {
+        return e instanceof DOMException && (
+            // everything except Firefox
+            e.code === 22 ||
+            // Firefox
+            e.code === 1014 ||
+            // test name field too, because code might not be present
+            // everything except Firefox
+            e.name === 'QuotaExceededError' ||
+            // Firefox
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+            // acknowledge QuotaExceededError only if there's something already stored
+            storage.length !== 0;
+    }
+}
+
+serializePostData = function(obj) {
+  var str = [];
+  for (var p in obj)
+    if (obj.hasOwnProperty(p)) {
+      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    }
+  return str.join("&");
 }

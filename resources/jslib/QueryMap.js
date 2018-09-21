@@ -59,6 +59,8 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
 	deactivateAfterSelect: true,
 
+	queryHTTPMethod: 'POST', // **** GET or POST
+
 	selectionSymbolizer: {
         'Polygon': {strokeColor: '#FFFF00',fillColor:'#FF0000'},
         'Line': {strokeColor: '#FFFF00', strokeWidth: 2},
@@ -252,6 +254,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                         callback: this.parseDescribeLayer,
                         scope: {layer: layer, control: this}
                     };
+					// **** if we are on a temporary map add tmp parameter
+					if (layer.params.hasOwnProperty('tmp'))
+						options.params.TMP = layer.params.tmp;
                     OpenLayers.Request.GET(options);
                 }
             }
@@ -503,27 +508,36 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 		}
 
 		var url;
+		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
+		var xml = new OpenLayers.Format.XML();
+		var filterValue = xml.write(filter_1_1.write(filter));
+		var postData = {
+			PROJECT:layer.params.PROJECT,
+			MAP:layer.params.MAP,
+			SERVICE: "WFS",
+			TYPENAME: featureType.typeName,
+			FILTER:filterValue,
+			MAXFEATURES:this.maxFeatures,
+			SRS:layer.params.SRS,
+			REQUEST: "GetFeature",
+			VERSION: "1.0.0"
+		};
+		// **** if we are on a temporary map add tmp parameter
+		if (layer.params.hasOwnProperty('tmp'))
+			postData.TMP = layer.params.tmp;
+
 		if(layer.owsurl)
 			url = layer.owsurl;
 		else
 			url = layer.url;
 		this.nquery++;
-		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
-		var xml = new OpenLayers.Format.XML();
-		var filterValue = xml.write(filter_1_1.write(filter));
+
 		var options = {
+			method: this.queryHTTPMethod,
             url: url,
-            params: {
-				PROJECT:layer.params.PROJECT,
-				MAP:layer.params.MAP,
-                SERVICE: "WFS",
-                TYPENAME: featureType.typeName,
-				FILTER:filterValue,
-				MAXFEATURES:this.maxFeatures,
-				SRS:layer.params.SRS,
-                REQUEST: "GetFeature",
-                VERSION: "1.0.0"
-            },
+			headers: {
+        		"Content-Type": "application/x-www-form-urlencoded"
+    		},
             callback: function(response) {
 
 				this.nresponse++;
@@ -592,6 +606,14 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
             scope: this
         };
+
+		if (this.queryHTTPMethod === 'POST') {
+			options.data = serializePostData(postData);
+		}
+		else {
+			options.params = postData;
+		}
+
 		OpenLayers.Request.POST(options);
 
 	},
