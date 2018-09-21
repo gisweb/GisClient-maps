@@ -22,7 +22,7 @@ var clientConfig = {
  // **** Dimensioni del pannello laterale (in pixel)
  RESULT_SMALLTABLE_SIZE : 300,
  // **** Keep current extent on mapset change (default false)
- MAPSET_EXTENT_STICKY: false
+ MAPSET_EXTENT_STICKY: false,
  // **** Chiave per caricamento suggerimenti
  HINTS_KEY  : "gisclient-maps",
  GOTO_DEFAULT_EPSG : ["EPSG:3857", "EPSG:4326", "EPSG:3003", "EPSG:25832", "EPSG:32632"],
