@@ -55,6 +55,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     maxFeatures:this.maxWfsFeatures,
                     maxVectorFeatures:this.maxVectorFeatures,
                     vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'GET',
                     handlerOptions: {
                         irregular: true
                     },
@@ -81,6 +82,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     maxFeatures:this.maxWfsFeatures,
                     maxVectorFeatures:this.maxVectorFeatures,
                     vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'GET',
                     handlerOptions: {
                         sides: 30
                     },
@@ -107,6 +109,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     maxFeatures:this.maxWfsFeatures,
                     maxVectorFeatures:this.maxVectorFeatures,
                     vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'POST',
                     handlerOptions: {
                         irregular: false,
                         freehand: true
@@ -135,6 +138,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     maxVectorFeatures:1,
                     deactivateAfterSelect: false,
                     vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'GET',
                     iconclass:"glyphicon-white glyphicon-screenshot",
                     title:"Interroga la mappa",
                     text:"Punto",

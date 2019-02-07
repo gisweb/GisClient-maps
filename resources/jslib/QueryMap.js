@@ -59,7 +59,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
 	deactivateAfterSelect: true,
 
-	queryHTTPMethod: 'POST', // **** GET or POST
+	queryHTTPMethod: 'GET', // **** GET or POST
 
 	selectionSymbolizer: {
         'Polygon': {strokeColor: '#FFFF00',fillColor:'#FF0000'},
