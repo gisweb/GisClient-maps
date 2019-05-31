@@ -146,6 +146,7 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                             data: {
                                 suggest: query.term,
                                 field_id: fieldId,
+                                filterfields: filterFields,
                                 filtervalue: filterValue
                             },
                             dataType: 'json',
