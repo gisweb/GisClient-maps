@@ -219,7 +219,7 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                     fType = GisClientMap.getFeatureType(featureType),
                     len = fType.properties.length, i, property,
                     table = '<table><thead><tr>',
-                    cols = [], col, j,
+                    cols = [], types = [], formats = [], col, j,
                     results, result, value, title;
 
                 try {
@@ -236,6 +236,8 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                     title = property.header || property.name;
                     table += '<th>'+title+'</th>';
                     cols.push(property.name);
+                    types.push(property.fieldType);
+                    formats.push(typeof(property.fieldFormat) != 'undefined'?property.fieldFormat:null);
                 }
                 table += '</tr></thead><tbody>';
 
@@ -248,7 +250,7 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                         col = cols[j];
                         value = result[col] || '';
 
-                        table += '<td>'+value+'</td>';
+                        table += '<td>'+this.writeDataAttribute(types[j], value, formats[j])+'</td>';
                     }
                     table += '</tr>';
                 }
