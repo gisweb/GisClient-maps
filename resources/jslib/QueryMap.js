@@ -518,7 +518,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 			TYPENAME: featureType.typeName,
 			FILTER:filterValue,
 			MAXFEATURES:this.maxFeatures,
-			SRS:layer.params.SRS,
+			SRS:typeof(layer.params.SRS)!=='undefined'?layer.params.SRS:this.map.projection,
 			REQUEST: "GetFeature",
 			VERSION: "1.0.0"
 		};
