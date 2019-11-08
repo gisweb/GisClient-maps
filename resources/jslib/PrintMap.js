@@ -55,7 +55,7 @@ OpenLayers.Control.ModifyFeature.prototype.collectRadiusHandle = function() {
         this.layer.addFeatures([this.radiusHandle], {silent: true});
     }
 
-OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
+OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
     //type: OpenLayers.Control.TYPE_TOGGLE,
     formId: null, //id del form di stampa
     loadingControl: null,
@@ -99,6 +99,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control.Button, {
         var me = this;
         var params = me.getParams();
         params["tiles"] = me.getTiles();
+        params["vectors"] = me.getVectors();
+        params["vectors_srid"] = this.map.projection;
         params["format"] = me.printFormat;
         params["printFormat"] = me.pageFormat;
         params["legend"] = me.printLegend;
@@ -248,6 +250,93 @@ console.log(me.printBox)
         }
 
         return params;
+    },
+
+    getVectors: function() {
+        var vector, vectors = [];
+        var self = this;
+        var gcConfig = this.map.config;
+
+        var layers = this.map.layers;
+
+        $.each(layers, function(key, layer) {
+            if (layer.getVisibility() && layer.CLASS_NAME == 'OpenLayers.Layer.Vector' && layer.name != 'LayerBox') {
+
+                var WKTConvert = new OpenLayers.Format.WKT();
+
+                for (var i=0; i<layer.features.length; i++) {
+                    // TODO: check if geometry intersects the print box
+                    var layerGeom = layer.features[i].geometry;
+                    var txtGeom = WKTConvert.extractGeometry(layerGeom);
+                    var typeGeom = layerGeom.CLASS_NAME.replace('OpenLayers.Geometry.', '');
+
+                    // **** Get additional style data
+                    // **** Use a parametric SDL ad hoc in Gisclient
+                    // **** to render dynamic styles on vectors
+                    var currentStyle = layer.styleMap.styles[layer.features[i].renderIntent].defaultStyle;
+                    var featFillColor, featStrokeColor, featLabel;
+
+                    // **** fillcolor
+                    if (typeof(currentStyle.fillColor) != 'undefined') {
+                        if (currentStyle.fillColor.match(/#[0-9a-f]{6,8}/i) !== null) {
+                            featFillColor = currentStyle.fillColor;
+                        }
+                        else if (currentStyle.fillColor.match(/^\$\{.*\}$/) !== null) {
+                            var attrName = currentStyle.fillColor.substring(2, currentStyle.fillColor.length-1);
+                            featFillColor = layer.features[i].attributes[attrName];
+                        }
+                        else {
+                            // **** Javscript color
+                            var ctx = document.createElement('canvas').getContext('2d');
+                            ctx.fillStyle = currentStyle.fillColor;
+                            featFillColor = ctx.fillStyle;
+                        }
+                    };
+
+                    // **** strokecolor
+                    if (typeof(currentStyle.strokeColor) != 'undefined') {
+                        if (currentStyle.strokeColor.match(/#[0-9a-f]{6,8}/i) !== null) {
+                            featStrokeColor = currentStyle.strokeColor;
+                        }
+                        else if (currentStyle.strokeColor.match(/^\$\{.*\}$/) !== null) {
+                            var attrName = currentStyle.strokeColor.substring(2, currentStyle.strokeColor.length-1);
+                            featStrokeColor = layer.features[i].attributes[attrName];
+                        }
+                        else {
+                            // **** Javscript color
+                            var ctx = document.createElement('canvas').getContext('2d');
+                            ctx.fillStyle = currentStyle.strokeColor;
+                            featStrokeColor = ctx.fillStyle;
+                        }
+                    };
+
+                    // **** label
+                    if (typeof(currentStyle.label) != 'undefined') {
+                        if (currentStyle.label.match(/^\$\{.*\}$/) !== null) {
+                            var attrName = currentStyle.label.substring(2, currentStyle.label.length-1);
+                            featLabel = layer.features[i].attributes[attrName];
+                        }
+                        else {
+                            featLabel = currentStyle.label;
+                        }
+                    };
+
+                    vector = {
+                        type: typeGeom,
+                        geometry: txtGeom,
+                        fillcolor: typeof(featFillColor)!='undefined'?featFillColor:null,
+                        fillcolor_opacity: typeof(currentStyle.fillOpacity)!='undefined'?currentStyle.fillOpacity*100:null,
+                        color: typeof(featStrokeColor)!='undefined'?featStrokeColor:null,
+                        color_opacity: typeof(currentStyle.strokeOpacity)!='undefined'?currentStyle.strokeOpacity*100:null,
+                        label: typeof(featLabel)!='undefined'?featLabel:null
+                    };
+
+                    vectors.push(vector);
+                }
+            }
+        });
+
+        return vectors;
     },
 
     getTiles: function(){

@@ -55,8 +55,11 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	maxVectorFeatures: 100,
 
     //Features che non sono state renderizzate su mappa a causa del limite sopra
-    vectorFeaturesOverLimit: [],
+    vectorFeaturesOverLimit: new Array(),
 
+	deactivateAfterSelect: true,
+
+	queryHTTPMethod: 'GET', // **** GET or POST
 
 	selectionSymbolizer: {
         'Polygon': {strokeColor: '#FFFF00',fillColor:'#FF0000'},
@@ -251,6 +254,9 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                         callback: this.parseDescribeLayer,
                         scope: {layer: layer, control: this}
                     };
+					// **** if we are on a temporary map add tmp parameter
+					if (layer.params.hasOwnProperty('tmp'))
+						options.params.TMP = layer.params.tmp;
                     OpenLayers.Request.GET(options);
                 }
             }
@@ -269,8 +275,10 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 	 */
     select: function(geometry, mode) {
         var mode = mode || 'default';
+		if (this.deactivateAfterSelect) {
+			this.map.defaultControl.activate();
+		}
 
-        this.map.defaultControl.activate();
         this._queue = function() {
 			var layer, featureTypes, geometryAttribute, filterId, params;
 			var selection = {};
@@ -302,7 +310,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 								}
 							}
 						}
-						else { // **** 3 levels: unpacked/separated layers insida a single theme
+						else { // **** 3 levels: unpacked/separated layers inside a single theme
 							for(var k=0, lenk=node.nodes.length; k<lenk; k++) {
 								innerNode = node.nodes[k];
 								if (layer.params["LAYERS"].indexOf(innerNode.layer) < 0){
@@ -310,8 +318,8 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 		                        }
 								if(!(innerNode.minScale && innerNode.minScale < scale) && !(innerNode.maxScale && innerNode.maxScale > scale)){
 									//console.log(node.layer)
-									for(k in this.wfsCache[layer.id].featureTypes){
-										if(this.wfsCache[layer.id].featureTypes[k].typeName.indexOf(innerNode.layer + '.') != -1 || this.wfsCache[layer.id].featureTypes[k].typeName == innerNode.layer) featureTypes.push(this.wfsCache[layer.id].featureTypes[k])
+									for(h in this.wfsCache[layer.id].featureTypes){
+										if(this.wfsCache[layer.id].featureTypes[h].typeName.indexOf(innerNode.layer + '.') != -1 || this.wfsCache[layer.id].featureTypes[h].typeName == innerNode.layer) featureTypes.push(this.wfsCache[layer.id].featureTypes[h])
 									}
 								}
 							}
@@ -496,32 +504,40 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
             if(this.resultLayer.features.length > 0) {
                 this.resultLayer.hasPreviousResults = true;
             }
-			//this.resultLayer.removeAllFeatures();
 			this.events.triggerEvent('startQueryMap');
 		}
 
 		var url;
+		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
+		var xml = new OpenLayers.Format.XML();
+		var filterValue = xml.write(filter_1_1.write(filter));
+		var postData = {
+			PROJECT:layer.params.PROJECT,
+			MAP:layer.params.MAP,
+			SERVICE: "WFS",
+			TYPENAME: featureType.typeName,
+			FILTER:filterValue,
+			MAXFEATURES:this.maxFeatures,
+			SRS:typeof(layer.params.SRS)!=='undefined'?layer.params.SRS:this.map.projection,
+			REQUEST: "GetFeature",
+			VERSION: "1.0.0"
+		};
+		// **** if we are on a temporary map add tmp parameter
+		if (layer.params.hasOwnProperty('tmp'))
+			postData.TMP = layer.params.tmp;
+
 		if(layer.owsurl)
 			url = layer.owsurl;
 		else
 			url = layer.url;
 		this.nquery++;
-		var filter_1_1 = new OpenLayers.Format.Filter({version: "1.1.0"});
-		var xml = new OpenLayers.Format.XML();
-		var filterValue = xml.write(filter_1_1.write(filter));
+
 		var options = {
+			method: this.queryHTTPMethod,
             url: url,
-            params: {
-				PROJECT:layer.params.PROJECT,
-				MAP:layer.params.MAP,
-                SERVICE: "WFS",
-                TYPENAME: featureType.typeName,
-				FILTER:filterValue,
-				MAXFEATURES:this.maxFeatures,
-				SRS:layer.params.SRS,
-                REQUEST: "GetFeature",
-                VERSION: "1.0.0"
-            },
+			headers: {
+        		"Content-Type": "application/x-www-form-urlencoded"
+    		},
             callback: function(response) {
 
 				this.nresponse++;
@@ -539,11 +555,11 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                 for(var i = 0; i < features.length; i++) {
                     features[i].featureTypeName = featureType.typeName;
                 }
-                if((this.resultLayer.features.length + features.length) < this.maxVectorFeatures) {
-                    if(features.length && this.resultLayer.hasPreviousResults) {
-                        this.resultLayer.removeAllFeatures();
-                        delete this.resultLayer.hasPreviousResults;
-                    }
+				if(features.length && this.resultLayer.hasPreviousResults) {
+					this.resultLayer.removeAllFeatures();
+					delete this.resultLayer.hasPreviousResults;
+				}
+                if((this.resultLayer.features.length + features.length) <= this.maxVectorFeatures) {
                     this.resultLayer.addFeatures(features);
                 } else {
                     this.vectorFeaturesOverLimit.push(features);
@@ -572,7 +588,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
                     };
                     if(this.vectorFeaturesOverLimit.length) {
                         event.vectorFeaturesOverLimit = this.vectorFeaturesOverLimit.slice(0);
-                        this.vectorFeaturesOverLimit = [];
+                        this.vectorFeaturesOverLimit = new Array();
                     }
 					this.events.triggerEvent('endQueryMap', event);
 				}
@@ -590,6 +606,14 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 
             scope: this
         };
+
+		if (this.queryHTTPMethod === 'POST') {
+			options.data = serializePostData(postData);
+		}
+		else {
+			options.params = postData;
+		}
+
 		OpenLayers.Request.POST(options);
 
 	},

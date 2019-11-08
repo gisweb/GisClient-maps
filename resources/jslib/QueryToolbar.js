@@ -54,6 +54,8 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     resultLayer:this.resultLayer,
                     maxFeatures:this.maxWfsFeatures,
                     maxVectorFeatures:this.maxVectorFeatures,
+                    vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'GET',
                     handlerOptions: {
                         irregular: true
                     },
@@ -79,12 +81,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     resultLayer:this.resultLayer,
                     maxFeatures:this.maxWfsFeatures,
                     maxVectorFeatures:this.maxVectorFeatures,
+                    vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'GET',
                     handlerOptions: {
                         sides: 30
                     },
-                    iconclass:"glyphicon-white glyphicon-screenshot",
+                    iconclass: "glyphicon glyphicon-record",
                     title:"Interroga la mappa",
-                    text:"Circle",
+                    text:"Cerchio",
                     eventListeners: {'activate': function(){
                             this.map.currentControl.deactivate();
                             var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
@@ -104,13 +108,40 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     resultLayer:this.resultLayer,
                     maxFeatures:this.maxWfsFeatures,
                     maxVectorFeatures:this.maxVectorFeatures,
+                    vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'POST',
                     handlerOptions: {
                         irregular: false,
                         freehand: true
                     },
                     iconclass:"glyphicon-white glyphicon-edit",
                     title:"Interroga la mappa",
-                    text:"free",
+                    text:"Forma",
+                    eventListeners: {'activate': function(){
+                            this.map.currentControl.deactivate();
+                            var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
+                            if (dPanCtrl.length) {
+                                dPanCtrl[0].dragPan.deactivate();
+                            }
+                            this.map.currentControl=this}}
+                }
+            ),
+            new OpenLayers.Control.QueryMap(
+                OpenLayers.Handler.Click,
+                {
+                    baseUrl: this.baseUrl,
+                    wfsCache:this.wfsCache,
+                    layers:this.visibleLayers,
+                    queryFilters:this.queryFilters,
+                    resultLayer:this.resultLayer,
+                    maxFeatures:1,
+                    maxVectorFeatures:1,
+                    deactivateAfterSelect: false,
+                    vectorFeaturesOverLimit: new Array(),
+                    queryHTTPMethod: 'GET',
+                    iconclass:"glyphicon-white glyphicon-screenshot",
+                    title:"Interroga la mappa",
+                    text:"Punto",
                     eventListeners: {'activate': function(){
                             this.map.currentControl.deactivate();
                             var dPanCtrl = this.map.getControlsByClass("OpenLayers.Control.TouchNavigation");
@@ -151,6 +182,9 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
     initWfsCache:function(){//NON USATA INIZIALIZZO FUORI
         var layer;
         for (var i = 0; i < this.map.config.featureTypes.length; i++) {
+            if (typeof(this.map.config.featureTypes[i].hidden) !== 'undefined' && this.map.config.featureTypes[i].hidden !== 0) {
+                continue;
+            }
             //console.log(this.map.config.featureTypes[i].WMSLayerName, this.map.config.featureTypes);
             layer =  this.map.getLayersByName(this.map.config.featureTypes[i].WMSLayerName)[0];
             if(layer){
@@ -536,6 +570,13 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     value = '<a href="'+value+'" target="_blank" class="olControlButtonItemInactive olButton olLikeButton"><span class="glyphicon-white glyphicon-link"></span></a>';
                 }
             break;
+            case 8: //immagine
+                if(value) {
+                    if (typeof(this.map.config.baseDocUrl) != 'undefined')
+                        value = this.map.config.baseDocUrl + '/' + value;
+                    value = '<a href="'+value+'" target="_blank"><img src="'+value+'" class="resultPanelImgPreview"/></a>';
+                }
+            break;
         }
         return value || '&nbsp;';
 
@@ -628,6 +669,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         var col, colIndex, values, aCols = [], aFormats = [], relation;
         var feature = event.feature;
         var featureType = GisClientMap.getFeatureType(feature.featureTypeName);
+        var self = this;
 
         if (!event.object.handlers.feature.hasOwnProperty('evt'))
             return;
@@ -678,7 +720,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         new OpenLayers.Pixel(0, 0)
     ),
     true,
-    null
+    function(e) {
+        if (self.popup)
+            this.map.removePopup(self.popup);
+        if (feature.cleanOnPopupClose) {
+            var layer = feature.layer;
+            layer.removeFeatures([feature]);
+        }
+    }
 );
 popup.minSize = new OpenLayers.Size(300, 40);
 popup.maxSize = new OpenLayers.Size(300, 500);
@@ -692,7 +741,6 @@ popup.autoSize = true;
         popup.keepInMap = true;
         //popup.contentDiv.className = "smalltable olPopupContent";
         feature.popup = popup;
-        var self = this;
         popup.onclick = function () {
             return false
         };
@@ -707,7 +755,7 @@ popup.autoSize = true;
 		var feature=e.feature;
 		if(!feature) return;
 		if(feature.popup) this.map.removePopup(feature.popup);
-                feature.popup.blocks = new Array();
+        feature.popup.blocks = new Array();
 		feature.popup.destroy();
 		feature.popup = null;
     },
@@ -781,9 +829,35 @@ popup.autoSize = true;
         var me = this,
             len = me.renderQueue.length, event, i,
             divs = '', html, resultDiv;
+            var loadingControl = this.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
 
         if (len > 0 && this.resultLayer.visibility === false) {
             this.resultLayer.setVisibility(true);
+        }
+
+        if (e.object.maxVectorFeatures == 1) {
+
+            if (e.layer.features.length != 1) {
+                loadingControl.minimizeControl();
+                return;
+            }
+
+            if(me.resultTarget.firstChild) {
+                me.resultTarget.removeChild(me.resultTarget.firstChild);
+            }
+
+            this.renderQueue = [];
+
+            e.feature = e.layer.features[0];
+            e.feature.cleanOnPopupClose = true;
+            e.vectorFeaturesOverLimit = [];
+            e.object.handlers = {};
+            e.object.handlers.feature = {};
+            e.object.handlers.feature.evt = e.object.handler.evt;
+            me.writeDataPopup(e);
+            me.map.addPopup(me.popup);
+            loadingControl.minimizeControl();
+            return;
         }
 
         for(i = 0; i < len; i++) {
@@ -880,7 +954,6 @@ popup.autoSize = true;
             }
         }
 
-        var loadingControl = this.map.getControlsByClass('OpenLayers.Control.LoadingPanel')[0];
         loadingControl.minimizeControl();
 
         var event = {
@@ -1078,7 +1151,10 @@ popup.autoSize = true;
 
         me.events.triggerEvent('featureunhighlighted', {feature:feature});
     },
-
+    zoomEnd: function() {
+      if (this.active)
+        this.redraw();
+    },
     CLASS_NAME: "OpenLayers.GisClient.queryToolbar"
 
 });
