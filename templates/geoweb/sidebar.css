@@ -321,15 +321,25 @@
 
 
 #layerlegend div{
+    padding-left: 5px;
     background-color: #fff;
     overflow-x:hidden;
+    display:none;
 }
 
-#layerlegend p{
+#layerlegend .legend-container-0{
+    margin-left: 10px;
+}
 
+#layerlegend .legend-node-visible{
+    display:block;
+}
+
+
+#layerlegend span{
     color: #404040;
     font-weight: bold;
-
+    cursor: pointer;
 }
 
 input.fast-navigate {

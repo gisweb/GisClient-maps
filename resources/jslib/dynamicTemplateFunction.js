@@ -111,7 +111,8 @@ function manageMapsets(){
 
 function createLayerLegend() {
   var layerLegend = new OpenLayers.Control.LayerLegend({
-     div: OpenLayers.Util.getElement('layerlegend'),
+    div: OpenLayers.Util.getElement('layerlegend'),
+    gc_id: 'control-legend',
     autoLoad: false
   });
   $('a[href="#layerlegend"]').click(function() {
