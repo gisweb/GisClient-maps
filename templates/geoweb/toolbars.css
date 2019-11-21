@@ -513,6 +513,7 @@ div.olMapViewport {
             border-bottom: 1px solid #eee;
             position: relative;
             padding-left: 50%;
+            overflow-wrap: break-word;
         }
 
         .smalltable td:before {
@@ -523,10 +524,17 @@ div.olMapViewport {
             left: 6px;
             width: 45%;
             padding-right: 10px;
+            white-space: pre-wrap;
+            display: block;
             content: attr(feature-col);
-            /*white-space: nowrap;*/
+            white-space: nowrap;
+            overflow-wrap: normal;
         }
 
+        .actionpanel_hidden  {
+            width: 0px;
+            padding: 0px; !important
+        }
         /*
         Label the data
 

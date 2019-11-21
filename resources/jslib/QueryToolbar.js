@@ -587,7 +587,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
 
         if(featureType.features.length == 0) return false;//VEDERE DI METTRE NELLE OPZIONI SE AGGIUNGERE COMUNQUE GLI HEADERS
 
-        htmlHeaders += '<th>Azioni</th>';
+        htmlHeaders += '<th colspan="2">Azioni</th>';
 
         for (var i = 0; i < featureType.properties.length; i++) {
             col = featureType.properties[i];
@@ -610,18 +610,18 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         htmlTable += ' <a href="#" " featureType="'+featureType.typeName+'" action="pdf" style="float:right"><span class="icon-pdf"></span></a>';
         htmlTable += '</span></span><table class="featureTypeData"><thead><tr>' + htmlHeaders + '</tr><tbody>';
         for (var j = 0; j < fLen; j++) {
-            values = '<td feature-col="Azioni"><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+(featureType.zoomBuffer || 0)+'" title="Zoom" style="margin:0"><span class="glyphicon-white glyphicon-search"></span></a>';
-            values += this.buildActions(featureType, featureType.features[j]);
+            values = '<td feature-col="Azioni"><a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="zoom"  buffer="'+(featureType.zoomBuffer || 0)+'" title="Zoom"><span class="glyphicon-white glyphicon-search"></span></a>';
             if(featureType.relations) {
                 for(var f = 0; f < featureType.relations.length; f++) {
                     relation = featureType.relations[f];
-                    if(relation.relationType != 2) continue;
-
-                    values += '| <a href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="viewDetails" relationName="'+relation.relationName+'">'+relation.relationTitle+'</a>';
-
+                    if(relation.relationType == 2) {
+                    values += '<a class="olControlButtonItemInactive olButton olLikeButton" href="#" featureType="'+featureType.typeName+'" featureId="'+featureType.features[j].id+'" action="showDetails" title="Schede secondarie"><span class="glyphicon-white glyphicon-list"></span></a>';
+                    break;
+                    };
                 }
             }
-            values += '</td>';
+            values += this.buildActions(featureType, featureType.features[j]);
+            values += '</td><td feature-col="" id="actionpanel_' + featureType.typeName + '-' + featureType.features[j].id + '" actionvalue="" class="actionpanel_hidden"></td>';
 
             for (var i = 0; i < colIndex; i++) {
                 var fieldName = aCols[i];
@@ -922,17 +922,25 @@ popup.autoSize = true;
                                     me.map.zoomToExtent(bounds);
                                 }
                             break;
-                            case 'viewDetails':
-                                if(featureId) {
-                                    var relationName = this.getAttribute('relationName');
-                                    var params = {
-                                        featureType: featureType
-                                    };
-                                    var feature = me.resultLayer.getFeatureById(featureId);
-                                    if(!feature) return console.log('viewDetails: non trovo la feature ', featureType, featureId);
-                                    params.feature = feature;
-
-                                    me.getFeatureDetails(featureType, feature, relationName);
+                            case 'showDetails':
+                                if(featureId && featureType) {
+                                    var fType = GisClientMap.getFeatureType(featureType);
+                                    var panelElement = document.getElementById('actionpanel_' + featureType + '-' + featureId);
+                                    if (panelElement.getAttribute('actionvalue') == 'showDetails' || panelElement.getAttribute('actionvalue') == 'viewDetails') {
+                                        panelElement.setAttribute('actionvalue', '');
+                                        panelElement.setAttribute('feature-col', '');
+                                        panelElement.innerHTML = '';
+                                        panelElement.classList.add('actionpanel_hidden');
+                                    }
+                                    else {
+                                        for(var f = 0; f < fType.relations.length; f++) {
+                                            relation = fType.relations[f];
+                                            if(relation.relationType != 2)
+                                                break;
+                                            var featureObj = me.resultLayer.getFeatureById(featureId);
+                                            me.getFeatureDetails(featureType, featureObj, relation.relationName, relation.relationTitle);
+                                        };
+                                    }
                                 }
                             break;
                             case 'xls':
@@ -1063,7 +1071,26 @@ popup.autoSize = true;
         });
     },
 
-    getFeatureDetails: function(featureType, feature, relationName) {
+    getRelationLink: function(featureType, feature, relationName, relationTitle) {
+        var me = this;
+        var link = document.createElement('a');
+        link.href = '#';
+        link.classList.add('olControlButtonItemInactive');
+        link.classList.add('olButton');
+        link.classList.add('olLikeButton');
+        link.setAttribute('featureType', featureType);
+        link.setAttribute('featureId', feature);
+        link.setAttribute('relationName', relationName);
+        link.innerHTML = '<span>' + relationTitle + '</span>';
+        link.addEventListener('click', function(event) {
+            event.stopPropagation();
+            var featureObj = me.resultLayer.getFeatureById(feature);
+            me.getFeatureDetails(featureType, featureObj, relationName);
+        });
+        return link;
+    },
+
+    getFeatureDetails: function(featureType, feature, relationName, relationTitle) {
         var fType = GisClientMap.getFeatureType(featureType);
 
         if(!feature) return console.log('Feature undefined');
@@ -1108,15 +1135,35 @@ popup.autoSize = true;
                 if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
                     return alert('Errore di sistema');
                 }
+                if (typeof(relationTitle) != 'undefined') {
+                    var panelElement = document.getElementById('actionpanel_' + featureType + '-' + feature.id);
+                    panelElement.setAttribute('feature-col', 'Schede secondarie');
+                    panelElement.classList.remove('actionpanel_hidden');
+                    if (typeof(response.responseText) != 'undefined' && response.responseText != '[]') {
+                        if (panelElement.getAttribute('actionvalue') != 'viewDetails') {
+                            panelElement.setAttribute('actionvalue',  'viewDetails');
+                            panelElement.innerHTML = '';
+                        }
+                        var relLink = this.getRelationLink(featureType, feature.id, relationName, relationTitle);
+                        panelElement.appendChild(relLink);
+                    }
+                    else {
+                        if (panelElement.getAttribute('actionvalue') != 'viewDetails') {
+                            panelElement.setAttribute('actionvalue',  'showDetails');
+                            panelElement.innerHTML = 'Nessuna secondaria collegata';
+                        }
+                    }
+                }
+                else {
+                    var eventData = {
+                        featureType: featureType,
+                        feature: feature,
+                        relation: {relationName: relationName},
+                        response: response
+                    };
 
-                var eventData = {
-                    featureType: featureType,
-                    feature: feature,
-                    relation: {relationName: relationName},
-                    response: response
-                };
-
-                this.events.triggerEvent('viewdetails', eventData);
+                    this.events.triggerEvent('viewdetails', eventData);
+                }
             },
             scope: this
         });

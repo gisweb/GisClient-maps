@@ -573,6 +573,10 @@ div.olMapViewport {
             /*white-space: nowrap;*/
         }
 
+        .actionpanel_hidden  {
+            width: 0px;
+            padding: 0px; !important
+        }
         /*
         Label the data
 
