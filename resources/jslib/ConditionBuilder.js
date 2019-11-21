@@ -155,8 +155,8 @@ var ConditionBuilder = {
         for(i = 0; i < len; i++) {
             field = this.featureType.properties[i];
 
-            if(!field.searchType) continue;
-
+            if(!field.searchType && (field.resultType==4 || typeof(field.resultType) == 'undefined' || field.relationType==2)) continue;
+            
             fieldOption = '<option value="'+field.name+'"';
 
             if(field.searchType == 3) {
