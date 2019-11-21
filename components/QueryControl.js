@@ -60,52 +60,57 @@ window.GCComponents.InitFunctions.setQueryToolbar = function(map) {
 };
 
 window.GCComponents.InitFunctions.initAdvancedQueryButtons = function(map) {
-  $('#btnAdvancedQuery').click(function(event) {
-    console.log('advanced query click');
-    event.preventDefault();
-    var selectedFeatureType = $('select.olControlQueryMapSelect').val(),
-        fType = GisClientMap.getFeatureType(selectedFeatureType);
-    if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
-    var queryMap = map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
-    queryMap.resultLayer.removeAllFeatures();
-    queryMap.events.triggerEvent('startQueryMap');
-    var params = ConditionBuilder.getQuery();
-    params.projectName = GisClientMap.projectName;
-    params.mapsetName = GisClientMap.mapsetName;
-    params.srid = GisClientMap.map.projection;
-    params.featureType = selectedFeatureType;
-    $.ajax({
-      url: clientConfig.GISCLIENT_URL + '/services/xMapQuery.php',
-      method: 'POST',
-      dataType: 'json',
-      data: params,
-      success: function(response) {
-        if(!response || typeof(response) != 'object')
-          return alert('Errore di sistema');
-        if(!response.length)
-          return alert('Nessun risultato');
-        var features = [], len = response.length, result, i, geometry, feature;
-        for(i = 0; i < len; i++) {
-          result = response[i];
-          geometry = result.gc_geom && OpenLayers.Geometry.fromWKT(result.gc_geom);
-          if(!geometry) continue;
-          delete result.gc_geom;
-          feature = new OpenLayers.Feature.Vector(geometry, result);
-          feature.featureTypeName = selectedFeatureType;
-          features.push(feature);
-        }
-        fType.features = features;
-        queryMap.events.triggerEvent('featuresLoaded',fType);
-        queryMap.resultLayer.addFeatures(features);
-        queryMap.events.triggerEvent('endQueryMap');
-        $('#SearchWindow').modal('hide');
-        $("#resultpanel").addClass("smalltable"); //non so perchè l'ho dovuto mettere qui....
-      },
-      error: function() {
-        alert('Errore di sistema');
-      }
+    $('#btnAdvancedQuery').click(function(event) {
+        console.log('advanced query click');
+        event.preventDefault();
+        var selectedFeatureType = $('select.olControlQueryMapSelect').val(),
+            fType = GisClientMap.getFeatureType(selectedFeatureType);
+        if(!fType) return alert('Errore: il featureType '+selectedFeatureType+' non esiste');
+        var queryMap = map.getControlsByClass('OpenLayers.Control.QueryMap')[0];
+        queryMap.resultLayer.removeAllFeatures();
+        queryMap.events.triggerEvent('startQueryMap');
+        var params = ConditionBuilder.getQuery();
+        params.projectName = GisClientMap.projectName;
+        params.mapsetName = GisClientMap.mapsetName;
+        params.srid = GisClientMap.map.projection;
+        params.featureType = selectedFeatureType;
+        $.ajax({
+            url: clientConfig.GISCLIENT_URL + '/services/xMapQuery.php',
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: function(response) {
+                if(!response || typeof(response) != 'object') {
+                    queryMap.events.triggerEvent('endQueryMap');
+                    return alert('Errore di sistema');
+                }
+                if(!response.length) {
+                    queryMap.events.triggerEvent('endQueryMap');
+                    return;
+                }
+                var features = [], len = response.length, result, i, geometry, feature;
+                for(i = 0; i < len; i++) {
+                    result = response[i];
+                    geometry = result.gc_geom && OpenLayers.Geometry.fromWKT(result.gc_geom);
+                    if(!geometry) continue;
+                    delete result.gc_geom;
+                    feature = new OpenLayers.Feature.Vector(geometry, result);
+                    feature.featureTypeName = selectedFeatureType;
+                    features.push(feature);
+                }
+                fType.features = features;
+                queryMap.events.triggerEvent('featuresLoaded',fType);
+                queryMap.resultLayer.addFeatures(features);
+                queryMap.events.triggerEvent('endQueryMap');
+                $('#SearchWindow').modal('hide');
+                $("#resultpanel").addClass("smalltable"); //non so perchè l'ho dovuto mettere qui....
+            },
+            error: function() {
+              queryMap.events.triggerEvent('endQueryMap');
+              alert('Errore di sistema');
+            }
+        });
     });
-  });
 }
 
 // **** Query toolbar
@@ -410,7 +415,6 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
 
             $('#ricerca button[type="submit"]').click(function(event) {
                 event.preventDefault();
-
                 var filters = [];
                 $('#ricerca input[gcfilter!="false"]').each(function(e, input) {
                     var name = $(input).attr('name'),
