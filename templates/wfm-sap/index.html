@@ -6,58 +6,103 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>GEOweb map</title>
-    <link rel="stylesheet" href="../../resources/css/bootstrap.min.css" type="text/css">
-    <link rel="stylesheet" href="../../resources/themes/openlayers/style.css" type="text/css">
-    <link rel="stylesheet" href="../../resources/css/gotoPanel.css" type="text/css">
-    <!--
-      **** Include common configuration
-    -->
-    <script type="text/javascript" src="../../resources/external/FlexiColorPicker/colorpicker.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../resources/external/FlexiColorPicker/themes.css">
-    <script type="text/javascript" src="../../resources/jslib/jquery.min.js"></script>
-    <script type="text/javascript" src="../../resources/jslib/jquery.easyui.min.js"></script>
-    <script src="../../config/config.js"></script>
-    <script src="../../plugins/gisclient-maps_wfm/config/config.wfm-sap.js"></script>
-    <script type="text/javascript" src="../../resources/external/select2/select2.js"></script>
-    <script type="text/javascript" src="../../resources/external/sprintf.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../resources/themes/black/tree.css">
-
-    <script src="../../resources/jslib/OpenLayers.js"></script>
-    <script src="../../resources/jslib/gcOloverride.js"></script>
-    <script src="../../resources/jslib/QueryMap.js"></script>
-    <script src="../../resources/jslib/GisClientMap.js"></script>
-    <script src="../../resources/jslib/OverviewMap.js"></script>
-    <script src="../../resources/jslib/LayerTree.js"></script>
-    <script src="../../resources/jslib/LayerLegend.js"></script>
-    <script src="../../resources/jslib/LoadingPanel.js"></script>
-    <script src="../../resources/jslib/PrintMap.js"></script>
-    <script src="../../resources/jslib/DynamicMeasure.js"></script>
-    <script src="../../resources/jslib/GeoNoteToolbar.js"></script>
-    <script src="../../resources/jslib/StreetViewToolbar.js"></script>
-    <script src="../../resources/jslib/StreetViewViewer.js"></script>
-    <script src="../../resources/jslib/QueryToolbar.js"></script>
-    <script src="../../resources/jslib/ReportToolbar.js"></script>
-    <script src="../../resources/jslib/UnRedo.js"></script>
-    <script src="../../resources/jslib/GotoDestination.js"></script>
-    <script src="/gisclient3/services/iren/pipeSelect.js" type="text/javascript"></script>
-
-    <script src="../../resources/jslib/dynamicTemplateFunction.js" type="text/javascript"></script>
-    <script src="../../resources/jslib/gcComponents.js" type="text/javascript"></script>
-    <script src="../geoweb/index.js" type="text/javascript"></script>
-
-    <script src="../../resources/jslib/bootstrap.min.js"></script>
-    <script src="../../resources/jslib/proj4js.js"></script>
-    <script src="../../resources/jslib/md5.min.js"></script>
-
-    <script src="../../resources/jslib/hints.js"></script>
-
-    <script src="../../resources/jslib/ConditionBuilder.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="../geoweb/header.css" type="text/css">
-    <link rel="stylesheet" href="../geoweb/toolbars.css" type="text/css">
-    <link rel="stylesheet" href="../geoweb/sidebar.css" type="text/css">
-    <link rel="stylesheet" href="../geoweb/common.css" type="text/css">
-    <link rel="stylesheet" href="../../resources/external/select2/select2.css" type="text/css">
-
+    <script src="../../version.js"></script>
+    <script type="text/javascript" language="javascript">
+    var inHold = false;
+    function includeSync(urlArr, urlIDX) {
+        if (urlIDX >= urlArr.length) {
+            $.holdReady(false);
+            return;
+        }
+        if (window.jQuery && !inHold) {
+            $.holdReady(true);
+            inHold = true;
+        }
+        var incUrl = urlArr[urlIDX];
+        var incType = incUrl.split('.').pop();
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', incUrl + '?v=' + gcVersion);
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) { //4=this.DONE
+                xhr.onreadystatechange = null;
+                var responseTxt = this.responseText;
+                if (incType === 'css') {
+                    var incItem = document.createElement('style');
+                    incItem.type = 'text/css';
+                    var incPath = incUrl.replace(/[^/]*\.css$/, '');
+                    if (incPath.length > 0) {
+                        responseTxt = responseTxt.replace(/url\(['"]([^./][^:]*\.png)['"]\)/g, 'url("' + incPath + "/$1" + '")');
+                        responseTxt = responseTxt.replace(/url\(['"]([^./][^:]*\.gif)['"]\)/g, 'url("' + incPath + "/$1" + '")');
+                        responseTxt = responseTxt.replace(/url\(([^./][^:]*\.png)\)/g, 'url("' + incPath + "/$1" + '")');
+                        responseTxt = responseTxt.replace(/url\(([^./][^:]*\.gif)\)/g, 'url("' + incPath + "/$1" + '")');
+                    }
+                }
+                else if (incType === 'js') {
+                    var incItem = document.createElement("script");
+                    incItem.type = 'text/javascript';
+                }
+                incItem.innerHTML = responseTxt;
+                document.getElementsByTagName('head')[0].appendChild(incItem);
+                includeSync(urlArr, urlIDX+1);
+            }
+        };
+        xhr.send();
+    }
+    if (typeof(gcVersion) == 'undefined' || !gcVersion)
+        var gcVersion = '3.0.0.0';
+        var gcIncludes = [
+            "../../resources/css/bootstrap.min.css",
+            "../../resources/themes/openlayers/style.css",
+            "../../resources/css/gotoPanel.css",
+            "../../resources/external/FlexiColorPicker/colorpicker.js",
+            "../../resources/external/FlexiColorPicker/themes.css",
+            "../../resources/jslib/jquery.min.js",
+            "../../resources/jslib/jquery.easyui.min.js",
+            // ***************************************************************************************
+            // **** Insert configuration files here
+            "../../config/config.js",
+            "../../plugins/gisclient-maps_wfm/config/config.wfm-sap.js",
+            // ***************************************************************************************
+            "../../resources/external/select2/select2.js",
+            "../../resources/external/sprintf.min.js",
+            "../../resources/themes/black/tree.css",
+            "../../resources/jslib/OpenLayers.js",
+            "../../resources/jslib/gcOloverride.js",
+            // ***************************************************************************************
+            // **** Insert library files here
+            "../../resources/jslib/QueryMap.js",
+            "../../resources/jslib/GisClientMap.js",
+            "../../resources/jslib/OverviewMap.js",
+            "../../resources/jslib/LayerTree.js",
+            "../../resources/jslib/LayerLegend.js",
+            "../../resources/jslib/LoadingPanel.js",
+            "../../resources/jslib/PrintMap.js",
+            "../../resources/jslib/DynamicMeasure.js",
+            "../../resources/jslib/GeoNoteToolbar.js",
+            "../../resources/jslib/StreetViewToolbar.js",
+            "../../resources/jslib/StreetViewViewer.js",
+            "../../resources/jslib/QueryToolbar.js",
+            "../../resources/jslib/ReportToolbar.js",
+            "../../resources/jslib/UnRedo.js",
+            "../../resources/jslib/GotoDestination.js",
+            "/gisclient3/services/iren/pipeSelect.js",
+            // ***************************************************************************************
+            "../../resources/jslib/dynamicTemplateFunction.js",
+            "../../resources/jslib/gcComponents.js",
+            "../geoweb/index.js",
+            "../../resources/jslib/bootstrap.min.js",
+            "../../resources/jslib/proj4js.js",
+            "../../resources/jslib/md5.min.js",
+            "../../resources/jslib/hints.js",
+            "../../resources/jslib/ConditionBuilder.js",
+            "../geoweb/header.css",
+            "../geoweb/toolbars.css",
+            "../geoweb/sidebar.css",
+            "../geoweb/common.css",
+            "../../resources/external/select2/select2.css"
+        ]
+    includeSync(gcIncludes, 0);
+    </script>
   </head>
 <body class="map-layout">
 <!--  <header>
@@ -115,6 +160,7 @@
             </div>
             <div id="resultpanel" style="display:none"></div>
             <div id="printpanel" style="display:none"></div>
+            <div id="dxfexportpanel" style="display:none"></div>
         </div>
       </div>
       <div id="sidebar-drag"></div>

@@ -602,7 +602,7 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
         //if(colIndex == 0) return false;
 
         var fLen = featureType.features.length;
-        htmlTable = '<span>'+featureType.title+ ' ('+fLen+') <span>';
+        htmlTable = '<span class="featureTypeTitleSpan">'+featureType.title+ ' ('+fLen+') <span>';
         //link a tutte le features disabilitato per adesso... vediamo prima se serve
         if(false) htmlTable += ' <a href="#" zoomFType="'+featureType.typeName+'">Zoom</a>';
         // **** Add links for xml/pdf export

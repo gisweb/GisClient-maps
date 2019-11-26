@@ -189,7 +189,7 @@ function includeComponents(arr) {
       includedFileNames.push(cmpName);
       $.ajax({
         async : false,
-        url: cmpPath + cmpName + ".js",
+        url: cmpPath + cmpName + ".js?v=" + gcVersion,
         beforeSend: function() {
           currentGroupPos = [cmpGroup , cmpOrder];
         }

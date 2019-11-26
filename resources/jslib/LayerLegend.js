@@ -150,39 +150,9 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
 
                 if (this.layerIsVisible(layer))
                     this.changeLegendNodeVisibility(legendUrls);
-                //if (elementLayerGroup) {
-                //    this.changeLayerParentVisibility(elementLayerGroup);
-                //}
-/*
-                node = document.createElement('div');
-                node.setAttribute('id', 'legend_'+layer.id);
-                node.style.display = (this.layerIsVisible(layer) ? 'block' : 'none');
-
-                if(typeof(legendUrls) == 'object' && !legendUrls.length) {
-                    legendNodes.push(node);
-                    continue;
-                }
-
-                nodeHtml = '<p>'+layer.title+'</p>';
-                for(j = 0; j < legendUrls.length; j++) {
-                    var itemID = 'legend_'+layer.id+'_url_'+j;
-                    this.checkImgSize(legendUrls[j], itemID, true);
-                    //var displayNode =
-                    nodeHtml += '<div id='+itemID+'><img src="'+legendUrls[j].url+'"><br></div>';
-                }
-                node.innerHTML = nodeHtml + '<br>';
-
-                legendNodes.push(node);
-*/
             }
         }
-/*
-        var len = legendNodes.length;
-        for(i = 0; i < len; i++) {
-            this.div.appendChild(legendNodes[i]);
 
-        }
-*/
         this.currentZoom = this.map.getZoom();
         this.map.events.register("changelayer", this, this.layerChanged);
 
@@ -308,7 +278,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
     zoomEnd: function(mapZoom) {
         if (!this.loaded)
             return;
-            
+
         var len = this.map.config.layers.length, layer, mapLayers,legendUrls;
 
         for(var i = 0; i < len; i++) {
@@ -341,37 +311,6 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
     },
 
     layerChanged: function(event) {
-/*
-        if(event.property == 'visibility') {
-
-            var elementArr = document.querySelectorAll("div[oLayer="+event.layer.id+"]");
-            if (elementArr.length != 1) {
-                return; // **** TODO: display error!
-            }
-            var element = elementArr[0];
-            if(element) {
-                var scale = event.layer.map.getScale();
-                if(this.layerIsVisible(event.layer)) {
-                    element.classList.add('legend-node-visible');
-                }
-                else {
-                    element.classList.remove('legend-node-visible');
-                }
-                var nodeElements = document.querySelectorAll("div[oLayerNode="+event.layer.id+"]");
-                for (var i =0; i < nodeElements.length; i++) {
-                    var minScale = nodeElements[i].hasAttribute('minScale')?nodeElements[i].getAttribute('minScale'):null;
-                    var maxScale = nodeElements[i].hasAttribute('maxScale')?nodeElements[i].getAttribute('maxScale'):null;
-                    if ((!maxScale || maxScale <= scale) && (!minScale || minScale >= scale)) {
-                        nodeElements[i].classList.add('legend-node-visible');
-                    }
-                    else {
-                        nodeElements[i].classList.remove('legend-node-visible');
-                    }
-                    this.changeLayerParentVisibility(nodeElements[i]);
-                }
-            }
-        }
-        */
         if (this.currentZoom != this.map.getZoom())
             return;
         var legendUrls = this.getLegendUrls(event.layer);
