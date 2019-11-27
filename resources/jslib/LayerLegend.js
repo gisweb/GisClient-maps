@@ -41,14 +41,19 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 if (!elementTheme) {
                     elementTheme = document.createElement('div');
                     elementTheme.setAttribute('id', 'legend_theme_'+layer.options.theme_id);
-                    elementTheme.innerHTML = '<span>' + layer.options.theme + '</span>';
+                    elementTheme.innerHTML = '<span icon-before="\ue080">' + layer.options.theme + '</span>';
                     elementTheme.addEventListener('click', function (event) {
                         event.stopPropagation();
+                        var toggleSpan = this.getElementsByTagName('span')[0];
                         var toggleDiv = this.getElementsByTagName('div')[0];
-                        if (toggleDiv.style.display == 'block')
+                        if (toggleDiv.style.display == 'block') {
                             toggleDiv.style.display = 'none';
-                        else
+                            toggleSpan.setAttribute('icon-before', '\ue114');
+                        }
+                        else {
                             toggleDiv.style.display = 'block';
+                            toggleSpan.setAttribute('icon-before', '\ue080');
+                        }
                     });
                     this.div.appendChild(elementTheme);
                     elementThemeC = document.createElement('div');
@@ -74,16 +79,21 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                             if (lNode.hasOwnProperty('maxScale')) {
                                 node1.setAttribute('maxScale', lNode.maxScale);
                             }
-                            node1.innerHTML = '<span>' + lNode.title + '</span>';
+                            node1.innerHTML = '<span icon-before="\ue080">' + lNode.title + '</span>';
                             elementThemeC.appendChild(node1);
                             if(typeof(lNode.nodes)!='undefined') {
                                 node1.addEventListener('click', function (event) {
                                     event.stopPropagation();
+                                    var toggleSpan = this.getElementsByTagName('span')[0];
                                     var toggleDiv = this.getElementsByTagName('div')[0];
-                                    if (toggleDiv.style.display == 'block')
+                                    if (toggleDiv.style.display == 'block') {
                                         toggleDiv.style.display = 'none';
-                                    else
+                                        toggleSpan.setAttribute('icon-before', '\ue114');
+                                    }
+                                    else {
                                         toggleDiv.style.display = 'block';
+                                        toggleSpan.setAttribute('icon-before', '\ue080');
+                                    }
                                 });
                                 var node1C = document.createElement('div');
                                 node1C.style.display = 'block';
@@ -116,17 +126,22 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                     elementLayerGroup.setAttribute('id', 'legend_layer_'+layer.name);
                     elementLayerGroup.setAttribute('oLayer', layer.id);
                     elementLayerGroup.setAttribute('legendParent', 'legend_theme_'+layer.options.theme_id);
-                    elementLayerGroup.innerHTML = '<span>' + layer.title + '</span>';
+                    elementLayerGroup.innerHTML = '<span icon-before="\ue080">' + layer.title + '</span>';
                     elementThemeC.appendChild(elementLayerGroup);
                     if(typeof(layer.nodes)!='undefined') {
                         elementLayerGroup.addEventListener('click', function (event) {
                             event.stopPropagation();
-                                var toggleDiv = this.getElementsByTagName('div')[0];
-                                if (toggleDiv.style.display == 'block')
-                                    toggleDiv.style.display = 'none';
-                                else
-                                    toggleDiv.style.display = 'block';
-                            });
+                            var toggleSpan = this.getElementsByTagName('span')[0];
+                            var toggleDiv = this.getElementsByTagName('div')[0];
+                            if (toggleDiv.style.display == 'block') {
+                                toggleDiv.style.display = 'none';
+                                toggleSpan.setAttribute('icon-before', '\ue114');
+                            }
+                            else {
+                                toggleDiv.style.display = 'block';
+                                toggleSpan.setAttribute('icon-before', '\ue080');
+                            }
+                        });
                         var elementLayerGroupC = document.createElement('div');
                         elementLayerGroupC.style.display = 'block';
                         elementLayerGroupC.setAttribute('id', 'legend_layer_container_'+layer.name);
@@ -167,7 +182,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
             var scale = this.map.getScale();
             var elementNode = document.getElementById('legend_layer_'+layerID);
             if (elementNode) {
-                if(elementNode.getElementsByTagName('img').length == 0) {
+                if(elementNode.getElementsByTagName('img').length == 0 && elementNode.getElementsByTagName('div').length == 0) {
                     var elementImg = document.createElement("img");
                     elementImg.src = layerUrl;
                     this.checkImgSize(layerUrl, 'legend_layer_'+layerID, true);

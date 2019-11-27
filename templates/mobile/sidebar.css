@@ -684,6 +684,12 @@
     cursor: pointer;
 }
 
+#layerlegend span::before {
+    padding-right: 5px;
+    font-family: 'Glyphicons Halflings';
+    content: attr(icon-before);
+}
+
 input.fast-navigate {
 
  margin-left:10px;
