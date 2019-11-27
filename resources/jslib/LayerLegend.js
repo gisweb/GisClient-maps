@@ -41,18 +41,18 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 if (!elementTheme) {
                     elementTheme = document.createElement('div');
                     elementTheme.setAttribute('id', 'legend_theme_'+layer.options.theme_id);
-                    elementTheme.innerHTML = '<span icon-before="\ue080">' + layer.options.theme + '</span>';
+                    elementTheme.innerHTML = '<span icon-before="\ue114">' + layer.options.theme + '</span>';
                     elementTheme.addEventListener('click', function (event) {
                         event.stopPropagation();
                         var toggleSpan = this.getElementsByTagName('span')[0];
                         var toggleDiv = this.getElementsByTagName('div')[0];
                         if (toggleDiv.style.display == 'block') {
                             toggleDiv.style.display = 'none';
-                            toggleSpan.setAttribute('icon-before', '\ue114');
+                            toggleSpan.setAttribute('icon-before', '\ue080');
                         }
                         else {
                             toggleDiv.style.display = 'block';
-                            toggleSpan.setAttribute('icon-before', '\ue080');
+                            toggleSpan.setAttribute('icon-before', '\ue114');
                         }
                     });
                     this.div.appendChild(elementTheme);
@@ -79,7 +79,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                             if (lNode.hasOwnProperty('maxScale')) {
                                 node1.setAttribute('maxScale', lNode.maxScale);
                             }
-                            node1.innerHTML = '<span icon-before="\ue080">' + lNode.title + '</span>';
+                            node1.innerHTML = '<span icon-before="\ue114">' + lNode.title + '</span>';
                             elementThemeC.appendChild(node1);
                             if(typeof(lNode.nodes)!='undefined') {
                                 node1.addEventListener('click', function (event) {
@@ -88,11 +88,11 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                                     var toggleDiv = this.getElementsByTagName('div')[0];
                                     if (toggleDiv.style.display == 'block') {
                                         toggleDiv.style.display = 'none';
-                                        toggleSpan.setAttribute('icon-before', '\ue114');
+                                        toggleSpan.setAttribute('icon-before', '\ue080');
                                     }
                                     else {
                                         toggleDiv.style.display = 'block';
-                                        toggleSpan.setAttribute('icon-before', '\ue080');
+                                        toggleSpan.setAttribute('icon-before', '\ue114');
                                     }
                                 });
                                 var node1C = document.createElement('div');
@@ -126,7 +126,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                     elementLayerGroup.setAttribute('id', 'legend_layer_'+layer.name);
                     elementLayerGroup.setAttribute('oLayer', layer.id);
                     elementLayerGroup.setAttribute('legendParent', 'legend_theme_'+layer.options.theme_id);
-                    elementLayerGroup.innerHTML = '<span icon-before="\ue080">' + layer.title + '</span>';
+                    elementLayerGroup.innerHTML = '<span icon-before="\ue114">' + layer.title + '</span>';
                     elementThemeC.appendChild(elementLayerGroup);
                     if(typeof(layer.nodes)!='undefined') {
                         elementLayerGroup.addEventListener('click', function (event) {
@@ -135,11 +135,11 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                             var toggleDiv = this.getElementsByTagName('div')[0];
                             if (toggleDiv.style.display == 'block') {
                                 toggleDiv.style.display = 'none';
-                                toggleSpan.setAttribute('icon-before', '\ue114');
+                                toggleSpan.setAttribute('icon-before', '\ue080');
                             }
                             else {
                                 toggleDiv.style.display = 'block';
-                                toggleSpan.setAttribute('icon-before', '\ue080');
+                                toggleSpan.setAttribute('icon-before', '\ue114');
                             }
                         });
                         var elementLayerGroupC = document.createElement('div');

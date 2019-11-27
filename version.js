@@ -1,2 +1,2 @@
-var autoVersion=24;
+var autoVersion=25;
 var gcVersion = '3.2.' + autoVersion.toString();
