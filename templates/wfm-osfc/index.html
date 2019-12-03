@@ -30,8 +30,8 @@
                     incItem.type = 'text/css';
                     var incPath = incUrl.replace(/[^/]*\.css$/, '');
                     if (incPath.length > 0) {
-                        responseTxt = responseTxt.replace(/url\(['"]?([^./][^:]*\.png)['"]?\)/g, 'url("' + incPath + "/$1" + '")');
-                        responseTxt = responseTxt.replace(/url\(['"]?([^./][^:]*\.gif)['"]?\)/g, 'url("' + incPath + "/$1" + '")');
+                        responseTxt = responseTxt.replace(/url\(['"]([^./][^:]*\.png)['"]\)/g, 'url("' + incPath + "/$1" + '")');
+                        responseTxt = responseTxt.replace(/url\(['"]([^./][^:]*\.gif)['"]\)/g, 'url("' + incPath + "/$1" + '")');
                         responseTxt = responseTxt.replace(/url\(([^./][^:]*\.png)\)/g, 'url("' + incPath + "/$1" + '")');
                         responseTxt = responseTxt.replace(/url\(([^./][^:]*\.gif)\)/g, 'url("' + incPath + "/$1" + '")');
                     }
