@@ -11,6 +11,7 @@ window.GCComponents.InitFunctions.initAdvancedReportButtons = function(map) {
   });
 
   $('#searchWindowModalContent').css('height', clientConfig.SEARCH_WINDOW_H+"px");
+  $('#searchWindowModalContent .modal-body') .css('height', (clientConfig.SEARCH_WINDOW_H-100)+"px")
 }
 
 // **** Report toolbar

@@ -17,6 +17,8 @@ window.GCComponents.InitFunctions.setQueryToolbar = function(map) {
     var queryToolbar = selectControls[0];
 
     queryToolbar.defaultControl = queryToolbar.controls[0];
+    $('#searchWindowModalContent').css('height', clientConfig.SEARCH_WINDOW_H+"px");
+    $('#searchWindowModalContent .modal-body') .css('height', (clientConfig.SEARCH_WINDOW_H-100)+"px")
 
     $('.panel-clearresults').click(function(event) {
         event.preventDefault();
