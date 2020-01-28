@@ -270,12 +270,19 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
             }
         },
         searchButtonHander: function(selectedFeatureType, mode) {
+            debugger;
             var mode = mode || 'default',
                 selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val(),
+                selectedFeatureTypeArr = selectedFeatureType.split(','),
                 queryToolbar = this,
                 fType;
 
-            if(mode == 'default') {
+            if (selectedFeatureTypeArr.length > 1) {
+                selectedFeatureType = selectedFeatureTypeArr[0];
+            }
+            selectedFeatureTypeArr = selectedFeatureTypeArr.splice(1);
+
+            if(mode == 'default' && selectedFeatureTypeArr.length == 0) {
                 $('li[role="advanced-search"]').show();
             } else {
                 $('li[role="advanced-search"]').hide();
@@ -297,10 +304,38 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
             }
 
             var form = '',
-                properties = fType.properties,
-                len = properties.length, property, i;
+                properties = JSON.parse(JSON.stringify(fType.properties));
 
-            $('#searchFormTitle').html('Ricerca '+fType.title);
+            for (var k = 0; k < selectedFeatureTypeArr.length; k++) {
+                var fTypeK = GisClientMap.getFeatureType(selectedFeatureTypeArr[k]);
+                if(!fTypeK) return alert('Errore: il featureType '+selectedFeatureTypeArr[k]+' non esiste');
+                var propertiesK = fTypeK.properties;
+                var propertiesTmp = [];
+                for (var idx = 0; idx < propertiesK.length; idx++) {
+                    var tmpArr = properties.filter(function( obj ) {
+                        return (obj.name == propertiesK[idx].name &&
+                            obj.fieldType == propertiesK[idx].fieldType &&
+                            obj.dataType == propertiesK[idx].dataType);
+                    });
+                    if (tmpArr.length > 0) {
+                        if (propertiesK[idx].hasOwnProperty('fieldId')) {
+                            tmpArr[0].fieldId += ',' + propertiesK[idx].fieldId;
+                        }
+                        delete tmpArr[0].fieldFilter;
+                        propertiesTmp = propertiesTmp.concat(tmpArr);
+                    }
+                }
+                properties = propertiesTmp;
+            }
+
+            var len = properties.length, property, i, hasProperties = false;;
+
+            if (selectedFeatureTypeArr.length == 0) {
+                $('#searchFormTitle').html('Ricerca '+fType.title);
+            }
+            else {
+                $('#searchFormTitle').html('Ricerca '+$('select.olControlQueryMapSelect option:selected').text());
+            }
 
             //form += '<form role="form">';
             form += '<table>';
@@ -310,6 +345,7 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
 
                 if(!property.searchType || property.relationType == 2) continue; //searchType undefined oppure 0
 
+                hasProperties = true;
                 //form += '<div class="form-group">'+
                 //            '<label for="search_form_input_'+i+'">'+property.header+'</label>';
                 form += '<tr><td>'+property.header+'</td><td>';
@@ -345,6 +381,12 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                 form += '</td></tr>';
             }
             form += '</table>';
+
+            if (!hasProperties) {
+                $('#ricerca').empty().append('<div>Nessun campo ricercabile per questo layer/gruppo di ricerca</div>');
+                $('#SearchWindow').modal('show');
+                return;
+            }
 
             if(mode == 'default') {
                 form += '<div class="form-group"><input type="checkbox" name="use_current_extent" gcfilter="false"> Filtra sull\'extent attuale</div>';
@@ -475,7 +517,14 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                 }
 
                 var oldQueryFilters = control.queryFilters[fType.typeName];
+                if (typeof(oldQueryFilters) != 'undefined') {
+                    alert (oldQueryFilters);
+                }
                 control.queryFilters[fType.typeName] = filter;
+                for (var k = 0; k < selectedFeatureTypeArr.length; k++) {
+                    var fTypeK = GisClientMap.getFeatureType(selectedFeatureTypeArr[k]);
+                    control.queryFilters[fTypeK.typeName] = filter;
+                }
                 //var oldHighlight = control.highLight;
                 //control.highLight = true;
 
