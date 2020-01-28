@@ -936,7 +936,7 @@ popup.autoSize = true;
                                         for(var f = 0; f < fType.relations.length; f++) {
                                             relation = fType.relations[f];
                                             if(relation.relationType != 2)
-                                                break;
+                                                continue;
                                             var featureObj = me.resultLayer.getFeatureById(featureId);
                                             me.getFeatureDetails(featureType, featureObj, relation.relationName, relation.relationTitle);
                                         };

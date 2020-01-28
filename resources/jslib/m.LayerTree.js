@@ -480,7 +480,14 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
              var childNum = children.length;
              var childChecked = 0;
              for (var j=0; j<childNum; j++) {
-                 if (children[j].checked && $('#checkbox_' + children[j].id).prop('checked')) childChecked++;
+                 if (children[j].checked && $('#checkbox_' + children[j].id).prop('checked')) {
+                     childChecked++;
+                 }
+                 else if ($('label[for="checkbox_' + children[j].id + '"]').hasClass("ui-checkbox-partial")) {
+                     childChecked = childNum + 1;
+                     break;
+                 }
+
              }
              if (childChecked == 0) {
                  $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
@@ -502,6 +509,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     createOverlayTree: function(){
 
         var self = this;
+        var checkParentsOnInit = [];
 
         //clear out previous layers
         this.clearLayersArray("data");
@@ -537,12 +545,20 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                         partialCheckCode = '" class="ui-checkbox-partial';
                     }
                 }
+                else {
+                    checkParentsOnInit.push(node.id);
+                }
                 var html = '<input type="checkbox" name="checkbox_' + node.id + '" id="checkbox_' + node.id + '" class="custom layertree-chk"' + chkdCode + ' data-mini="true"><label for="checkbox_' + node.id + partialCheckCode + '">' + node.text + '</label>';
                 return html;
             }
         });
 
         $(this.overlayTree).find('[type="checkbox"]').checkboxradio();
+
+        for (var i_chk=0; i_chk < checkParentsOnInit.length; i_chk++) {
+            var nodeCheck = this.overlayTree.collapsibletree("find", checkParentsOnInit[i_chk]);
+            this.checkParents(nodeCheck);
+        }
 
         jQuery('.layertree-chk').on("toggle", function(event, checked) {
 
@@ -562,7 +578,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 }
             }
 
-            self.checkParents(node);
+            //self.checkParents(node);
 
             return false;
         }),
@@ -584,6 +600,8 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
             $('#' + event.currentTarget.id + ' [type="checkbox"]').trigger("toggle", [ chkdValue ]);
 
+            var node = jQuery(self.overlayTree).collapsibletree("find", event.currentTarget.id);
+            self.checkParents(node);
             event.stopPropagation();
         });
 
@@ -600,9 +618,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             }
 
             var chkdValue = !$('#' + chkID).prop('checked');
+             $('label[for="' + chkID + '"]').removeClass("ui-checkbox-partial");
 
             $('#' + event.currentTarget.id + ' [type="checkbox"]').trigger("toggle", [ chkdValue ]);
 
+            var node = jQuery(self.overlayTree).collapsibletree("find", event.currentTarget.id);
+            self.checkParents(node);
             event.stopPropagation();
         });
 

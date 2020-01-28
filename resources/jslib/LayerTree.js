@@ -484,8 +484,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 }
                 else{
                     jQuery.each(self.overlayTree.tree('getChildren',(node.target)),function(index,childNode){
-                        layer = childNode.attributes.layer;
-                        self.updateLayerVisibility(layer, checked);
+                        if (checked) {
+                            self.overlayTree.tree('check', childNode.target);
+                        }
+                        else {
+                            self.overlayTree.tree('uncheck', childNode.target);
+                        }
                     })
                 }
 
