@@ -154,7 +154,7 @@ OpenLayers.Control.LegendPanel = OpenLayers.Class(OpenLayers.Control, {
             }
         }
 		
-		
+		console.log(url)
         if(!url) {
             url = layer.getFullRequestString({
                 REQUEST: "GetLegendGraphic",

@@ -8,9 +8,11 @@
 
 
 var GISCLIENT_URL = '/gisclient';
-if (window.location.hostname.indexOf('rapallo')!=-1){
-    GISCLIENT_URL = '/gisclient3';
-}
+
+
+//if (window.location.hostname.indexOf('sue')!=-1){
+//    GISCLIENT_URL = '/gisclient3';
+//}
 
 
 var MAPPROXY_URL = 'http://172.16.5.72/';

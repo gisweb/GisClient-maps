@@ -69,6 +69,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
         switch(layer.CLASS_NAME) {
             case 'OpenLayers.Layer.WMS':
                 var layers;
+                console.log(layer)
                 if(layer.params.LAYERS instanceof Array) {
                     layers = layer.params.LAYERS.slice(0);
                 } else {
@@ -99,7 +100,7 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                         LAYER: layer.name,
                         FORMAT: 'image/png',
                         SERVICE: 'WMS',
-                        VERSION: '1.1.1'
+                        VERSION: '1.3.0'
                     };
 
                     paramsString = OpenLayers.Util.getParameterString(params);
