@@ -68,10 +68,26 @@ var ConditionBuilder = {
                 '</td></tr></table>';
     },
 
-    addQueryRoot: function(selector, isRoot) {
+    addQueryRoot: function(selector, isRoot, queryDef) {
         var self = this;
 
+        var setOperator = 'and';
+        var setStatements = [];
+        var setNestedStatements = [];
+        if (typeof(queryDef) != 'undefined') {
+            if (queryDef.hasOwnProperty('operator')) {
+                setOperator = queryDef.operator;
+            }
+            if (queryDef.hasOwnProperty('expressions')) {
+                setStatements = queryDef.expressions;
+            }
+            if (queryDef.hasOwnProperty('nestedexpressions')) {
+                setNestedStatements = queryDef.nestedexpressions;
+            }
+
+        }
         $(selector).append(self.rootCondition);
+        $(selector).find('select').val(setOperator);
         var q = $(selector).find('table');
         var l = q.length;
         var elem = q;
@@ -93,12 +109,32 @@ var ConditionBuilder = {
 
         if(self.featureType) {
             var statement = self.getConditionStatement(tWidth);
+            var statementsNum = setStatements.length;
 
-            // Add the default staement segment to the root condition
-            elem.find('td >.querystmts').append(statement);
+            if (statementsNum == 0) {
+                // Add the default staement segment to the root condition
+                elem.find('td >.querystmts').append(statement);
 
-            // Add the head class to the first statement
-            elem.find('td >.querystmts div >.remove').addClass('head');
+                // Add the head class to the first statement
+                elem.find('td >.querystmts div >.remove').addClass('head');
+            }
+
+            for (var k = 0; k < statementsNum; k++) {
+                var statDef = setStatements[k];
+                var statementIn = self.getConditionStatement(tWidth, statDef.colval, statDef.opval, statDef.val);
+                // Add initialized statement segment to the root condition
+                elem.find('td >.querystmts').append(statementIn);
+                if (k == 0) {
+                    // Add the head class to the first statement
+                    elem.find('td >.querystmts div >.remove').addClass('head');
+                }
+            }
+
+            var stmtsGlobal = elem.find('td >.querystmts').find('div >.remove').filter(':not(.head)');
+            stmtsGlobal.unbind('click');
+            stmtsGlobal.click(function () {
+                $(this).parent().detach();
+            });
 
             // Handle click for adding new statement segment
             // When a new statement is added add a condition to handle remove click.
@@ -141,10 +177,16 @@ var ConditionBuilder = {
                     });
                 } else console.log('no input');
             });
+
+            for (var h = 0; h < setNestedStatements.length; h++) {
+                var statNDef = setNestedStatements[h];
+                self.addQueryRoot(elem.find('td div > .addroot').parent(), false, statNDef);
+            }
+
         } else console.log('no feature type');
     },
 
-    getConditionStatement: function(cWidth) {
+    getConditionStatement: function(cWidth, setCol, setOp, setVal) {
         var len = this.featureType.properties.length, i, field,
             options = [], fieldOption,
             operator, statement, suggest;
@@ -156,12 +198,15 @@ var ConditionBuilder = {
             field = this.featureType.properties[i];
 
             if(!field.searchType && (field.resultType==4 || typeof(field.resultType) == 'undefined' || field.relationType==2)) continue;
-            
+
             fieldOption = '<option value="'+field.name+'"';
 
             if(field.searchType == 3) {
                 suggest = true;
                 fieldOption += ' useSuggest="1" fieldId="'+field.fieldId+'"';
+            }
+            if (field.name == setCol) {
+                fieldOption += ' selected';
             }
             fieldOption += '>'+field.header+'</option>';
 
@@ -175,7 +220,11 @@ var ConditionBuilder = {
         for(i in this.operators) {
             if(this.operators.hasOwnProperty(i)) {
                 operator = this.operators[i];
-                statement += '<option value="'+i+'">'+operator.label+'</option>';
+                statement += '<option value="'+i+'"';
+                if (i == setOp) {
+                    statement += ' selected';
+                }
+                statement += '>'+operator.label+'</option>';
             }
         }
 
@@ -183,7 +232,11 @@ var ConditionBuilder = {
 
         //var inputWidth = $(.query).width() - 210;
         var inputWidth = cWidth - 330 > 80 ? cWidth - 330 : 200;
-        statement += '<input type="text" style="width:'+ inputWidth +'px;"/></div>';
+        statement += '<input type="text" style="width:'+ inputWidth +'px;"';
+        if (typeof(setVal) != 'undefined') {
+            statement += ' value="' + setVal + '"';
+        }
+        statement += '/></div>';
 
         return statement;
     },
@@ -192,10 +245,10 @@ var ConditionBuilder = {
         $(this.rootSelector).empty();
     },
 
-    setFeatureType: function(featureType) {
+    setFeatureType: function(featureType, queryDef) {
         this.featureType = featureType;
         this.reset();
-        this.addQueryRoot(this.rootSelector, true);
+        this.addQueryRoot(this.rootSelector, true, queryDef);
     },
 
     getCondition: function(selector) {
@@ -242,10 +295,14 @@ var ConditionBuilder = {
         return q;
     },
 
-    getQuery: function(rootCondition) {
+    getQuery: function(rootCondition, rawOutput) {
+        if (typeof(rawOutput) == 'undefined')
+            rawOutput = false;
         if (!rootCondition)
             this.iterations = 0;
         var condition = rootCondition || this.getCondition();
+        if (rawOutput)
+            return condition;
         var op = [' ', condition.operator, ' '].join('');
         var values = {};
 

@@ -149,11 +149,13 @@
                 <div>
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#layertree-tree" data-toggle="tab">Layer</a></li>
+                        <li><a href="#layerfilter" data-toggle="tab" style="display:none;">Filtri Layer</a></li>
                         <li><a href="#layerlegend" data-toggle="tab">Legenda</a></li>
                     </ul>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active" id="layertree-tree"></div>
+                    <div class="tab-pane" id="layerfilter"></div>
                     <div class="tab-pane" id="layerlegend"></div>
                 </div>
             </div>
@@ -246,6 +248,23 @@
   </div>
 </div>
 
+<div id="SetLayerFilterWindow" class="modal fade bs-example-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title" id="SetLayerFilterTitle">Filtra Layer</h4>
+    </div>
+    <div class="modal-body" style="overflow:auto;">
+        <div class="tab-pane" id="avanzata-layerfilter">
+          <span> Filtro complesso per il layer:</span>
+          <div class="query-layerfilter"></div>
+          <button id="btnLayerFilter" class="btn btn-default">Imposta Filtro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="DetailsWindow" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
