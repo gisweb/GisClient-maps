@@ -287,7 +287,11 @@ var ConditionBuilder = {
             var len = $(elem[1]).find('table').length;
 
             for (var k = 0; k < len; k++) {
-                nestedexpressions[k] = this.getCondition($(elem[1]).find('table')[k]);
+                var tmpExpr = this.getCondition($(elem[1]).find('table')[k]);
+                if (tmpExpr.expressions.length == 0 && tmpExpr.nestedexpressions.length == 0) {
+                    continue;
+                }
+                nestedexpressions.push(tmpExpr);
             }
         }
         q.nestedexpressions = nestedexpressions;

@@ -104,9 +104,10 @@ window.GCComponents.Functions.gcLayerFilter.setPanel = function()  {
             else {
                 ConditionBuilder.setFeatureType(fType,filter);
             }
-            $('#SetLayerFilterTitle').html($('#SetLayerFilterTitle').text() + ' ' + fType.title);
+            $('#SetLayerFilterTitle').html('Filtra Layer ' + fType.title);
             $('#SetLayerFilterWindow').modal('show');
         }
+        $('#layerfilter_add_layer').val("__select__");
     });
 
     // **** Create filters list
