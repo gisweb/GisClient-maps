@@ -270,7 +270,6 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
             }
         },
         searchButtonHander: function(selectedFeatureType, mode) {
-            debugger;
             var mode = mode || 'default',
                 selectedFeatureType = selectedFeatureType || $('select.olControlQueryMapSelect').val(),
                 selectedFeatureTypeArr = selectedFeatureType.split(','),

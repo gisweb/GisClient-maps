@@ -374,16 +374,20 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //SE HO IL TITOLO DEL BASELAYER VUOTO AGGIUNGO IL TITOLO AL NODO DELL'ALBERO E SPSOSTO IL NODO IN ROOT
         //ALTRIMENTI ELIMINO IL NODO DALL'ALBERO (BASE VUOTA NASCOSTO)
         if(this.emptyTitle == '') {
-
+            this.baseLbl.innerHTML = '';
+            
             var chkEnableBaseLayers = document.createElement('input');
             chkEnableBaseLayers.type = 'checkbox';
             chkEnableBaseLayers.id = 'enableBaseLayers';
             chkEnableBaseLayers.onchange = function () {
                 self.toggleBaseLayerEnabled(self, this.checked);
             }
-
-            this.baseLbl.innerText = ' Usa sfondo cartografico';
             this.baseLbl.appendChild(chkEnableBaseLayers);
+
+            var chkEnableBaseLayersLbl = document.createElement('Label');
+            chkEnableBaseLayersLbl.setAttribute('for', 'enableBaseLayers');
+            chkEnableBaseLayersLbl.innerHTML = 'Usa sfondo cartografico';
+            this.baseLbl.appendChild(chkEnableBaseLayersLbl);
 
             this.baselayerData = this.baselayerData.slice(1);
         } else {

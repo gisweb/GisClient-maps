@@ -166,6 +166,11 @@
   height: inherit;
 }
 
+#layertree .baseLbl label{
+  margin-left: 5px;
+  font-weight: 100 !important;
+}
+
 #resultpanel {
   display: block;
   overflow-y: scroll;
