@@ -284,7 +284,7 @@ OpenLayers.Control.QueryMap = OpenLayers.Class(OpenLayers.Control.SLDSelect, {
 			var selection = {};
 			this.nquery=0;
 			this.nresponse=0;
-			for(var i=0, leni=this.layers.length; i<leni; i++) {
+			for(var i=this.layers.length-1; i>=0; i--) {
 				layer = this.layers[i];
 
                 if(!this.wfsCache[layer.id]) continue;
