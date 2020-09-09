@@ -27,6 +27,14 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
         saveState:true,
         rowsPerPage: 200,
         selectedCols: [],
+        loadingControl: {
+            maximizeControl: function() {
+                $('#LoadingReports').modal('show');
+            },
+            minimizeControl: function() {
+                $('#LoadingReports').modal('hide');
+            }
+        },
         filterButtonHander: function (event) {
             var reportToolbar = this.map.getControlsBy('gc_id', 'control-reports')[0];
 
@@ -225,7 +233,8 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                         cols = [], col, j,
                         results, result, value, title;
 
-                    table =  exportLinks + table;
+                    var reportContent = exportLinks + ' <div id="report-content"></div>';
+
                     self.selectedCols = [];
                     self.currentPage = 0;
                    // **** Insert ID column
@@ -248,7 +257,11 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
 
                     table += '</tbody></table>';
 
-                    $('#DetailsWindow div.modal-body').html(table);
+                    $('#DetailsWindow div.modal-body').css('overflow', 'visible');
+                    $('#DetailsWindow div.modal-body').html(reportContent);
+                    $('#report-content').css('height', $('#map').height()-120);
+                    $('#report-content').css('overflow', 'auto');
+                    $('#report-content').html(table);
                     $('#DetailsWindow h4.modal-title').html('Report ' + reportDef.title);
 
                     //document.getElementById("loading_reports").showModal();
@@ -274,12 +287,13 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                     });
 
                     self.evt = event;
-
-                    $("#DetailsWindow").scroll(function() {
+                    var thScroll = $("#reportTbl").find('thead th');
+                    $("#report-content").scroll(function() {
                         var me = self;
                         if (me.totalRows <= me.currentPage*me.rowsPerPage)
                             return;
-                        var docViewTop = $("#DetailsWindow").scrollTop();
+                        var docViewTop = $("#report-content").scrollTop();
+                        thScroll.css('transform', 'translateY('+docViewTop+'px)');
                         var rowMarker = $("#reportTbl tr").eq($("#reportTbl > tbody > tr").length - me.rowsPerPage/4);
                         if (rowMarker) {
                             var elemTop = rowMarker[0].offsetTop;
