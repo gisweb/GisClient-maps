@@ -55,7 +55,7 @@ header h1 a {
     float:left;
 }
 
-#mapset-question {
+#mapset-hints {
   margin-right: 15px;
   float: right;
   animation-name: blinker;
@@ -64,4 +64,7 @@ header h1 a {
   animation-iteration-count: infinite;
 }
 
-
+#mapset-help {
+  margin-right: 15px;
+  float: right;
+}

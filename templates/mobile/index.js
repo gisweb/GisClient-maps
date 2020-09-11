@@ -260,29 +260,30 @@ function initMap() {
 }
 
 $.when(configLoaded).then($(document).ready(function() {
-  GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
-    useMapproxy:true,
-    mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
-    baseUrl: GisClientBaseUrl,
-    rootPath: '../../',
-    mapOptions:{
-      controls:[
-        new OpenLayers.Control.Attribution(),
-        new OpenLayers.Control.LoadingPanel(),
-        new OpenLayers.Control.ScaleLine(),
-        new OpenLayers.Control.TouchNavigation({
-          dragPanOptions: {
-            enableKinetic: true
-          }
-        }),
-        new OpenLayers.Control.LayerTree({
-          gc_id: 'control-layertree',
-          emptyTitle:'',
-          div:OpenLayers.Util.getElement('layertree-tree')
-        }),
-        createLayerLegend()
-      ]
-    },
-    callback:initMap
-  });
+    displayHelp();
+    GisClientMap = new OpenLayers.GisClient(GisClientBaseUrl + 'services/gcmap.php' + window.location.search,'map',{
+        useMapproxy:true,
+        mapProxyBaseUrl:clientConfig.MAPPROXY_URL,
+        baseUrl: GisClientBaseUrl,
+        rootPath: '../../',
+        mapOptions:{
+            controls:[
+                new OpenLayers.Control.Attribution(),
+                new OpenLayers.Control.LoadingPanel(),
+                new OpenLayers.Control.ScaleLine(),
+                new OpenLayers.Control.TouchNavigation({
+                  dragPanOptions: {
+                    enableKinetic: true
+                  }
+                }),
+                new OpenLayers.Control.LayerTree({
+                  gc_id: 'control-layertree',
+                  emptyTitle:'',
+                  div:OpenLayers.Util.getElement('layertree-tree')
+                }),
+                createLayerLegend()
+            ]
+        },
+        callback:initMap
+    });
 }));

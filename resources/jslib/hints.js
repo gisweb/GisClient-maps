@@ -22,15 +22,15 @@ function generateHints() {
           setTimeout(function(){ closeHints(); }, 10000);
         }
       }
-      $("#mapset-question").css("display", "none");
+      $("#mapset-hints").css("display", "none");
 
   }).fail(function( jqxhr, settings, exception ) {
     window.alert("Inclusione componente HINTS :" + +exception);
-    $("#mapset-question").css("display", "none");
+    $("#mapset-hints").css("display", "none");
   });
 
-  $("#mapset-question").on("click", function() {
-    $('#mapset-question').css("display", "none");
+  $("#mapset-hints").on("click", function() {
+    $('#mapset-hints').css("display", "none");
     $("#hintsDiv").show();
   });
   $("#hintsButton").on("click", function() {
@@ -46,7 +46,7 @@ function checkBoxManagement(arg) {
 }
 
 function closeHints() {
- $('#mapset-question').css("display", "");
+ $('#mapset-hints').css("display", "");
  $("#hintsButton").css("display", "");
  $("#hintsDiv").hide();
 }
@@ -56,6 +56,6 @@ function checkHintCheckbox() {
   var numChk = $("#hintsDivContent > div > :checkbox:checked").length;
   if(num == numChk) {
     closeHints();
-    $('#mapset-question').css("display", "none");
+    $('#mapset-hints').css("display", "none");
   }
 }

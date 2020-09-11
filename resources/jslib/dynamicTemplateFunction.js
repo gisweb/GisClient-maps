@@ -109,6 +109,15 @@ function manageMapsets(){
   });
 }
 
+function displayHelp() {
+    if (clientConfig.hasOwnProperty('ONLINE_MANUAL_URL') && clientConfig.ONLINE_MANUAL_URL != null) {
+        $('#mapset-help').css("display", "");
+        $('#mapset-help').on("click", function() {
+          window.open(clientConfig.ONLINE_MANUAL_URL);
+        });
+    }
+}
+
 function createLayerLegend() {
   var layerLegend = new OpenLayers.Control.LayerLegend({
     div: OpenLayers.Util.getElement('layerlegend'),
