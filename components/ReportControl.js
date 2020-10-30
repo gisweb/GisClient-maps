@@ -249,7 +249,8 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                         if (event.orderBy == property.name + ' DESC')
                             table += '<span class="glyphicon glyphicon-chevron-down"></span>'
                         table += title + '</th>';
-                        self.selectedCols.push(property.name);
+                        var fFormat = typeof(property.fieldFormat) != 'undefined'?property.fieldFormat:null;
+                        self.selectedCols.push({name:property.name, type:property.fieldType, format:fFormat});
                     }
                     table += '</tr></thead><tbody>';
 
@@ -290,22 +291,29 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                     var thScroll = $("#reportTbl").find('thead th');
                     $("#report-content").scroll(function() {
                         var me = self;
-                        if (me.totalRows <= me.currentPage*me.rowsPerPage)
-                            return;
                         var docViewTop = $("#report-content").scrollTop();
                         thScroll.css('transform', 'translateY('+docViewTop+'px)');
+                        if (me.totalRows <= me.currentPage*me.rowsPerPage || me.totalRows <= me.rowsPerPage)
+                            return;
                         var rowMarker = $("#reportTbl tr").eq($("#reportTbl > tbody > tr").length - me.rowsPerPage/4);
                         if (rowMarker) {
-                            var elemTop = rowMarker[0].offsetTop;
-                            if (elemTop <= docViewTop && me.dataLoading == false){
-                                me.currentPage += 1;
-                                $('#LoadingReports').modal('show');
-                                me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter, self.evt.orderBy);
+                            if (rowMarker.length > 0) {
+                                var elemTop = rowMarker[0].offsetTop;
+                                if (elemTop <= docViewTop && me.dataLoading == false){
+                                    me.currentPage += 1;
+                                    $('#LoadingReports').modal('show');
+                                    me.getReportData(self.evt.reportID, self.currentPage, self.evt.filter, self.evt.orderBy);
+                                }
                             }
                         }
                     });
                 },
            'insertrows': function (data) {
+               if (!data.hasOwnProperty('length')) {
+                   $('#LoadingReports').modal('hide');
+                   $('#DetailsWindow').modal('hide');
+                   return;
+               }
                var row, col, value, rowHtml;
                var table = $("#reportTbl > tbody:last");
                for(i = 0; i < data.length; i++) {
@@ -313,8 +321,9 @@ window.GCComponents["Controls"].addControl('control-reports', function(map){
                    rowHtml = '<tr>';
                    rowHtml += '<td>'+ (this.currentPage*this.rowsPerPage + i + 1) + '</td>';
                    for(var j = 1; j < this.selectedCols.length; j++) {
-                        col = this.selectedCols[j];
-                        value = row[col] || '';
+                        col = this.selectedCols[j]['name'];
+                        value = this.writeDataAttribute(this.selectedCols[j]['type'], row[col], this.selectedCols[j]['format']);
+                        //value = row[col] || '';
 
                         rowHtml += '<td>'+value+'</td>';
                    }

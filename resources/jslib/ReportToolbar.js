@@ -220,10 +220,12 @@ OpenLayers.GisClient.reportToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                 var self = this;
 
                 if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
+                    self.events.triggerEvent('insertrows', null);
                     return alert('Errore di sistema');
                 }
 
                 if (!response.responseText) {
+                    self.events.triggerEvent('insertrows', null);
                     return alert('Nessun report disponibile, errore non previsto');
                 }
 
@@ -233,6 +235,7 @@ OpenLayers.GisClient.reportToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                     var errMessage = 'Errore in creazione del report richiesto';
                     if (responseObj.error)
                         errMessage += ' - Dettagli: ' + responseObj.error;
+                    self.events.triggerEvent('insertrows', null);
                     return alert (errMessage);
                 }
 
@@ -299,6 +302,30 @@ OpenLayers.GisClient.reportToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
             },
             scope: this
         });
+    },
+
+    writeDataAttribute: function(type,value,format){
+        if (format && typeof(value) != 'undefined') {
+            value = sprintf(format, value);
+        }
+        switch(type) {
+            case 2: //collegamento
+                if(value) {
+                    if (typeof(this.map.config.baseDocUrl) != 'undefined')
+                        value = this.map.config.baseDocUrl + '/' + value;
+                    value = '<a href="'+value+'" target="_blank" class="olControlButtonItemInactive olButton olLikeButton"><span class="glyphicon-white glyphicon-link"></span></a>';
+                }
+            break;
+            case 8: //immagine
+                if(value) {
+                    if (typeof(this.map.config.baseDocUrl) != 'undefined')
+                        value = this.map.config.baseDocUrl + '/' + value;
+                    value = '<a href="'+value+'" target="_blank"><img src="'+value+'" class="resultPanelImgPreview"/></a>';
+                }
+            break;
+        }
+        return value || '&nbsp;';
+
     },
 
     CLASS_NAME: "OpenLayers.GisClient.reportToolbar"

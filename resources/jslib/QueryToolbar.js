@@ -938,7 +938,7 @@ popup.autoSize = true;
                                             if(relation.relationType != 2)
                                                 continue;
                                             var featureObj = me.resultLayer.getFeatureById(featureId);
-                                            me.getFeatureDetails(featureType, featureObj, relation.relationName, relation.relationTitle);
+                                            me.getFeatureDetails(featureType, featureObj, relation.relationName, relation.relationTitle, true);
                                         };
                                     }
                                 }
@@ -1085,16 +1085,17 @@ popup.autoSize = true;
         link.addEventListener('click', function(event) {
             event.stopPropagation();
             var featureObj = me.resultLayer.getFeatureById(feature);
-            me.getFeatureDetails(featureType, featureObj, relationName);
+            me.getFeatureDetails(featureType, featureObj, relationName, relationTitle);
         });
         return link;
     },
 
-    getFeatureDetails: function(featureType, feature, relationName, relationTitle) {
+    getFeatureDetails: function(featureType, feature, relationName, relationTitle, testOnly) {
         var fType = GisClientMap.getFeatureType(featureType);
 
         if(!feature) return console.log('Feature undefined');
         if(!fType) return alert('Errore: il featureType '+featureType+' non esiste');
+        testOnly = typeof(testOnly) !== 'undefined' ? testOnly : false;
 
         var len = fType.properties.length, property, i,
             pkey;
@@ -1135,7 +1136,7 @@ popup.autoSize = true;
                 if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
                     return alert('Errore di sistema');
                 }
-                if (typeof(relationTitle) != 'undefined') {
+                if (testOnly) {
                     var panelElement = document.getElementById('actionpanel_' + featureType + '-' + feature.id);
                     panelElement.setAttribute('feature-col', 'Schede secondarie');
                     panelElement.classList.remove('actionpanel_hidden');
@@ -1155,10 +1156,11 @@ popup.autoSize = true;
                     }
                 }
                 else {
+                    debugger;
                     var eventData = {
                         featureType: featureType,
                         feature: feature,
-                        relation: {relationName: relationName},
+                        relation: {relationName: relationName, relationTitle:relationTitle},
                         response: response
                     };
 
