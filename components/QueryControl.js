@@ -438,7 +438,9 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                                 suggest: query.term,
                                 field_id: fieldId,
                                 filterfields: filterFields,
-                                filtervalue: filterValue
+                                filtervalue: filterValue,
+                                project: GisClientMap.projectName,
+                                mapset: GisClientMap.mapsetName
                             },
                             dataType: 'json',
                             success: function(data) {
