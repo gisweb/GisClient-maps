@@ -314,7 +314,8 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                     var tmpArr = properties.filter(function( obj ) {
                         return (obj.name == propertiesK[idx].name &&
                             obj.fieldType == propertiesK[idx].fieldType &&
-                            obj.dataType == propertiesK[idx].dataType);
+                            obj.dataType == propertiesK[idx].dataType &&
+                            obj.searchType == propertiesK[idx].searchType);
                     });
                     if (tmpArr.length > 0) {
                         if (propertiesK[idx].hasOwnProperty('fieldId')) {
