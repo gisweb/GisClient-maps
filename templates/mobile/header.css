@@ -68,3 +68,9 @@ header h1 a {
   margin-right: 15px;
   float: right;
 }
+
+#mapset-info {
+    float:left;
+    margin-left: 25px;
+    font-size: 14px;
+}

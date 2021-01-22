@@ -234,6 +234,7 @@ function initMap() {
   this.map.fractionalZoom = false;
   OpenLayers.Handler.Feature.prototype.clickTolerance = 20;
   document.title = this.mapsetTitle;
+  $('#mapset-info').html(this.mapsetDescription!=null?this.mapsetDescription:'');
   var serviceURL = this.baseUrl + "services/";
   var rootPath = '../../';
   sidebarPanel.init('#sidebar-panel');
