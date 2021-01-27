@@ -649,6 +649,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 }
                 if(oLayer.nodes[j].nodes){ //3 livelli su tema unico
                     leafNode.iconCls = "overlay";
+                    leafNode.state = "closed";
                     leafNode.children = [];
                     for (var k = 0; k < oLayer.nodes[j].nodes.length; k++) {
                         if(typeof(oLayer.nodes[j].nodes[k].hidden) != 'undefined' && oLayer.nodes[j].nodes[k].hidden !== 0) {
