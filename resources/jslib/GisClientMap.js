@@ -151,7 +151,8 @@ OpenLayers.GisClient = OpenLayers.Class({
             OpenLayers.Util.extend(this, responseJSON);
 
             //FIX Proj4js bug ??
-            Proj4js.defs["EPSG:3857"] = Proj4js.defs["GOOGLE"];
+            Proj4js.defs["EPSG:3857"] = "+title= Google Mercator " + Proj4js.defs["GOOGLE"];
+
             if(this.projdefs){
                 for (key in this.projdefs){
                     if(!Proj4js.defs[key]) Proj4js.defs[key] = this.projdefs[key];

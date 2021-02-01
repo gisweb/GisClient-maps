@@ -35,9 +35,14 @@ var capturer = new OpenLayers.GisClient.ChoordsCapturer();
 OpenLayers.GisClient.gotoDestinationPanel = OpenLayers.Class(OpenLayers.Control.Panel,{
   div: null,
   divOpts:null,
-  expectedChoords: clientConfig.GOTO_DEFAULT_EPSG,
+  expectedChoords: ["EPSG:3857", "EPSG:4326"],
   initialize: function(options) {
     OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
+    for (srid in GisClientMap.projdefs) {
+        if (this.expectedChoords.indexOf(srid) < 0) {
+            this.expectedChoords.push(srid);
+        }
+    }
     gotoCtrl = new OpenLayers.Control.Button({
         type: OpenLayers.Control.TYPE_BUTTON,
         iconclass:"glyphicon-white glyphicon-map-marker",
@@ -89,7 +94,7 @@ OpenLayers.GisClient.gotoDestinationPanel = OpenLayers.Class(OpenLayers.Control.
           //hideCursor();
           this.map.events.unregister("mousemove", this.map, displayPointer);
           this.map.events.unregister("mouseout", this.map, hidePointer);
-          //per fare quanto segue deve esserci un controller di default e soprattutto un currentControl già assegnato
+          //per fare quanto segue deve esserci un controller di default e soprattutto un currentControl giï¿½ assegnato
           if(this.map.defaultControl !== undefined && this.map.currentControl !== undefined && this.map.currentControl != this.map.defaultControl) {
             this.map.currentControl = this.map.defaultControl;
             this.map.currentControl.activate();
@@ -111,15 +116,21 @@ OpenLayers.GisClient.gotoDestinationPanel = OpenLayers.Class(OpenLayers.Control.
     //sposta SU DRAW
     var style = (this.active) ? "" : "style='display: none;'"
     var tempHtml = "<div class='gotoPanelLabel' "+style+">X (Longitudine)</div>"
-      + "<div class='gotoPanelElement' "+style+"><input type=\"text\" class=\"choordGoto\" id=\"longitudeInput\"></div>"
+      + "<div class='gotoPanelElement' "+style+"><input type=\"text\" class=\"choordGoto\" id=\"longitudeInput\"></div><div "+style+" class=\"gotoPanelSeparator\"></div>"
+      + "<div class='gotoPanelLabel' "+style+">Y (Latitudine)</div>"
+      + "<div class='gotoPanelElement' "+style+"><input type=\"text\" class=\"choordGoto\" id=\"latitudeInput\"></div><div "+style+" class=\"gotoPanelSeparator\"></div>"
+      + "<div class='gotoPanelLabel' "+style+">Sistema di riferimento:</div>"
       + "<div class='gotoPanelElement' "+style+"><select id=\"projectionGoto\">";
     if(this.expectedChoords.indexOf(this.map.projection) === -1) this.expectedChoords.push(this.map.projection);
     this.expectedChoords.forEach(function(item, index) {
-      tempHtml += "<option value='"+item+"'>"+item+"</option>";
+      var sridLabelArr =  Proj4js.defs[item].match(/^\+title=[ ]*([^+]*)/);
+      var sridLabel = item;
+      if (sridLabelArr != null) {
+          sridLabel = sridLabelArr[1].trim();
+      }
+      tempHtml += "<option value='"+item+"'>"+sridLabel+"</option>";
     });
     tempHtml += "</select></div><div "+style+" class=\"gotoPanelSeparator\"></div>"
-      + "<div class='gotoPanelLabel' "+style+">Y (Latitudine)</div>"
-      + "<div class='gotoPanelElement' "+style+"><input type=\"text\" class=\"choordGoto\" id=\"latitudeInput\"></div><div "+style+" class=\"gotoPanelSeparator\"></div>";
     mainDiv.innerHTML += tempHtml;
     OpenLayers.Control.Panel.prototype.draw.apply(this);
     this.events.triggerEvent("initialized", this);
