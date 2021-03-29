@@ -28,7 +28,7 @@ var clientConfig = {
  GOTO_DEFAULT_EPSG : ["EPSG:3857", "EPSG:4326", "EPSG:3003", "EPSG:25832", "EPSG:32632"],
  ONLINE_MANUAL_URL : null,
  CLIENT_COMPONENTS : ["StreetViewControl:1:alone", "LayerTreeButton:2:data", "QueryControl:1:data",
-                      "PrintControl:1:print", "ReferenceMapControl:2:print"]//,
+                      "PrintControl:1:print", "ReferenceMapControl:2:print"],
  //DEFAULT_CONTROL : "move"	,
  /*	**** Stile di evidenziazione custom
     **** Decommentare ed editare per abilitarlo
@@ -95,4 +95,5 @@ var clientConfig = {
         }
     }
 */
+    PLUGINS_CONFIG: {}
 };

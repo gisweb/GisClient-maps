@@ -157,6 +157,50 @@ function sortButtonsByPosition(a, b) {
 }
 
 createGCControls = function(innerMap) {
+    debugger;
+  for (var pluginName in clientConfig.PLUGINS_CONFIG) {
+      var includePluginConfig = true;
+      var pluginConfig = clientConfig.PLUGINS_CONFIG[pluginName];
+      // **** Check if mandatory layers (if any) are found in current map
+      if (pluginConfig.hasOwnProperty('pluginLayers')) {
+          for (var i=0; i<pluginConfig.pluginLayers.length; i++) {
+              var fType = GisClientMap.getFeatureType(pluginConfig.pluginLayers[i]);
+              if(!fType) {
+                  includePluginConfig = false;
+                  break;
+              }
+          }
+      }
+      if (includePluginConfig) {
+          // **** Add plugin DOM elements (if any)
+          if (pluginConfig.hasOwnProperty('pluginDOMElements')){
+              for (var j=0; j<pluginConfig.pluginDOMElements.length; j++) {
+                  var domConfig = pluginConfig.pluginDOMElements[j];
+                  var domElement = document.getElementById(domConfig.id);
+                  if (domElement === null) {
+                      var domParent =  document.getElementById(domConfig.parent);
+                      if (domParent === null) {
+                          continue;
+                      }
+                      domElement = document.createElement(domConfig.type);
+                      domElement.setAttribute('id', domConfig.id);
+                      for (var k=0; k<domConfig.class.length; k++) {
+                          domElement.classList.add(domConfig.class[k]);
+                      }
+                      domParent.insertBefore(domElement, domParent.firstChild);
+                  }
+              }
+          }
+          // **** Add plugin controls (if any)
+          if (pluginConfig.hasOwnProperty('pluginComponents')){
+              clientConfig.CLIENT_COMPONENTS = clientConfig.CLIENT_COMPONENTS.concat(pluginConfig.pluginComponents);
+          }
+           // **** Add plugin configuration keys (if any)
+          if (pluginConfig.hasOwnProperty('pluginClientConfig')){
+              OpenLayers.Util.extend(clientConfig, pluginConfig.pluginClientConfig);
+          }
+      }
+  }
   var arr = clientConfig.CLIENT_COMPONENTS;
   if(arr != undefined && arr.length > 0)
     includeComponents(arr);
