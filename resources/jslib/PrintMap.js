@@ -84,6 +84,8 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
 
     defaultTemplateHTML: null,
     defaultTemplatePDF: null,
+    templates: [],
+    template: null,
     defaultLayers: [],
     waitFor: undefined,//se il pannello viene caricato async, il tool aspetta il caricamento prima di far partire la richiesta per il box
 
@@ -113,13 +115,15 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
         params["scale"] = me.boxScale;
         params["map"] = me.map.config.mapsetName;
 
-        if (me.printFormat == 'HTML' && this.defaultTemplateHTML)
-            params['template'] = this.defaultTemplateHTML;
-        else if (me.printFormat == 'PDF' && this.defaultTemplatePDF)
-            params['template'] = this.defaultTemplatePDF;
-
-
-console.log(me.printBox)
+        if (this.template) {
+            params['template'] = this.template;
+        }
+        else {
+            if (me.printFormat == 'HTML' && this.defaultTemplateHTML)
+                params['template'] = this.defaultTemplateHTML;
+            else if (me.printFormat == 'PDF' && this.defaultTemplatePDF)
+                params['template'] = this.defaultTemplatePDF;
+        }
 
         var bounds = me.printBox.geometry.getBounds().clone();
         var center = bounds.getCenterLonLat();
@@ -200,6 +204,7 @@ console.log(me.printBox)
                     return alert(OpenLayers.i18n('System error'));
                 }
                 me.pages = response.pages;
+                me.templates = response.templates;
 
                 if (!me.eventListeners.deactivate)
                     me.events.register('deactivate', me, me.removePrintBox);

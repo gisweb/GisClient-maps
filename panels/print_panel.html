@@ -8,7 +8,24 @@
         <label for="print_panel_date">Data</label>
         <input type="date" name="date" class="form-control" id="print_panel_date">
     </div>
+
     <!-- fieldset proprietà di stampa -->
+    <div class="form-group">
+        <label for="print_panel_format">Formato</label>
+        <label class="radio-inline">
+            <input type="radio" name="format" value="HTML" checked> HTML
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="format" value="PDF"> PDF
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label for="print_panel_template">Template di stampa</label>
+        <select id="print_panel_template" name="print_template" class="form-control">
+        </select>
+    </div>
+
     <div class="form-group">
         <label for="print_panel_legend">Legenda</label>
         <label class="radio-inline">
@@ -16,16 +33,6 @@
         </label>
         <label class="radio-inline">
             <input type="radio" name="legend" value="no"> No
-        </label>
-    </div>
-
-    <div class="form-group">
-        <label for="print_panel_layout">Layout di stampa</label>
-        <label class="radio-inline">
-            <input type="radio" name="direction" value="vertical" checked> Verticale
-        </label>
-        <label class="radio-inline">
-            <input type="radio" name="direction" value="horizontal"> Orizzontale
         </label>
     </div>
 
@@ -39,12 +46,12 @@
     </div>
 
     <div class="form-group">
-        <label for="print_panel_format">Formato</label>
+        <label for="print_panel_layout">Layout di stampa</label>
         <label class="radio-inline">
-            <input type="radio" name="format" value="HTML" checked> HTML
+            <input type="radio" name="direction" value="vertical" checked> Verticale
         </label>
         <label class="radio-inline">
-            <input type="radio" name="format" value="PDF"> PDF
+            <input type="radio" name="direction" value="horizontal"> Orizzontale
         </label>
     </div>
 

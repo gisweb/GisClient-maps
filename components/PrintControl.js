@@ -23,6 +23,7 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
                     $('#print_panel_layout').controlgroup();
                     $('#print_panel_format').controlgroup();
                     $('#print_panel_scalemode').controlgroup();
+                    $('#print_panel_template').controlgroup();
                     $('#'+me.formId+' input[name="scale"]').textinput();
                 }
 
@@ -48,6 +49,34 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
                             $('#'+me.formId+' select[name="formato"]').append('<option value="' + page + '">' + page + '</option>');
                         }
                     });
+                }
+
+                if (me.templates) {
+                    var templatesCtrl = $('#'+me.formId+' select[name="print_template"]');
+                    templatesCtrl.children().remove().end();
+                    $.each(me.templates, function (templateName, templateObj) {
+                        if (templateObj.type.toUpperCase() == me.printFormat.toUpperCase()) {
+                            if (templateName == me.template) {
+                                templatesCtrl.append('<option selected value="' + templateName + '">' + templateObj.title + '</option>');
+                            }
+                            else if (templateObj.type.toUpperCase() == 'HTML' && templateName == me.defaultTemplateHTML) {
+                                templatesCtrl.append('<option selected value="' + templateName + '">' + templateObj.title + '</option>');
+                            }
+                            else if (templateObj.type.toUpperCase() == 'PDF' && templateName == me.defaultTemplatePDF) {
+                                templatesCtrl.append('<option selected value="' + templateName + '">' + templateObj.title + '</option>');
+                            }
+                            else {
+                                templatesCtrl.append('<option value="' + templateName + '">' + templateObj.title + '</option>');
+                            }
+                        }
+                    });
+                    me.template = templatesCtrl.val();
+                    if(me.templates[me.template].legend == 'no') {
+                        $('#'+me.formId+' input[name="legend"]').prop("disabled", true);
+                    }
+                    else {
+                        $('#'+me.formId+' input[name="legend"]').prop("disabled", false);
+                    }
                 }
 
                 $('#'+me.formId+' input[name="scale_mode"]').change(function() {
@@ -118,6 +147,16 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
                     me.printResolution = this.value;
                 });
 
+                $('#'+me.formId+' select[name="print_template"]').change(function() {
+                    me.template = this.value;
+                    if(me.templates[me.template].legend == 'no') {
+                        $('#'+me.formId+' input[name="legend"]').prop("disabled", true);
+                    }
+                    else {
+                        $('#'+me.formId+' input[name="legend"]').prop("disabled", false);
+                    }
+                });
+
                 $('#'+me.formId+' textarea[name="text"]').change(function() {
                     me.printText = this.value;
                 });
@@ -132,6 +171,33 @@ window.GCComponents["Controls"].addControl('control-printmap', function(map){
 
                 $('#'+me.formId+' input[name="format"]').change(function() {
                     me.printFormat = this.value;
+                    if (me.templates) {
+                        var templatesCtrl = $('#'+me.formId+' select[name="print_template"]');
+                        templatesCtrl.children().remove().end();
+                        $.each(me.templates, function (templateName, templateObj) {
+                            if (templateObj.type.toUpperCase() == me.printFormat.toUpperCase()) {
+                                if (templateName == me.template) {
+                                    templatesCtrl.append('<option selected value="' + templateName + '">' + templateObj.title + '</option>');
+                                }
+                                else if (templateObj.type.toUpperCase() == 'HTML' && templateName == me.defaultTemplateHTML) {
+                                    templatesCtrl.append('<option selected value="' + templateName + '">' + templateObj.title + '</option>');
+                                }
+                                else if (templateObj.type.toUpperCase() == 'PDF' && templateName == me.defaultTemplatePDF) {
+                                    templatesCtrl.append('<option selected value="' + templateName + '">' + templateObj.title + '</option>');
+                                }
+                                else {
+                                    templatesCtrl.append('<option value="' + templateName + '">' + templateObj.title + '</option>');
+                                }
+                            }
+                        });
+                        me.template = templatesCtrl.val();
+                        if(me.templates[me.template].legend == 'no') {
+                            $('#'+me.formId+' input[name="legend"]').prop("disabled", true);
+                        }
+                        else {
+                            $('#'+me.formId+' input[name="legend"]').prop("disabled", false);
+                        }
+                    }
                 });
 
                 $('#'+me.formId).on('click', 'a[role="html"],a[role="pdf"]', function(event) {
