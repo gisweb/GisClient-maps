@@ -434,6 +434,9 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
                     project: gcConfig.projectName,
                     map: gcConfig.mapsetName,
                 };
+                if (layer.type != null) {
+                    tile.externalType = layer.type;
+                }
             } else {
                 console.log(layer.name+' '+layer.CLASS_NAME+' non riconosciuto per stampa');
             }
