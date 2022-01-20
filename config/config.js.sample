@@ -27,6 +27,8 @@ var clientConfig = {
  HINTS_KEY  : "gisclient-maps",
  GOTO_DEFAULT_EPSG : ["EPSG:3857", "EPSG:4326", "EPSG:3003", "EPSG:25832", "EPSG:32632"],
  ONLINE_MANUAL_URL : null,
+ // **** Funzione per hash custom della password utente da inviare al servizio login di gisclient3 (default: md5)
+ PASSWORD_HASH_FUNCTION : null,
  CLIENT_COMPONENTS : ["StreetViewControl:1:alone", "LayerTreeButton:2:data", "QueryControl:1:data",
                       "PrintControl:1:print", "ReferenceMapControl:2:print"],
  //DEFAULT_CONTROL : "move"	,

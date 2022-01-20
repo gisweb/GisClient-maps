@@ -48,6 +48,8 @@ function manageLoginLogout() {
   if(!GisClientMap.logged_username) {
     $('#mapset-login').html("<a action='login' href='#'>Accedi</a>");
     $('#LoginWindow #LoginButton').on('click',function(e){
+      var passwd = $('#LoginWindow input[name="password"]').val();
+      passwd = typeof(clientConfig.PASSWORD_HASH_FUNCTION) !== 'function' ? md5(passwd) : clientConfig.PASSWORD_HASH_FUNCTION.call(this, passwd);
       e.preventDefault();
       $.ajax({
         url: GisClientBaseUrl + 'login.php',
@@ -55,7 +57,7 @@ function manageLoginLogout() {
         dataType: 'json',
         data: {
           username: $('#LoginWindow input[name="username"]').val(),
-          password: md5($('#LoginWindow input[name="password"]').val())
+          password: passwd
         },
         success: function(response) {
           if(response && typeof(response) == 'object' && response.result == 'ok')
