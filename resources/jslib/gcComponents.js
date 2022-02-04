@@ -157,7 +157,6 @@ function sortButtonsByPosition(a, b) {
 }
 
 createGCControls = function(innerMap) {
-    debugger;
   for (var pluginName in clientConfig.PLUGINS_CONFIG) {
       var includePluginConfig = true;
       var pluginConfig = clientConfig.PLUGINS_CONFIG[pluginName];

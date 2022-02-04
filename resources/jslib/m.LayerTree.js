@@ -507,7 +507,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
      },
 
     createOverlayTree: function(){
-
+console.log('start');
         var self = this;
         var checkParentsOnInit = [];
 
@@ -555,11 +555,17 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
         $(this.overlayTree).find('[type="checkbox"]').checkboxradio();
 
+        var checkedParents = [];
         for (var i_chk=0; i_chk < checkParentsOnInit.length; i_chk++) {
             var nodeCheck = this.overlayTree.collapsibletree("find", checkParentsOnInit[i_chk]);
-            this.checkParents(nodeCheck);
+            if (nodeCheck.parentID) {
+                if (checkedParents.indexOf(nodeCheck.parentID) < 0) {
+                    checkedParents.push(nodeCheck.parentID)
+                    this.checkParents(nodeCheck);
+                }
+            }
         }
-
+        console.log('end');
         jQuery('.layertree-chk').on("toggle", function(event, checked) {
 
             $('#' + event.target.id).prop( "checked", checked ).checkboxradio( "refresh" );
@@ -577,8 +583,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     $('#checkbox_' + node.children[i].id).trigger("toggle", [ checked ]);
                 }
             }
-
-            //self.checkParents(node);
 
             return false;
         }),
