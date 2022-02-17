@@ -171,7 +171,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                 for (var i = 0, len = this.mapProviders.length; i < len; i++) {
                     var self = this;
                     var extUrl = this.mapProviders[i];
-                    if(extUrl.indexOf('google')>0){
+                    if(extUrl.indexOf('google')>0 && clientConfig.OL_GOOGLE_CALLBACK !== false){
                         extUrl += "&callback=OpenLayers.GisClient.CallBack";
                         OpenLayers.GisClient.CallBack = self.createDelegate(self.initGCMap,self);
                         self.useGMaps=true;

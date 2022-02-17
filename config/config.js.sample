@@ -29,6 +29,7 @@ var clientConfig = {
  ONLINE_MANUAL_URL : null,
  // **** Funzione per hash custom della password utente da inviare al servizio login di gisclient3 (default: md5)
  PASSWORD_HASH_FUNCTION : null,
+ OL_GOOGLE_CALLBACK: true, // **** Disabilita Google API callbak/wrapping se settato a false - Necessario se il client non è compatibile con le Google Maps API 
  CLIENT_COMPONENTS : ["StreetViewControl:1:alone", "LayerTreeButton:2:data", "QueryControl:1:data",
                       "PrintControl:1:print", "ReferenceMapControl:2:print"],
  //DEFAULT_CONTROL : "move"	,
