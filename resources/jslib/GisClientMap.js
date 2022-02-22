@@ -171,7 +171,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                 for (var i = 0, len = this.mapProviders.length; i < len; i++) {
                     var self = this;
                     var extUrl = this.mapProviders[i];
-                    if(extUrl.indexOf('google')>0 && clientConfig.OL_GOOGLE_CALLBACK !== false){
+                    if(extUrl.indexOf('google')>0 && this.clientGMapCompatibility() !== false && clientConfig.OL_GOOGLE_CALLBACK !== false){
                         extUrl += "&callback=OpenLayers.GisClient.CallBack";
                         OpenLayers.GisClient.CallBack = self.createDelegate(self.initGCMap,self);
                         self.useGMaps=true;
@@ -476,6 +476,17 @@ OpenLayers.GisClient = OpenLayers.Class({
         }
 
         return fType;
+    },
+
+    clientGMapCompatibility: function() {
+        var ua = window.navigator.userAgent;
+        if (ua.indexOf("MSIE ") > 0 || ua.indexOf('Trident/') > 0)  // If Internet Explorer, return version number
+        {
+            clientConfig.OL_GOOGLE_CALLBACK = false;
+            return false;
+        }
+
+        return true;
     },
 
     CLASS_NAME: "OpenLayers.GisClient"
