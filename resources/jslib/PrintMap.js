@@ -388,8 +388,7 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
                 if(typeof(layer.params["LAYERS"])!='object')
                     layer.params["LAYERS"] = layer.params["LAYERS"].split(",");
                 tile = {
-                    // **** Workaround for curl https - TO BE REMOVED
-                    url: layerUrl.replace('https:', 'http:'),
+                    url: layerUrl,
                     type: 'WMS',
                     parameters: layer.params,
                     opacity: layer.opacity ? (layer.opacity * 100) : 100
