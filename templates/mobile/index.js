@@ -1,3 +1,6 @@
+// **** Disable context menu to avoid false touches to remain in Openlayers object (addPointerTouchListenerStart in handleBrowserEvent) ****
+document.getElementById('map').oncontextmenu = function() { return false; }
+
 var sidebarPanel = {
   closeTimeout: null,
   isOpened: false,
