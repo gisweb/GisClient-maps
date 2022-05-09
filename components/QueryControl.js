@@ -263,6 +263,7 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                 }
                 table += '</tbody></table>';
 
+                $('#DetailsWindow div.modal-body').css('overflow', 'auto');
                 $('#DetailsWindow div.modal-body').html(table);
                 var title = event.relation.relationTitle || event.relation.relationName;
                 $('#DetailsWindow h4.modal-title').html(title + ' di ' + fType.title);
