@@ -520,12 +520,14 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                 }
 
                 var oldQueryFilters = control.queryFilters[fType.typeName];
+                var oldQueryFiltersArr = [];
                 if (typeof(oldQueryFilters) != 'undefined') {
                     alert (oldQueryFilters);
                 }
                 control.queryFilters[fType.typeName] = filter;
                 for (var k = 0; k < selectedFeatureTypeArr.length; k++) {
                     var fTypeK = GisClientMap.getFeatureType(selectedFeatureTypeArr[k]);
+                    oldQueryFiltersArr[k] = control.queryFilters[fTypeK.typeName];
                     control.queryFilters[fTypeK.typeName] = filter;
                 }
                 //var oldHighlight = control.highLight;
@@ -534,6 +536,10 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                 control.select(geometry, mode);
 
                 control.queryFilters[fType.typeName] = oldQueryFilters;
+                for (var k = 0; k < selectedFeatureTypeArr.length; k++) {
+                    var fTypeK = GisClientMap.getFeatureType(selectedFeatureTypeArr[k]);
+                    control.queryFilters[fTypeK.typeName] = oldQueryFiltersArr[k];
+                }
                 if (mode == 'fast'){
                     control.layers = oldLayers;
                     control.queryFeatureType = oldQueryFeatureType;
