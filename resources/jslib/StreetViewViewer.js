@@ -93,6 +93,8 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
     }
   },
   initStreetView: function() {
+    streetviewService = null;
+    streetview = null;
     streetviewService = new google.maps.StreetViewService;
     streetview = new google.maps.StreetViewPanorama(this.div, {
       pov: {heading:0, pitch:10},
@@ -113,6 +115,7 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
     } else {
       var activated = OpenLayers.Control.prototype.activate.call(this);
       if(activated) {
+        this.initStreetView();
         markerLayer.setVisibility(true);
         pointerLayer.setVisibility(true);
         this.map.addControl(click);
@@ -181,6 +184,9 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
   },
   manageMarker: function() {
     var currLonLat = streetview.getPosition();
+    if (!currLonLat) {
+        return;
+    }
     var angle = streetview.getPov().heading;
     var lonLatPointer = new OpenLayers.LonLat(currLonLat.lng(),currLonLat.lat()).transform('EPSG:4326', projection);
     if(!this.map.getExtent().containsLonLat(lonLatPointer))
