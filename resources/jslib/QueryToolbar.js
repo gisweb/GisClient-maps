@@ -855,7 +855,13 @@ popup.autoSize = true;
             e.object.handlers.feature = {};
             e.object.handlers.feature.evt = e.object.handler.evt;
             me.writeDataPopup(e);
-            me.map.addPopup(me.popup);
+            // **** Workaround for extent change on addPopup after long sequeces of search features -> zoom to -> Point selection (Openlayers bug?) ****
+            var extBefore = me.map.getExtent();
+            me.map.addPopup(me.popup, true);
+            var extAfter = me.map.getExtent();
+            if (extBefore.toString() != extAfter.toString()) {
+                me.map.zoomToExtent(extBefore, true);
+            }
             loadingControl.minimizeControl();
             return;
         }
