@@ -229,6 +229,14 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 } else {
                     layers = [layer.params.LAYERS];
                 }
+                if (layers.length == 0) {
+                    var tileLayer = GisClientMap.map.getLayersByName(layer.name + '_tiles') && GisClientMap.map.getLayersByName(layer.name + '_tiles')[0];
+                    if (tileLayer) {
+                        if(tileLayer.getVisibility() && tileLayer.calculateInRange()) {
+                            layers = tileLayer.params.LAYERS.slice(0);
+                        }
+                    }
+                }
                 var len = layers.length, i, layerName;
 
                 for(i = len-1; i >=0; i--) {
@@ -359,6 +367,14 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 var mapsetTileLayer = true;
                 if(GisClientMap.default_layers.indexOf(layer.name) > -1) {
                     visible = true;
+                }
+            }
+            else {
+                var tileLayer = GisClientMap.map.getLayersByName(layer.name + '_tiles') && GisClientMap.map.getLayersByName(layer.name + '_tiles')[0];
+                if (tileLayer) {
+                    if(tileLayer.getVisibility() && tileLayer.calculateInRange()) {
+                        visible = true;
+                    }
                 }
             }
         }

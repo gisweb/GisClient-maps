@@ -247,11 +247,15 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
             //controllo qui se devo accendere i figli oppure il tile-layer mapproxy
             if(tileLayer && layers.length==childs.length){
-                layer.setVisibility(false);
+                tileLayer.mergeNewParams({layers:layers});
                 tileLayer.setVisibility(true);
+                layer.setVisibility(false);
             }
             else{
-                if(tileLayer) tileLayer.setVisibility(false);
+                if(tileLayer) {
+                    tileLayer.mergeNewParams({layers:[]});
+                    tileLayer.setVisibility(false);
+                }
                 if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
                 layer.setVisibility(layers.length > 0);
 

@@ -285,6 +285,14 @@ OpenLayers.GisClient.queryToolbar = OpenLayers.Class(OpenLayers.Control.Panel,{
                         if(layer.getVisibility() && layer.calculateInRange()) {
                             layers.push(layer);
                         }
+                        else {
+                            var tileLayer = this.map.getLayersByName(layer.name + '_tiles') && this.map.getLayersByName(layer.name + '_tiles')[0];
+                            if (tileLayer) {
+                                if(tileLayer.getVisibility() && tileLayer.calculateInRange()) {
+                                    layers.push(layer);
+                                }
+                            }
+                        }
                     }
                 }
                 //console.log(layer.id, this.wfsCache[layer.id], layer.getVisibility(), layer.calculateInRange());

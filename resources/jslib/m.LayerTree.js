@@ -252,32 +252,48 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(childs.length > 0){
             var layers = [];
             var childs_ext = [];
-            var tileLayer = layer.map.getLayersByName(layer.name + '_tiles') && layer.map.getLayersByName(layer.name + '_tiles')[0];
             jQuery.each(childs ,function(_,child){
                 self.updateNodeVisibility(child, layers, childs_ext);
             });
 
-            //controllo qui se devo accendere i figli oppure il tile-layer mapproxy
-            if(tileLayer && layers.length==childs.length){
-                layer.setVisibility(false);
+            if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
+            for (var i = 0, tot_l = childs_ext.length; i < tot_l; i++) {
+                childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
+            }
+        }
+    },
+
+    refreshLayer: function(layer, checked) {
+        var tileLayer = layer.map.getLayersByName(layer.name + '_tiles') && layer.map.getLayersByName(layer.name + '_tiles')[0];
+        var node = jQuery(this.overlayTree).collapsibletree('find',layer.id);
+        var childs = jQuery(this.overlayTree).collapsibletree('getChildren',node);
+        if(childs.length > 0) {
+            if (tileLayer) {
+                var tileLayerOn = true;
+                for (var i=0; i<childs.length; i++) {
+                    if (!childs[i].checked || $('label[for="checkbox_' + childs[i].id + '"]').hasClass("ui-checkbox-partial")) {
+                        tileLayerOn = false;
+                        break;
+                    }
+                }
+            }
+            if (tileLayerOn) {
+                tileLayer.mergeNewParams({layers:layer.params["LAYERS"]});
                 tileLayer.setVisibility(true);
+                layer.setVisibility(false);
             }
             else{
-                if(tileLayer) tileLayer.setVisibility(false);
-                if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
-                layer.setVisibility(layers.length > 0);
-
-                for (var i = 0, tot_l = childs_ext.length; i < tot_l; i++) {
-                    childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
+                if(tileLayer) {
+                    tileLayer.mergeNewParams({layers:[]});
+                    tileLayer.setVisibility(false);
                 }
+                layer.setVisibility(layer.params["LAYERS"].length > 0);
             }
         }
         else{
             layer.setVisibility(checked)
         }
-
     },
-
 
     checkLayerNodeState: function(layer){
         var self = this;
@@ -491,10 +507,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
              }
              if (childChecked == 0) {
                  $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
+                 nodeParent.checked = false;
                  $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
              }
              else if (childChecked == childNum) {
                  $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
+                 nodeParent.checked = true;
                  $('#checkbox_' + node.parentID).prop( "checked", true ).checkboxradio( "refresh" );
              }
              else {
@@ -606,6 +624,8 @@ console.log('start');
 
             var node = jQuery(self.overlayTree).collapsibletree("find", event.currentTarget.id);
             self.checkParents(node);
+            var layer = node.attributes.layer;
+            self.refreshLayer(layer, chkdValue);
             event.stopPropagation();
         });
 
@@ -628,6 +648,8 @@ console.log('start');
 
             var node = jQuery(self.overlayTree).collapsibletree("find", event.currentTarget.id);
             self.checkParents(node);
+            var layer = node.attributes.layer;
+            self.refreshLayer(layer, chkdValue);
             event.stopPropagation();
         });
 

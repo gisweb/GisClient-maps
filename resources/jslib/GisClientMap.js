@@ -337,7 +337,7 @@ OpenLayers.GisClient = OpenLayers.Class({
                           oLayer.mergeNewParams({layers:revLayers});
                         }
                         //tema singolo per ora non in uso
-                        //if(this.useMapproxy && cfgLayer.theme_single) this.addThemeLayer(oLayer);
+                        if(this.useMapproxy && cfgLayer.theme_tiles) this.addThemeLayer(oLayer);
                     }
                 break;
                 case 2:
@@ -404,7 +404,7 @@ OpenLayers.GisClient = OpenLayers.Class({
             "matrixSet": this.mapOptions.matrixSet,
             "requestEncoding": "REST",
             "maxExtent": this.mapOptions.tilesExtent,
-            "zoomOffset": this.mapOptions.minZoomLevel,
+            "zoomOffset": this.mapOptions.levelOffset,
             "transitionEffect": "resize",
             "displayInLayerSwitcher":false,
             "visibility":true,
