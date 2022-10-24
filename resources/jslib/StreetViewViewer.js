@@ -133,6 +133,8 @@ OpenLayers.GisClient.streetViewViewer = OpenLayers.Class(OpenLayers.Control.Pane
     } else {
       var deactivated = OpenLayers.Control.prototype.deactivate.call(this);
       if(deactivated) {
+        streetviewService = null;
+        streetview = null;
         markerLayer.setVisibility(false);
         pointerLayer.setVisibility(false);
         click.deactivate();
