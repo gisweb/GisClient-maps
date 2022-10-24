@@ -598,6 +598,9 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
     },
 
     sortNode: function(nodeA,nodeB){
+        if (!nodeA.hasOwnProperty('attributes') || !nodeB.hasOwnProperty('attributes')) {
+           return 0;
+       }
         var valueA, valueB;
         if (nodeA.attributes.order)
             valueA = nodeA.attributes.order;
