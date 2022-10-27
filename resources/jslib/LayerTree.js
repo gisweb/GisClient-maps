@@ -379,7 +379,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //ALTRIMENTI ELIMINO IL NODO DALL'ALBERO (BASE VUOTA NASCOSTO)
         if(this.emptyTitle == '') {
             this.baseLbl.innerHTML = '';
-            
+
             var chkEnableBaseLayers = document.createElement('input');
             chkEnableBaseLayers.type = 'checkbox';
             chkEnableBaseLayers.id = 'enableBaseLayers';
@@ -448,7 +448,18 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
 
     },
 
+    overlayTreeCheck: function(obj, node, checked){
+        if(node.attributes && node.attributes.layer){
+            layer = node.attributes.layer;
+            obj.updateLayerVisibility(layer, checked);
+        }
+        else{
+            jQuery.each(obj.overlayTree.tree('getChildren',(node.target)),function(index,childNode){
+                obj.overlayTreeCheck(obj, childNode, checked);
+            })
+        }
 
+    },
 
     createOverlayTree: function(){
 
@@ -485,27 +496,10 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
             },
 
             onCheck:function(node, checked){
-
-                if(node.attributes && node.attributes.layer){
-                    layer = node.attributes.layer;
-                    self.updateLayerVisibility(layer, checked);
-                }
-                else{
-                    jQuery.each(self.overlayTree.tree('getChildren',(node.target)),function(index,childNode){
-                        if (checked) {
-                            self.overlayTree.tree('check', childNode.target);
-                        }
-                        else {
-                            self.overlayTree.tree('uncheck', childNode.target);
-                        }
-                    })
-                }
-
+                self.overlayTreeCheck(self, node, checked);
             },
+
             onDblClick: function(node){
-
-
-
             },
 
             onClick: function(node){

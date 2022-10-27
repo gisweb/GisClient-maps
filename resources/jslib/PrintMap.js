@@ -363,6 +363,11 @@ OpenLayers.Control.PrintMap = OpenLayers.Class(OpenLayers.Control, {
         $.each(layers, function(key, layer) {
             if (!layer.getVisibility() && !mapsetTilesActive) return;
             //if (!layer.calculateInRange()) return;
+            var layerWMS = layer.map.getLayersByName(layer.name.replace(/_tiles$/,'')) && layer.map.getLayersByName(layer.name.replace(/_tiles$/,''))[0];
+            if (layerWMS && layer.name != layerWMS.name) {
+                layerWMS.params['LAYERS'] = layer.params['LAYERS'];
+                layer = layerWMS;
+            }
             var tile;
             var layerUrl = layer.url;
             if(layer.owsurl) layerUrl = layer.owsurl;
