@@ -232,10 +232,11 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         if(childs.length > 0){
             var layers = [];
             var childs_ext = [];
+            var id_check = layer.id;
             var tileLayer = layer.map.getLayersByName(layer.name + '_tiles') && layer.map.getLayersByName(layer.name + '_tiles')[0];
             jQuery.each(childs ,function(_,child){
                 if (child.attributes.layerParam){
-                    if(child.checked){
+                    if(child.checked && id_check == child.attributes.layer.id){
                         // **** Reverse layers order (Use tree order for layers overlap)
                         layers.unshift(child.attributes.layerParam);
                     }
@@ -260,7 +261,12 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                 layer.setVisibility(layers.length > 0);
 
                 for (var i = 0, tot_l = childs_ext.length; i < tot_l; i++) {
-                    childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
+                    if (childs_ext[i].attributes.layer.params.hasOwnProperty('LAYERS')) {
+                        this.updateLayerVisibility(childs_ext[i].attributes.layer, childs_ext[i].checked);
+                    }
+                    else {
+                        childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
+                    }
                 }
             }
         }

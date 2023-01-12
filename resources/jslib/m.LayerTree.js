@@ -250,13 +250,24 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         var childs = jQuery(this.overlayTree).collapsibletree('getChildren',node);
         var innerChilds = jQuery(this.overlayTree).collapsibletree('getChildren',node);
         if(childs.length > 0){
+            var id_check = layer.id;
             var layers = [];
             var childs_ext = [];
             jQuery.each(childs ,function(_,child){
-                self.updateNodeVisibility(child, layers, childs_ext);
+                if(id_check == child.attributes.layer.id){
+                    self.updateNodeVisibility(child, layers, childs_ext);
+                }
+                else {
+                    self.updateLayerVisibility(child.attributes.layer,checked);
+                }
             });
 
-            if(layer.params["LAYERS"] != layers && layers.length > 0) layer.mergeNewParams({layers:layers});
+            if(layer.params["LAYERS"] != layers && layers.length > 0) {
+                layer.mergeNewParams({layers:layers});
+            }
+            else if (layers.length == 0)  {
+                layer.mergeNewParams({layers:[]});
+            }
             for (var i = 0, tot_l = childs_ext.length; i < tot_l; i++) {
                 childs_ext[i].attributes.layer.setVisibility(childs_ext[i].checked);
             }
@@ -287,7 +298,7 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     tileLayer.mergeNewParams({layers:[]});
                     tileLayer.setVisibility(false);
                 }
-                layer.setVisibility(layer.params["LAYERS"].length > 0);
+                layer.setVisibility(layer.params["LAYERS"].length > 0 && checked);
             }
         }
         else{
@@ -495,8 +506,13 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
              var children = self.overlayTree.collapsibletree('getChildren',nodeParent);
              var childNum = children.length;
              var childChecked = 0;
+             var layerId = null;
+             if(nodeParent.attributes && nodeParent.attributes.layer){
+                var layer = node.attributes.layer;
+                layerId = layer.id;
+            }
              for (var j=0; j<childNum; j++) {
-                 if (children[j].checked && $('#checkbox_' + children[j].id).prop('checked')) {
+                 if ((children[j].checked || (!children[j].hasOwnProperty('checked'))) && $('#checkbox_' + children[j].id).prop('checked')) {
                      childChecked++;
                  }
                  else if ($('label[for="checkbox_' + children[j].id + '"]').hasClass("ui-checkbox-partial")) {
@@ -509,15 +525,27 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                  $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
                  nodeParent.checked = false;
                  $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
+                 if(layerId == nodeParent.id){
+                     self.updateLayerVisibility(layer, false);
+                     self.refreshLayer(layer, false);
+                 }
              }
              else if (childChecked == childNum) {
                  $('label[for="checkbox_' + node.parentID + '"]').removeClass("ui-checkbox-partial");
                  nodeParent.checked = true;
                  $('#checkbox_' + node.parentID).prop( "checked", true ).checkboxradio( "refresh" );
+                 if(layerId == nodeParent.id){
+                     self.updateLayerVisibility(layer, false);
+                     self.refreshLayer(layer, true);
+                 }
              }
              else {
                  $('#checkbox_' + node.parentID).prop( "checked", false ).checkboxradio( "refresh" );
                  $('label[for="checkbox_' + node.parentID + '"]').addClass("ui-checkbox-partial");
+                 if(layerId == nodeParent.id){
+                     self.updateLayerVisibility(layer, false);
+                     self.refreshLayer(layer, true);
+                 }
              }
 
              self.checkParents(nodeParent);
@@ -525,7 +553,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
      },
 
     createOverlayTree: function(){
-console.log('start');
         var self = this;
         var checkParentsOnInit = [];
 
@@ -583,7 +610,7 @@ console.log('start');
                 }
             }
         }
-        console.log('end');
+
         jQuery('.layertree-chk').on("toggle", function(event, checked) {
 
             $('#' + event.target.id).prop( "checked", checked ).checkboxradio( "refresh" );
@@ -591,15 +618,21 @@ console.log('start');
             var node = jQuery(self.overlayTree).collapsibletree("find", event.target.id.replace(/^checkbox_/, ''));
             node.checked = checked;
 
+            var layerId = null;
             if(node.attributes && node.attributes.layer){
                 var layer = node.attributes.layer;
-                self.updateLayerVisibility(layer, checked);
+                layerId = layer.id;
             }
 
             if (node.children) {
                 for (var i=0; i<node.children.length; i++) {
                     $('#checkbox_' + node.children[i].id).trigger("toggle", [ checked ]);
                 }
+            }
+
+            if(layerId == node.id){
+                self.updateLayerVisibility(layer, checked);
+                self.refreshLayer(layer, checked);
             }
 
             return false;
@@ -624,8 +657,8 @@ console.log('start');
 
             var node = jQuery(self.overlayTree).collapsibletree("find", event.currentTarget.id);
             self.checkParents(node);
-            var layer = node.attributes.layer;
-            self.refreshLayer(layer, chkdValue);
+            //var layer = node.attributes.layer;
+            //self.refreshLayer(layer, chkdValue);
             event.stopPropagation();
         });
 
@@ -648,8 +681,8 @@ console.log('start');
 
             var node = jQuery(self.overlayTree).collapsibletree("find", event.currentTarget.id);
             self.checkParents(node);
-            var layer = node.attributes.layer;
-            self.refreshLayer(layer, chkdValue);
+            //var layer = node.attributes.layer;
+            //self.refreshLayer(layer, chkdValue);
             event.stopPropagation();
         });
 
@@ -700,6 +733,9 @@ console.log('start');
     },
 
     sortNode: function(nodeA,nodeB){
+        if (!nodeA.hasOwnProperty('attributes') || !nodeB.hasOwnProperty('attributes')) {
+           return 0;
+       }
         var valueA, valueB;
         if (nodeA.attributes.order)
             valueA = nodeA.attributes.order;

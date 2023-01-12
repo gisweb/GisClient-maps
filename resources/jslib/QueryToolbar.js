@@ -1170,7 +1170,6 @@ popup.autoSize = true;
                     }
                 }
                 else {
-                    debugger;
                     var eventData = {
                         featureType: featureType,
                         feature: feature,
