@@ -4,7 +4,8 @@
 #map-sidebar {
         width: 57px;
         height: 100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     #map-overlay-panel {
@@ -71,7 +72,8 @@
     #map-sidebar {
         width: 56px;
         height: 100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 
@@ -139,7 +141,8 @@
     #map-sidebar {
         width: 55px;
         height: 100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 
@@ -207,7 +210,8 @@
     #map-sidebar {
         width: 54px;
         height: 100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 
@@ -275,7 +279,8 @@
     #map-sidebar {
         width: 53px;
         height: 100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 
@@ -343,7 +348,8 @@
     #map-sidebar {
         width: 52px;
         height: 100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 
