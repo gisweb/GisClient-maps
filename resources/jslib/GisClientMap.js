@@ -412,8 +412,20 @@ OpenLayers.GisClient = OpenLayers.Class({
             "isBaseLayer":oLayer.isBaseLayer
         };
         var ll = new OpenLayers.Layer.WMTS(layerParams);
-        var vis = oLayer.params['LAYERS'].length == oLayer.nodes.length;
+        var layersNum = 0;
+        jQuery.each(oLayer.nodes ,function(_,node){
+            if (node.nodes){
+                jQuery.each(node.nodes ,function(_,node){
+                    layersNum++;
+                });
+            }
+            else {
+                layersNum++;
+            }
+        });
+        var vis = oLayer.params['LAYERS'].length == layersNum;
         ll.setVisibility(vis);
+        oLayer.setVisibility(!vis);
         this.map.addLayer(ll);
     },
 
