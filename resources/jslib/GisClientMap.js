@@ -425,7 +425,9 @@ OpenLayers.GisClient = OpenLayers.Class({
         });
         var vis = oLayer.params['LAYERS'].length == layersNum;
         ll.setVisibility(vis);
-        oLayer.setVisibility(!vis);
+        if (vis) {
+            oLayer.setVisibility(!vis);
+        }
         this.map.addLayer(ll);
     },
 
