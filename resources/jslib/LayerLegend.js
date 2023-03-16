@@ -161,6 +161,21 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                             elementLayerGroupC.appendChild(node1);
                         }
                     }
+                    else {
+                        elementLayerGroup.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                            var toggleSpan = this.getElementsByTagName('span')[0];
+                            var toggleImg = this.getElementsByTagName('img')[0];
+                            if (toggleImg.style.display != 'none') {
+                                toggleImg.style.display = 'none';
+                                toggleSpan.setAttribute('icon-before', '\ue080');
+                            }
+                            else {
+                                toggleImg.style.display = 'inline';
+                                toggleSpan.setAttribute('icon-before', '\ue114');
+                            }
+                        });
+                    }
                 }
 
                 if (this.layerIsVisible(layer))
@@ -267,13 +282,16 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                 }
             break;
             case 'OpenLayers.Layer.WMTS':
+            case 'OpenLayers.Layer.TMS':
+                var layerName = layer.name;
                 if (layer.map.config.hasOwnProperty('legendCacheUrl')) {
                     var cacheUrl = layer.map.config.legendCacheUrl;
-                    cacheUrl += '/' + layer.params.PROJECT + '/';
+                    cacheUrl += '/' + layer.map.config.projectName + '/';
                     if (layer.params.hasOwnProperty('TMP')) {
                         cacheUrl += 'tmp.';
                     }
-                    cacheUrl += layer.params.MAP + '/' + layerName + '.png';
+                    cacheUrl += layer.map.config.mapsetName + '/' + layerName + '.png';
+                    debugger;
                     legendUrls.push({name:layerName,url:cacheUrl});
                 }
                 else if(layer.owsurl) {
