@@ -291,7 +291,6 @@ OpenLayers.Control.LayerLegend = OpenLayers.Class(OpenLayers.Control, {
                         cacheUrl += 'tmp.';
                     }
                     cacheUrl += layer.map.config.mapsetName + '/' + layerName + '.png';
-                    debugger;
                     legendUrls.push({name:layerName,url:cacheUrl});
                 }
                 else if(layer.owsurl) {
