@@ -129,17 +129,97 @@ function createSideToolbar(innerMap) {
     tbarpos:"last",
     iconclass:"glyphicon-white glyphicon-map-marker",
     title:"La mia posizione",
-    watch:false,
+    watch:true,
     bind:false,
+    type: OpenLayers.Control.TYPE_TOGGLE,
+    layerPosMarker: new OpenLayers.Layer.Vector("GeoLocateMarker"),
+    featurePosMarker: null,
     geolocationOptions: {
       enableHighAccuracy: true, // required to turn on gps requests!
       maximumAge: 3000,
       timeout: 50000
     },
+    gcSensorObj: null,
+    gcCompassHeading: function(e) {
+        var gcObj = GisClientMap.map.getControlsByClass('OpenLayers.Control.Geolocate')[0];
+        var orientation = Math.abs(e.alpha - 360);
+        switch (window.screen.orientation.type) {
+          case "landscape-primary":
+            alpha += 270;
+            break;
+          case "landscape-secondary":
+            alpha += 90;
+            break;
+          case "portrait-primary":
+            break;
+          case "portrait-secondary":
+            alpha += 180;
+            break;
+          default:
+        }
+        if (alpha > 360) alpha = alpha - 360;
+        gcObj.featurePosMarker.style.rotation = orientation;
+    },
+    gcCompassHeadingAbs: function(e) {
+        var gcObj = GisClientMap.map.getControlsByClass('OpenLayers.Control.Geolocate')[0];
+        var q = e.target.quaternion;
+        var alpha = Math.atan2(2*q[0]*q[1] + 2*q[2]*q[3], 1 - 2*q[1]*q[1] - 2*q[2]*q[2])*(180/Math.PI);
+        if(alpha < 0) alpha = 360+ alpha;
+        switch (window.screen.orientation.type) {
+          case "landscape-primary":
+            alpha += 270;
+            break;
+          case "landscape-secondary":
+            alpha += 90;
+            break;
+          case "portrait-primary":
+            break;
+          case "portrait-secondary":
+            alpha += 180;
+            break;
+          default:
+        }
+        if (alpha > 360) alpha = alpha - 360;
+        gcObj.featurePosMarker.style.rotation = 360 - alpha;
+    },
     eventListeners: {
       'activate': function(){
         var self=this;
         self.panel_div.innerHTML +='<span class="floating-message">Rilevamento posizione in corso</span>';
+        if (!self.featurePosMarker) {
+            innerMap.addLayer(self.layerPosMarker);
+            var markerStyle = {
+                externalGraphic: '../../resources/img/gps_arrow.png',
+                pointRadius: 26,
+                rotation: 0,
+                display: "",
+                graphicZIndex: 1
+            };
+            self.featurePosMarker = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0), null, markerStyle);
+            self.layerPosMarker.setVisibility(false);
+            self.layerPosMarker.addFeatures([self.featurePosMarker]);
+        }
+        try {
+            const options = { frequency: 30, referenceFrame: 'device' };
+            self.gcSensorObj = new AbsoluteOrientationSensor(options);
+            self.gcSensorObj.addEventListener('reading', self.gcCompassHeadingAbs);
+            self.gcSensorObj.start();
+        }
+        catch(e) {
+            window.addEventListener("deviceorientationabsolute", self.gcCompassHeading, true);
+        }
+
+      },
+      'deactivate': function(){
+          var self = this;
+          $('.floating-message').remove();
+          self.layerPosMarker.setVisibility(false);
+          if (self.gcSensorObj) {
+              self.gcSensorObj.stop();
+          }
+          else {
+              window.removeEventListener("deviceorientationabsolute", self.gcCompassHeading, true);
+          }
       }
     }
   });
@@ -159,7 +239,15 @@ function createSideToolbar(innerMap) {
     if(!innerMap.isValidLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' non valida');
     if(!innerMap.maxExtent.containsLonLat(lonLat)) return alert('Posizione '+lonLat.lon+' '+lonLat.lat+' fuori extent');
     innerMap.setCenter(lonLat);
-    innerMap.zoomToScale(1000, true);
+    if (innerMap.getScale() > 1000) {
+        innerMap.zoomToScale(1000, true);
+    }
+    event.object.featurePosMarker.move(lonLat);
+    //if (event.position.coords.heading && !Number.isNaN(event.position.coords.heading)) {
+        //event.object.featurePosMarker.style.rotation = event.position.coords.heading;
+    //}
+    event.object.layerPosMarker.setVisibility(true);
+    event.object.layerPosMarker.redraw();
   });
   sideBar.addControls([
     new OpenLayers.Control.ZoomBox({
