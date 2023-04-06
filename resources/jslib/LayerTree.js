@@ -655,6 +655,9 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
                     leafNode.attributes.featureTypes = fTypes;
                 }
                 if(oLayer.nodes[j].nodes){ //3 livelli su tema unico
+                    if (rootPath == oLayer.theme) {
+                        rootPath = null;
+                    }
                     leafNode.iconCls = "overlay";
                     leafNode.state = "closed";
                     leafNode.children = [];
