@@ -238,7 +238,7 @@ window.GCComponents["Controls"].addControl('control-querytoolbar', function(map)
                 for(i = 0; i < len; i++) {
                     property = fType.properties[i];
 
-                    if(!property.relationName || property.relationName != event.relation.relationName) continue;
+                    if(!property.relationName || property.relationName != event.relation.relationName || property.resultType==4) continue;
 
                     title = property.header || property.name;
                     table += '<th>'+title+'</th>';
