@@ -474,14 +474,6 @@ OpenLayers.Control.LayerTree = OpenLayers.Class(OpenLayers.Control.LayerSwitcher
         //clear out previous layers
         this.clearLayersArray("data");
 
-
-        //SE UN TEMA HA UN LIVELLO UNICO ALL'INTERNO USO IL TEMA UNICO COME ROOT (SPOSTO IN ROOT)
-        for (var i = 0; i < this.overlayData.length; i++) {
-            thNode = this.overlayData[i];
-            if(thNode.children.length == 1 && thNode.children[0].text == thNode.text) this.overlayData[i] = thNode.children[0];
-        };
-
-
         var uldataElem = document.createElement("ul");
         OpenLayers.Element.addClass(uldataElem, "easyui-tree");
         this.dataLayersDiv.appendChild(uldataElem);
