@@ -244,10 +244,12 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
         {id: 'default', label: 'Default', attributes:[]}
     ],
     noteDefaultType: 0,
+    noteAutoTypeAttrQuery: null,
     noteDefaultTitle: 'Nuova nota',
     savedState: false,
     loading: false,
     readonly: false,
+    saveReady: true,
     userSettings: {},
     undoRedoBuffer: [],
     undoRedoBufferSize: 20,
@@ -451,6 +453,50 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                         if (this.snapExtent != this.map.getExtent().toString()) {
                             this.ctrl.getSnapFeatures();
                         }
+                    }
+                }
+            }
+        );
+
+        this.noteAutoTypeAttrQuery = new OpenLayers.Control.QueryMap(
+            OpenLayers.Handler.RegularPolygon,
+            {
+                ctrl: this,
+                gc_id: 'control-geonote-type-auto-attr-query',
+                baseUrl: GisClientMap.baseUrl,
+                maxFeatures:100,
+                maxVectorFeatures: 100,
+                wfsCache: new Array(),
+                deactivateAfterSelect: false,
+                vectorFeaturesOverLimit: new Array(),
+                resultLayer:this.redlineLayer,
+                pendingReuests: 0,
+                eventListeners: {
+                    'activate': function(){
+                        this.pendingRequests++;
+                    },
+                    'endQueryMap': function(event) {
+                        var autoAttrValues = [];
+                        var autoLayers = event.object.queryFeatureType.split(',');
+                        var autoAttrs = event.object.autoAttrs;
+                        for (var i=0; i<event.layer.features.length; i++) {
+                            var feature = event.layer.features[i];
+                            var idx = autoLayers.indexOf(feature.type);
+                            if (!autoAttrValues.hasOwnProperty(idx)) {
+                                autoAttrValues[idx] = [];
+                            }
+                            if (feature.attributes.hasOwnProperty(autoAttrs[idx])){
+                                autoAttrValues[idx].push(feature.attributes[autoAttrs[idx]]);
+                            }                          
+                       }
+                       for (var j=0; j<autoLayers.length; j++) {
+                            if (Array.isArray(autoAttrValues[j])) {
+                                var attrInput = document.querySelector('[data-geonote-type-auto-attr="'+autoLayers[j]+':'+autoAttrs[j]+'"]');
+                                attrInput.value = autoAttrValues[j].join(' ');
+                            }                            
+                       }
+                       event.layer.removeAllFeatures(); 
+                       event.object.ctrl.saveReady = true;
                     }
                 }
             }
@@ -1379,7 +1425,10 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                 this.snapMapQuery.wfsCache[layer.id].featureTypes.push(this.map.config.featureTypes[i]);
             }
         };
-        this.map.addControls([this.snapMapQuery,this.snapCtrl]);
+
+        this.noteAutoTypeAttrQuery.wfsCache = this.snapMapQuery.wfsCache;
+
+        this.map.addControls([this.snapMapQuery,this.noteAutoTypeAttrQuery, this.snapCtrl]);
 
         var controlIDs = Object.keys(this.controlList);
         for (var k = 0; k < controlIDs.length; k++) {
@@ -2037,114 +2086,147 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
            noteType.text = noteTypeT.label;
 	       noteType.setAttribute('data-geonote-type_id', noteTypeT.id);
            if (self.ctrl.noteID && self.ctrl.noteList[self.ctrl.noteID].type == noteTypeT.id) {
-               noteType.selected = true;
-               var noteDlgDiv = document.getElementById('geonote_note_save_data');
-	           noteDlgDiv.innerHTML = '';
-               for (var j=0; j<noteTypeT.attributes.length; j++){
-                    noteDlgDiv.innerHTML += '<div class="geonote-popup-form-group">\
-                        <label for="geonote_note_attr_'+noteTypeT.attributes[j].name+'">'+noteTypeT.attributes[j].title+'</label>\
-                        <input type="text" class="form-control" id="geonote_note_attr_'+noteTypeT.attributes[j].name+'">\
+                var noteTypeAutoLayers =[];
+                var noteTypeAutoLayerAttrs =[];  
+                noteType.selected = true;
+                var noteDlgDiv = document.getElementById('geonote_note_save_data');
+                noteDlgDiv.innerHTML = '';
+                for (var j=0; j<noteTypeT.attributes.length; j++){
+                    var noteTypeAttr = noteTypeT.attributes[j];
+                    var htmlHidden = '';
+                    var htmlInputAuto = '';
+                    if (noteTypeAttr.hasOwnProperty('hidden') && noteTypeAttr.hidden == true){
+                        htmlHidden = ' style="display:none"';
+                    }
+                    if (noteTypeAttr.hasOwnProperty('layer') && noteTypeAttr.hasOwnProperty('attribute')){
+                        htmlInputAuto = ' readonly data-geonote-type-auto-attr="'+noteTypeAttr.layer+':'+noteTypeAttr.attribute+'"';
+                        noteTypeAutoLayers.push(noteTypeAttr.layer);
+                        noteTypeAutoLayerAttrs.push(noteTypeAttr.attribute);
+                    } 
+                    noteDlgDiv.innerHTML += '<div class="geonote-popup-form-group"'+htmlHidden+'>\
+                        <label for="geonote_note_attr_'+noteTypeAttr.name+'">'+noteTypeAttr.title+'</label>\
+                        <input type="text" class="form-control" id="geonote_note_attr_'+noteTypeAttr.name+'"'+htmlInputAuto+'>\
                     </div>'
-               }
-               for (var j=0; j<noteTypeT.attributes.length; j++){
-                    document.getElementById('geonote_note_attr_'+noteTypeT.attributes[j].name).value = self.ctrl.noteList[self.ctrl.noteID].attributes[noteTypeT.attributes[j].name];
-               }
+                }
+                for (var j=0; j<noteTypeT.attributes.length; j++){
+                        document.getElementById('geonote_note_attr_'+noteTypeT.attributes[j].name).value = self.ctrl.noteList[self.ctrl.noteID].attributes[noteTypeT.attributes[j].name];
+                }
+                self.ctrl.getTypeAutoAttr(noteTypeAutoLayers,noteTypeAutoLayerAttrs);
            }
            document.getElementById("geonote_note_type_list").add(noteType);
        }
        document.getElementById("geonote_note_name").value = self.ctrl.noteTitle;
 
        document.getElementById("geonote_note_type_list").addEventListener("change", function (evt) {
-           var noteTypeT = self.ctrl.noteTypeList[evt.target.value];
-           var noteDlgDiv = document.getElementById('geonote_note_save_data');
-	   noteDlgDiv.innerHTML = '';
-           for (var j=0; j<noteTypeT.attributes.length; j++){
-                noteDlgDiv.innerHTML += '<div class="geonote-popup-form-group">\
-                    <label for="geonote_note_attr_'+noteTypeT.attributes[j].name+'">'+noteTypeT.attributes[j].title+'</label>\
-                    <input type="text" class="form-control" id="geonote_note_attr_'+noteTypeT.attributes[j].name+'">\
-                </div>'
+            var noteTypeAutoLayers =[];
+            var noteTypeAutoLayerAttrs =[];  
+            var noteTypeT = self.ctrl.noteTypeList[evt.target.value];
+            var noteDlgDiv = document.getElementById('geonote_note_save_data');
+            noteDlgDiv.innerHTML = '';
+            for (var j=0; j<noteTypeT.attributes.length; j++){
+                var noteTypeAttr = noteTypeT.attributes[j];
+                    var htmlHidden = '';
+                    var htmlInputAuto = '';
+                    if (noteTypeAttr.hasOwnProperty('hidden') && noteTypeAttr.hidden == true){
+                        htmlHidden = ' style="display:none"';
+                    }
+                    if (noteTypeAttr.hasOwnProperty('layer') && noteTypeAttr.hasOwnProperty('attribute')){
+                        htmlInputAuto = ' readonly data-geonote-type-auto-attr="'+noteTypeAttr.layer+':'+noteTypeAttr.attribute+'"';
+                        noteTypeAutoLayers.push(noteTypeAttr.layer);
+                        noteTypeAutoLayerAttrs.push(noteTypeAttr.attribute);
+                    } 
+                    noteDlgDiv.innerHTML += '<div class="geonote-popup-form-group"'+htmlHidden+'>\
+                        <label for="geonote_note_attr_'+noteTypeAttr.name+'">'+noteTypeAttr.title+'</label>\
+                        <input type="text" class="form-control" id="geonote_note_attr_'+noteTypeAttr.name+'"'+htmlInputAuto+'>\
+                    </div>'
            }
+           self.ctrl.getTypeAutoAttr(noteTypeAutoLayers,noteTypeAutoLayerAttrs);
        });
        document.getElementById("geonote_save").addEventListener("click", function (evt) {
-           var noteTitle = document.getElementById("geonote_note_name").value;
-           var noteStatus = document.getElementById("geonote_note_status_list").value;
+            var intervalNoteSave = setInterval(function(ctrl){
+                if (self.ctrl.saveReady){
+                    clearInterval(intervalNoteSave); // Stop checking
+                    var noteTitle = document.getElementById("geonote_note_name").value;
+                    var noteStatus = document.getElementById("geonote_note_status_list").value;
 
-           var noteTypeT = self.ctrl.noteTypeList[document.getElementById("geonote_note_type_list").value];
-           var noteType = noteTypeT.id;
-           var noteTypeAttrs = {};
-           for (var j=0; j<noteTypeT.attributes.length; j++){
-               var attrValue = document.getElementById('geonote_note_attr_'+noteTypeT.attributes[j].name).value;
-               var attrRegEx = noteTypeT.attributes[j].regex;
-               if (attrRegEx && attrRegEx.length > 0) {
-                   var testRE = new RegExp(attrRegEx);
-                   if (!testRE.test(attrValue)) {
-                       return alert("Valore non valido per l'attributo della nota: "+noteTypeT.attributes[j].name);
-                   }
-               }
-               // TEST Valid value
-               noteTypeAttrs[noteTypeT.attributes[j].name] = attrValue;
-           }
-
-           var reqParams = self.ctrl.redlineLayer.protocol.params;
-
-
-            reqParams["TITLE"] = noteTitle;
-            reqParams["STATUS"] = noteStatus;
-            reqParams["TYPE"] = noteType;
-            reqParams["TYPE_ATTR"] = JSON.stringify(noteTypeAttrs);
-            reqParams["REQUEST"] = 'SaveLayer';
-            //self.ctrl.redlineLayer.protocol.params["SRS"] = self.ctrl.map.projection;
-            if (self.ctrl.noteID)
-                reqParams["REDLINEID"] = self.ctrl.noteID;
-            else
-                reqParams["REDLINEID"] = null;
-
-            var geojson_format = new OpenLayers.Format.GeoJSON();
-            var featuresSave = self.ctrl.checkFeatures(self.ctrl.redlineLayer.features);
-            reqParams.features = geojson_format.write(featuresSave);
-
-            self.map.currentControl.deactivate();
-            self.map.currentControl=self.map.defaultControl;
-
-            var request = OpenLayers.Request.POST({
-                url: self.ctrl.serviceURL,
-                data: OpenLayers.Util.getParameterString(reqParams),
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                callback: function(response) {
-                    var self = this;
-                    if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
-                        return alert('Errore di sistema');
+                    var noteTypeT = self.ctrl.noteTypeList[document.getElementById("geonote_note_type_list").value];
+                    var noteType = noteTypeT.id;
+                    var noteTypeAttrs = {};
+                    for (var j=0; j<noteTypeT.attributes.length; j++){
+                        var attrValue = document.getElementById('geonote_note_attr_'+noteTypeT.attributes[j].name).value;
+                        var attrRegEx = noteTypeT.attributes[j].regex;
+                        if (attrRegEx && attrRegEx.length > 0) {
+                            var testRE = new RegExp(attrRegEx);
+                            if (!testRE.test(attrValue)) {
+                                return alert("Valore non valido per l'attributo della nota: "+noteTypeT.attributes[j].name);
+                            }
+                        }
+                        // TEST Valid value
+                        noteTypeAttrs[noteTypeT.attributes[j].name] = attrValue;
                     }
 
-                    if (!response.responseText) {
-                            return alert('Errore di sistema, impossibile accedere alle note salvate');
-                    }
+                    var reqParams = self.ctrl.redlineLayer.protocol.params;
 
-                    var responseObj = JSON.parse(response.responseText);
+                    reqParams["TITLE"] = noteTitle;
+                    reqParams["STATUS"] = noteStatus;
+                    reqParams["TYPE"] = noteType;
+                    reqParams["TYPE_ATTR"] = JSON.stringify(noteTypeAttrs);
+                    reqParams["REQUEST"] = 'SaveLayer';
+                    //self.ctrl.redlineLayer.protocol.params["SRS"] = self.ctrl.map.projection;
+                    if (self.ctrl.noteID)
+                        reqParams["REDLINEID"] = self.ctrl.noteID;
+                    else
+                        reqParams["REDLINEID"] = null;
 
-                    if (responseObj.error) {
-                        alert('Errore in salvataggio nota:' + responseObj.error);
-                        this.savedState = false;
-                        return;
-                    }
+                    var geojson_format = new OpenLayers.Format.GeoJSON();
+                    var featuresSave = self.ctrl.checkFeatures(self.ctrl.redlineLayer.features);
+                    reqParams.features = geojson_format.write(featuresSave);
 
-                    this.noteTitle = responseObj.redlineTitle;
-                    this.noteID = responseObj.redlineId;
-                    if (!this.noteList.hasOwnProperty(responseObj.redlineId)){
-                        this.noteList[responseObj.redlineId] ={title: responseObj.redlineTitle};
-                    }
-                    this.noteList[responseObj.redlineId].status = this.noteStatusList[responseObj.redlineStatus].label;
-                    this.noteList[responseObj.redlineId].readonly = this.noteStatusList[responseObj.redlineStatus].readonly;
-                    this.redraw();
-                    this.savedState = true;
+                    self.map.currentControl.deactivate();
+                    self.map.currentControl=self.map.defaultControl;
 
-                    this.noteLoader(this.noteID);
-                },
-                scope: self.ctrl
-            });
+                    var request = OpenLayers.Request.POST({
+                        url: self.ctrl.serviceURL,
+                        data: OpenLayers.Util.getParameterString(reqParams),
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        callback: function(response) {
+                            var self = this;
+                            if(!response || typeof(response) != 'object' || !response.status || response.status != 200) {
+                                return alert('Errore di sistema');
+                            }
 
+                            if (!response.responseText) {
+                                    return alert('Errore di sistema, impossibile accedere alle note salvate');
+                            }
+
+                            var responseObj = JSON.parse(response.responseText);
+
+                            if (responseObj.error) {
+                                alert('Errore in salvataggio nota:' + responseObj.error);
+                                this.savedState = false;
+                                return;
+                            }
+
+                            this.noteTitle = responseObj.redlineTitle;
+                            this.noteID = responseObj.redlineId;
+                            if (!this.noteList.hasOwnProperty(responseObj.redlineId)){
+                                this.noteList[responseObj.redlineId] ={title: responseObj.redlineTitle};
+                            }
+                            this.noteList[responseObj.redlineId].status = this.noteStatusList[responseObj.redlineStatus].label;
+                            this.noteList[responseObj.redlineId].readonly = this.noteStatusList[responseObj.redlineStatus].readonly;
+                            this.redraw();
+                            this.savedState = true;
+
+                            this.noteLoader(this.noteID);
+                        },
+                        scope: self.ctrl
+                    });
+                } 
+      
+            }, 100, self.ctrl);
+                     
         }, false);
    },
 
@@ -2594,6 +2676,51 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
             scope: this
         });
     },
+
+    getTypeAutoAttr: function(fType, fAttr){
+        this.saveReady = false;
+        // **** Get main selection control
+        var selectControls = this.map.getControlsBy('gc_id', 'control-querytoolbar');
+        if (selectControls.length != 1){
+            this.saveReady = true;
+            return; 
+        } 
+        if (!selectControls[0].controls){
+            this.saveReady = true;
+            return; 
+        } 
+        if (this.redlineLayer.features.length == 0){
+            this.saveReady = true;
+            return; 
+        } 
+        var selectControl = selectControls[0];
+        if (!Array.isArray(fType)) fType= [fType];
+        if (!Array.isArray(fAttr)) fAttr= [fAttr];
+        var selectLayers =[]; 
+        for (var j=0; j<fType.length; j++) {
+            var tmpLayer = selectControl.getLayerFromFeature(fType[j]);
+            var idx;
+            for (idx = 0; idx < selectLayers.length; idx++)  {
+                if (selectLayers[idx].id === tmpLayer.id)
+                    break;
+            }
+            if (idx === selectLayers.length)
+                selectLayers.push(tmpLayer);
+        }
+
+        if (selectLayers.length == 0){
+            this.saveReady = true;
+            return; 
+        } 
+
+        this.noteAutoTypeAttrQuery.layers = selectLayers;
+        this.noteAutoTypeAttrQuery.queryFeatureType = fType.join(',');
+        this.noteAutoTypeAttrQuery.resultLayer = this.map.getLayersByName('wfsResults')[0];
+        this.noteAutoTypeAttrQuery.autoAttrs = fAttr;
+        this.noteAutoTypeAttrQuery.activate();
+        this.noteAutoTypeAttrQuery.select(this.redlineLayer.getDataExtent().toGeometry());
+        this.noteAutoTypeAttrQuery.deactivate();
+    }, 
 
     geonoteAlert: function(alertText){
         var popupBtnId = 'geonote_alert_button_' + Math.random().toString(36).substring(2, 8);
