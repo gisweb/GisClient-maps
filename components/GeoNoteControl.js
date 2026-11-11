@@ -7,6 +7,7 @@ window.GCComponents["Controls"].addControl('control-redline', function(map){
         div:document.getElementById("map-toolbar-redline"),
         autoActivate:false,
         saveState:true,
+        noteDefaultTitle: clientConfig.hasOwnProperty('GEONOTE_DEFAULT_TITLE')?clientConfig.GEONOTE_DEFAULT_TITLE:'Nuova nota',
         noteStatusList: clientConfig.GEONOTE_STATUS_LIST,
         noteTypeList: (clientConfig.GEONOTE_TYPE_LIST_MAP.hasOwnProperty(GisClientMap.mapsetName)?clientConfig.GEONOTE_TYPE_LIST_MAP[GisClientMap.mapsetName]:clientConfig.GEONOTE_TYPE_LIST),
         symbolFontFiles: (clientConfig.GEONOTE_SYMBOL_MAP.hasOwnProperty(GisClientMap.mapsetName)?clientConfig.GEONOTE_SYMBOL_MAP[GisClientMap.mapsetName]:[]),

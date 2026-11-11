@@ -1,4 +1,5 @@
 clientConfig.CLIENT_COMPONENTS.push("GeoNoteControl:1:tools");
+clientConfig.GEONOTE_DEFAULT_TITLE = 'Nuova nota';
 clientConfig.GEONOTE_COLOR = '#FF00FF';
 clientConfig.GEONOTE_COLOR_PALETTE = [];
 clientConfig.GEONOTE_SYMBOL_RES = 12;

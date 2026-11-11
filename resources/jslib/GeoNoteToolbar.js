@@ -1410,7 +1410,6 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
 
     draw:function(){
         // **** Load User an map preferences/configurations
-        this.loadUserConfig();
         this.loadSymbols();
 
         // **** Init vector layers
@@ -1473,7 +1472,7 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
             txtNoteHeader.className = 'spanHeader';
             txtNoteHeader.textContent = 'Titolo nota:';
             txtNoteTitle.className = 'spanTitle';
-            txtNoteTitle.textContent = this.noteTitle;
+            txtNoteTitle.textContent = (this.noteTitle && this.noteTitle.length >0)?this.noteTitle:String.fromCharCode(160);
             txtNoteHeaderM.className = 'spanHeader';
             txtNoteHeaderM.textContent = 'Mappa di riferimento:';
             txtNoteTitleM.className = 'spanTitle';
@@ -1716,10 +1715,12 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
         for (var i=0; i<this.redlineLayer.features.length; i++) {
             var ftObj = this.redlineLayer.features[i];
             if (ftObj.attributes.attach) {
-                var oldRes = ftObj.attributes.resolution;
-                var oldSize = ftObj.attributes.attachsize;
-                var oldXOff = ftObj.attributes.labelxoff;
-                var oldYOff = ftObj.attributes.labelyoff;
+                var oldRes = this.map.resolutions[clientConfig.GEONOTE_SYMBOL_RES];
+                var oldSize = clientConfig.GEONOTE_SYMBOL_SIZE;
+                var offPoint = new OpenLayers.Geometry.Point(ftObj.geometry.x,ftObj.geometry.y+(clientConfig.GEONOTE_SYMBOL_SIZE/2) + 8);
+                offPoint.rotate(-(ftObj.attributes.angle), ftObj.geometry);
+                var oldXOff = (offPoint.x - ftObj.geometry.x);
+                var oldYOff = (offPoint.y - ftObj.geometry.y);
                 var res = this.map.getResolution();
                 var newSize = oldSize*oldRes/res;
                 var newXOff = oldXOff*oldRes/res;
@@ -2147,6 +2148,9 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                 if (self.ctrl.saveReady){
                     clearInterval(intervalNoteSave); // Stop checking
                     var noteTitle = document.getElementById("geonote_note_name").value;
+                    if (!noteTitle || noteTitle.length == 0){
+                        return alert('Specificare un titolo per la nota da salvare');
+                    } 
                     var noteStatus = document.getElementById("geonote_note_status_list").value;
 
                     var noteTypeT = self.ctrl.noteTypeList[document.getElementById("geonote_note_type_list").value];
@@ -2532,8 +2536,9 @@ OpenLayers.GisClient.geoNoteToolbar = OpenLayers.Class(OpenLayers.Control.Panel,
                             return 0;
                         });
                         this.symbolArr = symbolArr;
+                        // **** Set favorites and other user configs
+                        this.loadUserConfig();
                     }
-                    // **** Set favorites
                 }
             });
         }
